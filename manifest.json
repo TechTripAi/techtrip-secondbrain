@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "description": "Single source of truth for claude-secondbrain. bin/precheck.sh audits the machine against this; every bin/setup-*.sh consults it. macOS MVP.",
+  "binaries": [
+    { "cmd": "brew",   "label": "Homebrew",  "install": "see https://brew.sh" },
+    { "cmd": "git",    "label": "git",       "install": "brew install git" },
+    { "cmd": "node",   "label": "Node.js",   "install": "brew install node" },
+    { "cmd": "uvx",    "label": "uv / uvx",  "install": "brew install uv" },
+    { "cmd": "yt-dlp", "label": "yt-dlp",    "install": "brew install yt-dlp" }
+  ],
+  "apps": [
+    { "name": "Obsidian", "cask": "obsidian", "check": "/Applications/Obsidian.app" }
+  ],
+  "claudePlugins": [
+    {
+      "id": "claude-obsidian",
+      "marketplace": "AgriciDaniel/claude-obsidian",
+      "slug": "claude-obsidian@agricidaniel-claude-obsidian",
+      "note": "Pulled from AgriciDaniel's marketplace at install time. Not vendored."
+    }
+  ],
+  "obsidianPlugins": [
+    { "id": "obsidian-local-rest-api", "repo": "coddingtonbear/obsidian-local-rest-api", "required": true,
+      "note": "Required for the Obsidian MCP server. Key generated locally in setup-mcp.sh." },
+    { "id": "obsidian-excalidraw-plugin", "repo": "zsviczian/obsidian-excalidraw-plugin",
+      "note": "~8MB main.js; pulled from release so the vault is self-contained." },
+    { "id": "dataview",           "repo": "blacksmithgu/obsidian-dataview" },
+    { "id": "templater-obsidian", "repo": "SilentVoid13/Templater" },
+    { "id": "calendar",           "repo": "liamcain/obsidian-calendar-plugin" },
+    { "id": "obsidian-banners",   "repo": "noatpad/obsidian-banners" },
+    { "id": "obsidian-memos",     "repo": "Quorafind/Obsidian-Memos" },
+    { "id": "list-to-table",      "repo": "coty-jackson/obsidian-list-to-table" }
+  ],
+  "mcpServers": [
+    {
+      "name": "obsidian",
+      "command": "uvx",
+      "args": ["mcp-obsidian"],
+      "scope": "user",
+      "env": {
+        "OBSIDIAN_HOST": "127.0.0.1",
+        "OBSIDIAN_PORT": "27124",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      },
+      "note": "OBSIDIAN_API_KEY is injected by setup-mcp.sh to match the Local REST API plugin key."
+    }
+  ],
+  "skills": [
+    { "id": "yt-fetch",          "runtime": ["yt-dlp"] },
+    { "id": "notebooklm-ingest", "runtime": ["uv"], "manual": "one-time `notebooklm login` (interactive OAuth)" }
+  ]
+}

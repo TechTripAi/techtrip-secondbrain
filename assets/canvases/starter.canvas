@@ -1,0 +1,11 @@
+{
+	"nodes":[
+		{"id":"welcome","type":"text","x":-260,"y":-160,"width":520,"height":150,"text":"# Your Second Brain\n\nThis is an empty starter canvas. Run `/wiki` in Claude Code to scaffold your knowledge base, then drop entities, concepts, and sources here as you grow it."},
+		{"id":"sources","type":"text","x":-260,"y":40,"width":250,"height":100,"text":"## Sources\nUse `/yt-fetch` and `/notebooklm-ingest` to pull raw material into `.raw/`."},
+		{"id":"wiki","type":"text","x":10,"y":40,"width":250,"height":100,"text":"## Wiki\n`/wiki-ingest` turns sources into linked notes under `wiki/`."}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"welcome","fromSide":"bottom","toNode":"sources","toSide":"top"},
+		{"id":"e2","fromNode":"welcome","fromSide":"bottom","toNode":"wiki","toSide":"top"}
+	]
+}

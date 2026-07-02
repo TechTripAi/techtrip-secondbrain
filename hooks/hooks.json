@@ -1,0 +1,3 @@
+{
+  "note": "claude-secondbrain is an installer/orchestrator; the vault runtime hooks (SessionStart hot-cache, PostToolUse git auto-commit, Stop, PostCompact) are provided by the claude-obsidian plugin this bootstraps. No hooks are defined here for the MVP. This file exists for structural parity and as a future extension point."
+}

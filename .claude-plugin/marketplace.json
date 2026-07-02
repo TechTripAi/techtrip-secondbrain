@@ -1,0 +1,27 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "techtripai-claude-secondbrain",
+  "owner": {
+    "name": "TechTripAi",
+    "url": "https://github.com/TechTripAi"
+  },
+  "metadata": {
+    "description": "claude-secondbrain: a one-command bootstrapper that stands up a generic, out-of-the-box LLM Wiki second brain (Obsidian + Claude Code + claude-obsidian) on a fresh Mac, then keeps it in sync across machines.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "claude-secondbrain",
+      "source": "./",
+      "description": "Bootstraps a generic LLM Wiki second brain: installs Obsidian + community plugins, pulls the claude-obsidian plugin from its own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch and notebooklm-ingest source skills, and configures git + optional Syncthing sync. macOS MVP. Interactive and idempotent.",
+      "version": "0.1.0",
+      "author": {
+        "name": "TechTripAi",
+        "url": "https://github.com/TechTripAi"
+      },
+      "homepage": "https://github.com/TechTripAi/claude-secondbrain",
+      "repository": "https://github.com/TechTripAi/claude-secondbrain",
+      "license": "MIT"
+    }
+  ]
+}
