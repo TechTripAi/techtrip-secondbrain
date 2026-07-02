@@ -1,0 +1,38 @@
+---
+description: Architecture and conventions for the techtrip-secondbrain Claude Code plugin
+alwaysApply: true
+---
+
+# techtrip-secondbrain
+
+Orchestrator/enhancement layer that bootstraps an LLM Wiki "second brain" on macOS.
+Installs [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (AgriciDaniel, MIT) at setup time — never vendors, copies, or modifies it.
+
+## Architecture
+
+- `manifest.json` — single source of truth. Edit what gets installed here, not in scripts.
+- `bin/*.sh` — idempotent steps in order: `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → doctor`
+- `scripts/common.sh` — sourced by every script; provides logging, `confirm()`, `run()`, dry-run, `manifest_get`, vault helpers.
+- `scripts/install-obsidian-plugin.sh` — downloads community plugin GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
+- `skills/` — `secondbrain`, `secondbrain-doctor`, `yt-fetch`, `notebooklm-ingest`.
+
+## Conventions
+
+- **Source `common.sh`** in every `bin/`/`scripts/` file. New scripts: `source .../scripts/common.sh` then `parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"`.
+- **Respect `--dry-run` / `--yes`**: mutations go through `run "<desc>" -- <cmd>` or are guarded by `[ "$TSB_DRY_RUN" = 1 ]`. Flags are exported to child scripts.
+- **Idempotent**: detect already-present state and skip. A second run must mutate nothing and report green.
+- **`TSB_` env-var prefix** — never reintroduce `CSB_`.
+- **JSON via `node`** — not `jq` or `sed`.
+- **`manifest_get`** newline-terminates list output for `while read` — preserve that.
+- **Never write into `~/.claude/plugins/cache/**`** — install via official CLI only.
+- **MCP is machine-global**: user scope in `~/.claude.json`, port 27124, one vault per machine.
+- **Auth probes hit `/vault/`** (authenticated), not `/` (public 200s with any key).
+- **Attribution**: credit AgriciDaniel with URL wherever his repo is referenced. Never ship his `WIKI.md`/`CLAUDE.md`/config.
+
+## Validate Changes
+
+```bash
+for f in bin/*.sh scripts/*.sh; do bash -n "$f"; done
+bash bin/precheck.sh
+bash bin/setup-vault.sh ~/llm-wiki-test --dry-run --yes
+```
