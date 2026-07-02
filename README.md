@@ -113,4 +113,8 @@ credited in [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## License
 
-MIT © 2026 Terry Trippany (Try AI Solutions). See [LICENSE](LICENSE).
+**FSL-1.1-MIT** (Functional Source License) © 2026 Terry Trippany (Try AI Solutions).
+See [LICENSE.md](LICENSE.md). Source-available with a Competing-Use restriction that
+**automatically converts to MIT two years after each release**. Internal use,
+non-commercial education/research, and professional services for licensees are
+permitted; reselling a substantially similar product is not (until the MIT conversion).
