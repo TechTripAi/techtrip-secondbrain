@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# claude-secondbrain — install the Obsidian desktop app (brew cask).
+# techtrip-secondbrain — install the Obsidian desktop app (brew cask).
 # Idempotent + interactive. Usage: bash bin/setup-obsidian.sh [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${CSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
 require_macos
 
 step "Obsidian desktop app"

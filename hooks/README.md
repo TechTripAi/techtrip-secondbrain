@@ -1,6 +1,6 @@
 # hooks
 
-`claude-secondbrain` is a **bootstrapper**, so it ships no runtime hooks of its own
+`techtrip-secondbrain` is a **bootstrapper**, so it ships no runtime hooks of its own
 in the MVP. The vault's live automation comes from the **`claude-obsidian`** plugin
 that this project installs:
 
@@ -10,5 +10,5 @@ that this project installs:
 - `PostCompact` — re-inject `wiki/hot.md` after compaction
 
 `hooks.json` here is intentionally empty (structural parity + future extension
-point). If `claude-secondbrain` later needs its own install-time hook, define it
+point). If `techtrip-secondbrain` later needs its own install-time hook, define it
 here.

@@ -1,4 +1,4 @@
-# claude-secondbrain is an installer/orchestrator repo (no vault lives here).
+# techtrip-secondbrain is an installer/orchestrator repo (no vault lives here).
 
 # System
 .DS_Store
@@ -31,4 +31,4 @@ secrets.y*ml
 auth.json
 
 # Cross-script state (written to ~/.config normally; ignore if it ever lands here)
-.csb-state
+.tsb-state

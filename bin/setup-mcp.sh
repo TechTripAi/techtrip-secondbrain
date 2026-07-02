@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-secondbrain — wire the Obsidian MCP server.
+# techtrip-secondbrain — wire the Obsidian MCP server.
 #   1. generate a Local REST API key (if the vault doesn't have one)
 #   2. write .obsidian/plugins/obsidian-local-rest-api/data.json with that key
 #      (the plugin regenerates its self-signed cert on first Obsidian launch)
@@ -9,7 +9,7 @@
 # Usage: bash bin/setup-mcp.sh [/path/to/vault] [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${CSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
 
 VAULT="$(default_vault_path "${1:-}")"
 RESTDIR="$VAULT/.obsidian/plugins/obsidian-local-rest-api"
@@ -25,7 +25,7 @@ if [ -f "$DATA" ] && node -e 'const d=require(process.argv[1]); process.exit(d.a
   ok "Reusing existing Local REST API key from data.json"
 else
   KEY="$(openssl rand -hex 32)"
-  if [ "$CSB_DRY_RUN" = "1" ]; then
+  if [ "$TSB_DRY_RUN" = "1" ]; then
     info "[dry-run] would generate key + write $DATA"
   else
     mkdir -p "$RESTDIR"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-secondbrain — set up vault sync.
+# techtrip-secondbrain — set up vault sync.
 #   Default: git (already auto-committed by claude-obsidian's PostToolUse hook) —
 #            just init the repo and optionally add a remote.
 #   Optional: Syncthing for real-time LAN sync, with a .stignore that keeps it from
@@ -8,7 +8,7 @@
 # Usage: bash bin/setup-sync.sh [/path/to/vault] [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${CSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
 require_macos
 
 VAULT="$(default_vault_path "${1:-}")"
@@ -44,10 +44,10 @@ if confirm "Set up Syncthing for real-time sync across your Macs?"; then
 
   STIGNORE="$VAULT/.stignore"
   if [ ! -f "$STIGNORE" ]; then
-    if [ "$CSB_DRY_RUN" = "1" ]; then info "[dry-run] would write $STIGNORE"
+    if [ "$TSB_DRY_RUN" = "1" ]; then info "[dry-run] would write $STIGNORE"
     else
       cat > "$STIGNORE" <<'EOF'
-// claude-secondbrain: keep Syncthing and git from fighting.
+// techtrip-secondbrain: keep Syncthing and git from fighting.
 .git
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json

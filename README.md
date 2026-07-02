@@ -1,4 +1,4 @@
-# claude-secondbrain
+# techtrip-secondbrain
 
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
 fresh Mac.** It installs Obsidian and the community plugins, pulls the
@@ -7,7 +7,7 @@ own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships t
 `yt-fetch` and `notebooklm-ingest` source skills, and sets up git + optional
 Syncthing sync — all interactive and idempotent.
 
-> `claude-secondbrain` is an **orchestrator**, not a fork. It does not copy
+> `techtrip-secondbrain` is an **orchestrator**, not a fork. It does not copy
 > `claude-obsidian`; it installs it from its own marketplace at setup time and fills
 > the OS-level / sync gaps that plugin leaves to you. The MVP produces a **generic
 > empty scaffold** — no personal content — that you grow yourself.
@@ -24,8 +24,8 @@ Syncthing sync — all interactive and idempotent.
 Install it like any Claude Code plugin:
 
 ```
-claude plugin marketplace add TechTripAi/claude-secondbrain
-claude plugin install claude-secondbrain@techtripai-claude-secondbrain
+claude plugin marketplace add TechTripAi/techtrip-secondbrain
+claude plugin install techtrip-secondbrain@techtrip-secondbrain
 ```
 
 Then, in Claude Code:
@@ -56,8 +56,8 @@ what gets audited and installed.
 ### Run manually (without the skill)
 
 ```bash
-git clone https://github.com/TechTripAi/claude-secondbrain
-cd claude-secondbrain
+git clone https://github.com/TechTripAi/techtrip-secondbrain
+cd techtrip-secondbrain
 bash bin/precheck.sh                       # see what's missing
 bash bin/setup-deps.sh
 bash bin/setup-obsidian.sh

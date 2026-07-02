@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "Single source of truth for claude-secondbrain. bin/precheck.sh audits the machine against this; every bin/setup-*.sh consults it. macOS MVP.",
+  "description": "Single source of truth for techtrip-secondbrain. bin/precheck.sh audits the machine against this; every bin/setup-*.sh consults it. macOS MVP.",
   "binaries": [
     { "cmd": "brew",   "label": "Homebrew",  "install": "see https://brew.sh" },
     { "cmd": "git",    "label": "git",       "install": "brew install git" },

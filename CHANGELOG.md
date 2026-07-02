@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `claude-secondbrain` are documented here.
+All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [0.1.0] — unreleased

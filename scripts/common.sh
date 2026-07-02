@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# claude-secondbrain — shared helpers sourced by every bin/ and scripts/ file.
+# techtrip-secondbrain — shared helpers sourced by every bin/ and scripts/ file.
 # Not meant to be executed directly.
 
 # ── Strictness (callers may already set these; harmless to repeat) ────────────
 set -o pipefail
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-# REPO_ROOT = the claude-secondbrain checkout (one level up from scripts/).
+# REPO_ROOT = the techtrip-secondbrain checkout (one level up from scripts/).
 COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$COMMON_DIR/.." && pwd)"
 export MANIFEST="${MANIFEST:-$REPO_ROOT/manifest.json}"
@@ -15,18 +15,18 @@ export MANIFEST="${MANIFEST:-$REPO_ROOT/manifest.json}"
 # Exported so child scripts (e.g. install-obsidian-plugin.sh spawned by
 # setup-vault.sh) inherit dry-run / assume-yes. `export` persists across the
 # later assignments in parse_common_flags.
-export CSB_DRY_RUN="${CSB_DRY_RUN:-0}"      # 1 = print actions, mutate nothing
-export CSB_ASSUME_YES="${CSB_ASSUME_YES:-0}" # 1 = auto-confirm every prompt
+export TSB_DRY_RUN="${TSB_DRY_RUN:-0}"      # 1 = print actions, mutate nothing
+export TSB_ASSUME_YES="${TSB_ASSUME_YES:-0}" # 1 = auto-confirm every prompt
 
 # Parse --dry-run / --yes / -y out of "$@"; leaves other args untouched via
-# the CSB_ARGS array. Usage: parse_common_flags "$@"; set -- "${CSB_ARGS[@]}"
+# the TSB_ARGS array. Usage: parse_common_flags "$@"; set -- "${TSB_ARGS[@]}"
 parse_common_flags() {
-  CSB_ARGS=()
+  TSB_ARGS=()
   while [ "$#" -gt 0 ]; do
     case "$1" in
-      --dry-run) CSB_DRY_RUN=1 ;;
-      --yes|-y)  CSB_ASSUME_YES=1 ;;
-      *)         CSB_ARGS+=("$1") ;;
+      --dry-run) TSB_DRY_RUN=1 ;;
+      --yes|-y)  TSB_ASSUME_YES=1 ;;
+      *)         TSB_ARGS+=("$1") ;;
     esac
     shift
   done
@@ -49,21 +49,21 @@ die()  { err "$*"; exit 1; }
 
 # ── Guards ───────────────────────────────────────────────────────────────────
 require_macos() {
-  [ "$(uname -s)" = "Darwin" ] || die "claude-secondbrain MVP supports macOS only (found $(uname -s))."
+  [ "$(uname -s)" = "Darwin" ] || die "techtrip-secondbrain MVP supports macOS only (found $(uname -s))."
 }
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 # ── Cross-script state: remember the chosen vault path ───────────────────────
-CSB_STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/claude-secondbrain"
-CSB_VAULT_FILE="$CSB_STATE_DIR/vault-path"
+TSB_STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/techtrip-secondbrain"
+TSB_VAULT_FILE="$TSB_STATE_DIR/vault-path"
 
 save_vault_path() {
-  [ "$CSB_DRY_RUN" = "1" ] && return 0
-  mkdir -p "$CSB_STATE_DIR"; printf '%s\n' "$1" > "$CSB_VAULT_FILE"
+  [ "$TSB_DRY_RUN" = "1" ] && return 0
+  mkdir -p "$TSB_STATE_DIR"; printf '%s\n' "$1" > "$TSB_VAULT_FILE"
 }
 # Echoes the last saved vault path (empty if none).
-load_vault_path() { [ -f "$CSB_VAULT_FILE" ] && cat "$CSB_VAULT_FILE" || true; }
+load_vault_path() { [ -f "$TSB_VAULT_FILE" ] && cat "$TSB_VAULT_FILE" || true; }
 
 # Resolve a vault path from: $1 (explicit) → saved state → default ~/LLM-Wiki.
 default_vault_path() {
@@ -86,7 +86,7 @@ find_claude_obsidian_setup() {
 run() {
   local desc="$1"; shift
   [ "$1" = "--" ] && shift
-  if [ "$CSB_DRY_RUN" = "1" ]; then
+  if [ "$TSB_DRY_RUN" = "1" ]; then
     printf '%s  [dry-run]%s %s\n' "$_C_YEL" "$_C_RESET" "$desc"
     printf '%s            $ %s%s\n' "$_C_DIM" "$*" "$_C_RESET"
     return 0
@@ -100,7 +100,7 @@ run() {
 # Returns 0 (yes) / 1 (no). Auto-yes under --yes; auto-yes-preview under --dry-run.
 confirm() {
   local prompt="$1"
-  if [ "$CSB_ASSUME_YES" = "1" ] || [ "$CSB_DRY_RUN" = "1" ]; then
+  if [ "$TSB_ASSUME_YES" = "1" ] || [ "$TSB_DRY_RUN" = "1" ]; then
     printf '%s  ?%s %s %s[auto-yes]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$_C_RESET"
     return 0
   fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-secondbrain — post-install health check for a scaffolded vault.
+# techtrip-secondbrain — post-install health check for a scaffolded vault.
 # Report-only; always exits 0. Usage: bash bin/doctor.sh [/path/to/vault]
 set -uo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
@@ -8,7 +8,7 @@ VAULT="$(default_vault_path "${1:-}")"
 OKM="${_C_GRN}ok${_C_RESET}"; BADM="${_C_YEL}check${_C_RESET}"
 row() { printf '   %-40s %s\n' "$1" "$2"; }
 
-step "claude-secondbrain doctor"
+step "techtrip-secondbrain doctor"
 info "Vault: $VAULT"
 
 # Vault scaffold

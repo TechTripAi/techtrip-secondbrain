@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# claude-secondbrain — install the claude-obsidian plugin from ITS OWN marketplace.
+# techtrip-secondbrain — install the claude-obsidian plugin from ITS OWN marketplace.
 # We do not vendor AgriciDaniel's work; we pull it at install time.
 # Idempotent + interactive. Usage: bash bin/setup-claude-obsidian.sh [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${CSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
 
 step "claude-obsidian plugin (pulled from AgriciDaniel's marketplace)"
 have_cmd claude || die "Claude Code CLI not found. Install Claude Code first (prerequisite)."

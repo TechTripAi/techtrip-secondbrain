@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-secondbrain — precheck (report-only).
+# techtrip-secondbrain — precheck (report-only).
 # Audits this machine against manifest.json and prints PRESENT / MISSING for every
 # binary, app, Claude plugin, and MCP server. Mutates nothing; always exits 0.
 #
@@ -13,7 +13,7 @@ missing=0
 
 row() { printf '   %-28s %s\n' "$1" "$2"; }
 
-step "claude-secondbrain precheck"
+step "techtrip-secondbrain precheck"
 info "Manifest: $MANIFEST"
 if [ "$(uname -s)" = "Darwin" ]; then ok "macOS ($(sw_vers -productVersion 2>/dev/null || echo '?'))"
 else warn "Non-macOS host ($(uname -s)) — MVP targets macOS; installers may not work."; fi

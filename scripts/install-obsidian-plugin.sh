@@ -18,7 +18,7 @@ CP_JSON="$VAULT/.obsidian/community-plugins.json"
 
 enable_in_community_plugins() {
   # Ensure PLUGIN_ID is present in .obsidian/community-plugins.json (a JSON array).
-  if [ "$CSB_DRY_RUN" = "1" ]; then
+  if [ "$TSB_DRY_RUN" = "1" ]; then
     printf '%s  [dry-run]%s enable %s in community-plugins.json\n' "$_C_YEL" "$_C_RESET" "$PLUGIN_ID"
     return 0
   fi
@@ -50,7 +50,7 @@ for asset in manifest.json main.js; do
     curl -fsSL "$base/$asset" -o "$PLUGIN_DIR/$asset" \
     || die "failed to download $asset for $PLUGIN_ID from $REPO ($TAG)"
 done
-if [ "$CSB_DRY_RUN" != "1" ]; then
+if [ "$TSB_DRY_RUN" != "1" ]; then
   curl -fsSL "$base/styles.css" -o "$PLUGIN_DIR/styles.css" 2>/dev/null \
     && ok "$PLUGIN_ID/styles.css" || info "$PLUGIN_ID has no styles.css (fine)"
 fi

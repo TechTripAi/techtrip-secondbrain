@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-secondbrain — scaffold a generic LLM Wiki vault.
+# techtrip-secondbrain — scaffold a generic LLM Wiki vault.
 #   1. resolve/create the vault dir
 #   2. run claude-obsidian's own bin/setup-vault.sh (if the plugin is installed)
 #   3. install + enable the community plugins from manifest.json
@@ -9,7 +9,7 @@
 set -euo pipefail
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)"
 source "$SCRIPTS_DIR/common.sh"
-parse_common_flags "$@"; set -- "${CSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
 require_macos
 
 VAULT="$(default_vault_path "${1:-}")"
