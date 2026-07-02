@@ -113,4 +113,4 @@ credited in [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## License
 
-MIT © TechTripAi
+MIT © 2026 Terry Trippany (Try AI Solutions). See [LICENSE](LICENSE).
