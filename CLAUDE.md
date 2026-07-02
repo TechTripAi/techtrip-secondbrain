@@ -84,4 +84,4 @@ multi-vault-per-machine.
 
 - License: **FSL-1.1-MIT** (`LICENSE.md`) — source-available, converts to MIT 2 years
   after each release. Copyright 2026 Terry Trippany (Try AI Solutions).
-- Owner/repo: `TechTripAi/techtrip-secondbrain`. Commit/push only when the user asks.
+- Owner/repo: `TechTripAi/techtrip-secondbrain`.
