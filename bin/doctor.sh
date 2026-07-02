@@ -49,8 +49,15 @@ fi
 # claude-obsidian plugin + skills
 step "Claude Code"
 if have_cmd claude; then
-  claude plugin list 2>/dev/null | grep -q claude-obsidian \
-    && row "claude-obsidian plugin" "$OKM" || row "claude-obsidian plugin" "$BADM  → bin/setup-claude-obsidian.sh"
+  if claude plugin list 2>/dev/null | grep -q claude-obsidian; then
+    cov="$(claude_obsidian_installed_version 2>/dev/null || true)"
+    tested="$(manifest_get 'm.claudePlugins[0].testedVersion')"
+    if [ -n "$cov" ] && [ -n "$tested" ] && [ "$cov" != "$tested" ]; then
+      row "claude-obsidian plugin" "$BADM  v$cov ≠ tested v$tested (AgriciDaniel; version drift)"
+    else
+      row "claude-obsidian plugin" "$OKM${cov:+ v$cov} (by AgriciDaniel)"
+    fi
+  else row "claude-obsidian plugin" "$BADM  → bin/setup-claude-obsidian.sh"; fi
   claude mcp list 2>/dev/null | grep -q obsidian \
     && row "obsidian MCP server" "$OKM" || row "obsidian MCP server" "$BADM  → bin/setup-mcp.sh"
 else

@@ -14,9 +14,14 @@
   "claudePlugins": [
     {
       "id": "claude-obsidian",
+      "author": "AgriciDaniel",
+      "authorUrl": "https://github.com/AgriciDaniel",
+      "homepage": "https://github.com/AgriciDaniel/claude-obsidian",
       "marketplace": "AgriciDaniel/claude-obsidian",
       "slug": "claude-obsidian@agricidaniel-claude-obsidian",
-      "note": "Pulled from AgriciDaniel's marketplace at install time. Not vendored."
+      "license": "MIT",
+      "testedVersion": "1.9.2",
+      "note": "By AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Pulled from his marketplace at install time — NOT vendored or forked. The CLI can't pin versions, so testedVersion is advisory: setup-claude-obsidian.sh warns if the installed version differs from the one this project was tested against."
     }
   ],
   "obsidianPlugins": [

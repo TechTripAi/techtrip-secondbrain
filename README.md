@@ -2,15 +2,19 @@
 
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
 fresh Mac.** It installs Obsidian and the community plugins, pulls the
-[`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) plugin from its
-own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the
-`yt-fetch` and `notebooklm-ingest` source skills, and sets up git + optional
-Syncthing sync — all interactive and idempotent.
+[**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
+[**AgriciDaniel**](https://github.com/AgriciDaniel) — from its own marketplace,
+scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
+`notebooklm-ingest` source skills, and sets up git + optional Syncthing sync — all
+interactive and idempotent.
 
-> `techtrip-secondbrain` is an **orchestrator**, not a fork. It does not copy
-> `claude-obsidian`; it installs it from its own marketplace at setup time and fills
-> the OS-level / sync gaps that plugin leaves to you. The MVP produces a **generic
-> empty scaffold** — no personal content — that you grow yourself.
+> `techtrip-secondbrain` is an **orchestrator / enhancement layer, not a fork**. The
+> entire LLM Wiki runtime is [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)
+> by [AgriciDaniel](https://github.com/AgriciDaniel) (MIT) — this project installs it
+> from his marketplace at setup time and only fills the OS-level / sync gaps that
+> plugin leaves to you. Nothing of his is copied here. Full credit to AgriciDaniel;
+> see [ATTRIBUTION.md](ATTRIBUTION.md). The MVP produces a **generic empty scaffold**
+> — no personal content — that you grow yourself.
 
 ## Requirements
 
@@ -97,8 +101,15 @@ Windows/Linux; cloning personal content (`wiki/`, `.raw/`, Pocket); `pocket-sync
 
 ## Credits
 
-Bootstraps and depends on [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)
-by AgriciDaniel (MIT), which is installed from its own marketplace, not vendored here.
+The LLM Wiki runtime this project bootstraps is **[`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)**,
+created by **[AgriciDaniel](https://github.com/AgriciDaniel)** (MIT). It is installed
+from his own Claude Code marketplace at setup time — **not vendored or forked here** —
+so you always receive his upstream updates. Full credit for the second-brain wiki
+system goes to AgriciDaniel. Community plugins and the Karpathy LLM-Wiki pattern are
+credited in [ATTRIBUTION.md](ATTRIBUTION.md).
+
+- Author: <https://github.com/AgriciDaniel>
+- Repository: <https://github.com/AgriciDaniel/claude-obsidian>
 
 ## License
 

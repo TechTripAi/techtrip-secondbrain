@@ -81,6 +81,14 @@ find_claude_obsidian_setup() {
   [ -n "$hit" ] && printf '%s' "$hit" || return 1
 }
 
+# Echo the installed claude-obsidian version (the version dir under the plugin cache).
+# claude-obsidian is by AgriciDaniel: https://github.com/AgriciDaniel/claude-obsidian
+claude_obsidian_installed_version() {
+  local dir
+  dir="$(ls -1d "$HOME"/.claude/plugins/cache/*/claude-obsidian/*/ 2>/dev/null | sort -V | tail -1)"
+  [ -n "$dir" ] && basename "$dir" || return 1
+}
+
 # ── Action wrapper: honors --dry-run, prints intent ──────────────────────────
 # Usage: run <human description> -- <command...>
 run() {

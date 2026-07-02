@@ -22,7 +22,8 @@ run "Create vault directory" -- mkdir -p "$VAULT/.obsidian"
 save_vault_path "$VAULT"
 
 # ── 1. Delegate base scaffold to claude-obsidian's own setup-vault.sh ─────────
-step "Base scaffold (claude-obsidian)"
+# claude-obsidian is by AgriciDaniel (MIT): https://github.com/AgriciDaniel/claude-obsidian
+step "Base scaffold (claude-obsidian, by AgriciDaniel)"
 if co_setup="$(find_claude_obsidian_setup)"; then
   info "Using $co_setup"
   run "Running claude-obsidian setup-vault.sh" -- bash "$co_setup" "$VAULT"
