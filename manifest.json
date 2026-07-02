@@ -29,7 +29,7 @@
     { "id": "calendar",           "repo": "liamcain/obsidian-calendar-plugin" },
     { "id": "obsidian-banners",   "repo": "noatpad/obsidian-banners" },
     { "id": "obsidian-memos",     "repo": "Quorafind/Obsidian-Memos" },
-    { "id": "list-to-table",      "repo": "coty-jackson/obsidian-list-to-table" }
+    { "id": "list-to-table",      "repo": "kepano/list-to-table" }
   ],
   "mcpServers": [
     {

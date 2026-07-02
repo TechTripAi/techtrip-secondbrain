@@ -61,10 +61,12 @@ fi
 step "Live REST API probe (optional)"
 if [ -f "$DATA" ]; then
   KEY="$(node -e 'try{process.stdout.write(require(process.argv[1]).apiKey||"")}catch(e){}' "$DATA" 2>/dev/null)"
-  if [ -n "$KEY" ] && curl -fsk -m 3 -H "Authorization: Bearer $KEY" https://127.0.0.1:27124/ >/dev/null 2>&1; then
-    row "https://127.0.0.1:27124" "$OKM (Obsidian + REST API live)"
+  # Probe an AUTHENTICATED endpoint (/vault/) — the root / is unauthenticated and
+  # 200s with any/no key, so it can't validate the handshake.
+  if [ -n "$KEY" ] && curl -fsk -m 3 -H "Authorization: Bearer $KEY" https://127.0.0.1:27124/vault/ >/dev/null 2>&1; then
+    row "https://127.0.0.1:27124/vault/" "$OKM (authenticated — key valid)"
   else
-    row "https://127.0.0.1:27124" "$BADM  (open the vault in Obsidian + enable Local REST API)"
+    row "https://127.0.0.1:27124/vault/" "$BADM  (no auth: Obsidian closed, plugin off, or key mismatch)"
   fi
 fi
 

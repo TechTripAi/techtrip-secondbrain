@@ -54,7 +54,11 @@ if you need detail; summarize it for the user rather than dumping it.
    is open with the Local REST API plugin enabled, and needs a Claude reload.
 7. **Sync** — `bash bin/setup-sync.sh <path>` (git by default, optional Syncthing).
    See `references/sync.md`.
-8. **Verify** — `bash bin/doctor.sh <path>` and report the health table.
+8. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill: run
+   `bash bin/doctor.sh <path>`, and if any MCP row is red, `bash bin/repair-mcp.sh
+   <path>`. Report the health table. (The `obsidian` MCP will read red until Obsidian
+   is open with the Local REST API plugin enabled and Claude has been reloaded — say
+   so rather than treating it as a failure.)
 
 Once the path is chosen in step 5, the scripts remember it (state file), so later
 steps can be run without re-passing it — but passing it explicitly is always fine.
