@@ -1,20 +1,40 @@
 # techtrip-secondbrain
-
+<p align="center">
+  <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
+</p>
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
-fresh Mac.** It installs Obsidian and the community plugins, pulls the
+fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
 [**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
 [**AgriciDaniel**](https://github.com/AgriciDaniel) — from its own marketplace,
 scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
 `notebooklm-ingest` source skills, and sets up git + optional Syncthing sync — all
 interactive and idempotent.
 
-> `techtrip-secondbrain` is an **orchestrator / enhancement layer, not a fork**. The
-> entire LLM Wiki runtime is [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)
-> by [AgriciDaniel](https://github.com/AgriciDaniel) (MIT) — this project installs it
-> from his marketplace at setup time and only fills the OS-level / sync gaps that
-> plugin leaves to you. Nothing of his is copied here. Full credit to AgriciDaniel;
-> see [ATTRIBUTION.md](ATTRIBUTION.md). The MVP produces a **generic empty scaffold**
-> — no personal content — that you grow yourself.
+> **Orchestrator, not a fork.** It installs the
+> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
+> ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) from his marketplace at setup
+> time and fills only the OS-level and sync gaps that plugin leaves to you — nothing of
+> his is copied here. The MVP produces a **generic empty scaffold** (no personal
+> content) that you grow yourself. Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
+
+## What it adds
+
+`claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
+`techtrip-secondbrain` closes that gap:
+
+- **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
+  dependency (`uv`, `yt-dlp`, `node`) via Homebrew, all idempotent.
+- **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
+  MCP server so Claude can read and write the vault out of the box — no hand-editing
+  `~/.claude.json`.
+- **Source-ingestion skills** — ships `yt-fetch` (YouTube) and `notebooklm-ingest`
+  (NotebookLM) as first-class skills for pulling material into the vault.
+- **Cross-machine sync** — git remote by default, with optional Syncthing and a safe
+  `.stignore` so real-time sync and git auto-commit don't fight.
+- **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
+  `secondbrain-doctor` skill diagnoses and repairs the common "MCP registered globally
+  but won't connect" failure.
+- **One command** — `/secondbrain` drives the whole interactive setup end to end.
 
 ## Requirements
 
@@ -101,15 +121,9 @@ Windows/Linux; cloning personal content (`wiki/`, `.raw/`, Pocket); `pocket-sync
 
 ## Credits
 
-The LLM Wiki runtime this project bootstraps is **[`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)**,
-created by **[AgriciDaniel](https://github.com/AgriciDaniel)** (MIT). It is installed
-from his own Claude Code marketplace at setup time — **not vendored or forked here** —
-so you always receive his upstream updates. Full credit for the second-brain wiki
-system goes to AgriciDaniel. Community plugins and the Karpathy LLM-Wiki pattern are
-credited in [ATTRIBUTION.md](ATTRIBUTION.md).
-
-- Author: <https://github.com/AgriciDaniel>
-- Repository: <https://github.com/AgriciDaniel/claude-obsidian>
+Wiki runtime: **[`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian)**
+by **[AgriciDaniel](https://github.com/AgriciDaniel)** (MIT). Community plugins and the
+Karpathy LLM-Wiki pattern are credited in [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## License
 
