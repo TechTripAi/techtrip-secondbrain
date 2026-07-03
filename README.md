@@ -55,7 +55,7 @@ installs Obsidian plus a curated set of community plugins, then wires the REST A
 **human-facing surface** (you read, browse, and edit notes there) while `claude-obsidian`
 is the LLM that maintains them behind the scenes.
 
-## What it adds
+## How TechTrip-SecondBrain Makes Life Easy
 
 `claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
 `techtrip-secondbrain` closes that gap:
