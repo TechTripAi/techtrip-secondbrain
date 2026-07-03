@@ -19,6 +19,24 @@ interactive and idempotent.
 > his is copied here. The MVP produces a **generic empty scaffold** (no personal
 > content) that you grow yourself. Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
 
+## What is a "second brain"?
+
+The pattern comes from Andrej Karpathy's [**LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
+instead of dumping documents into a store and re-searching the raw pile on every
+question, an LLM **incrementally maintains a persistent wiki** — a compounding artifact
+of your own knowledge. Three layers: **raw sources** you curate, the **wiki** of
+LLM-written, cross-linked markdown pages, and a **schema** that governs how it's
+organized. You *ingest* a source (the model reads it and updates a handful of pages),
+*query* it (the model synthesizes an answer and files anything worth keeping back into
+the wiki), and *lint* it (health-checks for contradictions, staleness, and orphans).
+
+Karpathy's insight is why this only works now: knowledge bases have always failed
+because "the maintenance burden grows faster than the value" — humans abandon them out
+of tedium. An LLM doesn't. It does the bookkeeping so the knowledge compounds instead of
+being re-derived each time; you curate sources and direct the analysis. `claude-obsidian`
+implements this pattern in Obsidian, and `techtrip-secondbrain` stands the whole thing
+up for you. *(See Karpathy's gist for the original write-up.)*
+
 ## What it adds
 
 `claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
@@ -109,11 +127,28 @@ These can't be automated:
 
 ## Sync model
 
-Git is the backbone — the `claude-obsidian` plugin auto-commits on every write. Add a
-remote to back up / move between machines. For real-time multi-Mac sync, opt into
-**Syncthing** during `setup-sync.sh`; it writes a `.stignore` that keeps Syncthing and
-git from fighting. **Edit on one machine at a time** — concurrent edits create
-`.sync-conflict` copies. See `skills/secondbrain/references/sync.md`.
+The vault has two different sync needs, so it uses two tools:
+
+**Git — history and backup.** The `claude-obsidian` plugin auto-commits on every write,
+so every change is versioned and recoverable, and a remote gives you an off-machine
+backup. But git is *commit-and-push* by design: it's a snapshot ledger, not a live
+mirror. Nothing lands on your other Mac until you push there and pull here, and it has
+no answer for "I just typed a sentence on the laptop and want it on the desktop now."
+
+**Syncthing — the live layer (optional).** A second brain you actually work in is
+useless if the note you wrote thirty seconds ago on one machine isn't already on the
+other. Syncthing closes that gap: it watches the vault folder and continuously mirrors
+changes between your machines within seconds — no commit, no push, no thinking about
+it. Two properties make it the right fit for a *personal* vault: it's **peer-to-peer
+over your own LAN** (your knowledge never passes through anyone's cloud), and it needs
+**no server or account**. Git still runs underneath for history; Syncthing just keeps
+the working files in step between commits.
+
+`setup-sync.sh` wires this up and writes a `.stignore` so the two don't fight —
+Syncthing skips `.git/`, `workspace.json`, and the like, leaving version control to
+git. **Caveat: edit on one machine at a time.** Both tools sync files, not intent, so
+truly concurrent edits to the same note produce `.sync-conflict` copies you'd merge by
+hand. See `skills/secondbrain/references/sync.md`.
 
 ## Out of scope (MVP)
 
