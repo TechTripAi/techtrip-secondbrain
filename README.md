@@ -1,7 +1,9 @@
 # techtrip-secondbrain
+
 <p align="center">
   <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
 </p>
+
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
 fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
 [**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
