@@ -37,6 +37,24 @@ being re-derived each time; you curate sources and direct the analysis. `claude-
 implements this pattern in Obsidian, and `techtrip-secondbrain` stands the whole thing
 up for you. *(See Karpathy's gist for the original write-up.)*
 
+## What is Obsidian?
+
+[**Obsidian**](https://obsidian.md) is a free, local-first note-taking app that stores
+everything as plain **Markdown files in a folder on your disk** — that folder is called a
+**vault**. There's no proprietary database and no mandatory cloud: your notes are just
+`.md` files you fully own, readable and editable by any tool (including Claude). Obsidian
+treats `[[wikilinks]]` between notes as first-class, so a vault naturally becomes a
+**graph of interconnected pages** rather than a flat pile of documents — exactly the
+shape an LLM Wiki wants.
+
+Two things make it the right home for a second brain: **it's just files** (so Claude can
+read and write pages directly, and git can version every change), and **it's extensible**
+via community plugins and a Local REST API. `techtrip-secondbrain` leans on both — it
+installs Obsidian plus a curated set of community plugins, then wires the REST API so the
+`obsidian` MCP server lets Claude operate on the vault. In this stack Obsidian is the
+**human-facing surface** (you read, browse, and edit notes there) while `claude-obsidian`
+is the LLM that maintains them behind the scenes.
+
 ## What it adds
 
 `claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
