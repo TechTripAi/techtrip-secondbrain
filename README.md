@@ -67,6 +67,9 @@ is the LLM that maintains them behind the scenes.
   `~/.claude.json`.
 - **Source-ingestion skills** — ships `yt-fetch` (YouTube) and `notebooklm-ingest`
   (NotebookLM) as first-class skills for pulling material into the vault.
+- **Guided onboarding** — ships `/brain-dump`, an interactive, hands-on tutorial that
+  walks you through every ingestion type, `.raw/`, the hot cache, and keeping the vault
+  lean — with live try-it exercises against your real vault. Re-runnable any time.
 - **Cross-machine sync** — git remote by default, with optional Syncthing and a safe
   `.stignore` so real-time sync and git auto-commit don't fight.
 - **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
@@ -142,6 +145,8 @@ These can't be automated:
    server activate.
 3. Run **`/wiki`** to scaffold content from a one-sentence description of the vault.
 4. If you'll use `notebooklm-ingest`, run **`notebooklm login`** once (interactive OAuth).
+5. New to the wiki? Run **`/brain-dump`** for a hands-on tour of how to feed sources in
+   and keep the vault healthy. `/secondbrain` offers to launch it once setup is green.
 
 ## Sync model
 

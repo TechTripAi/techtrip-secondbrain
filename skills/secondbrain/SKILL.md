@@ -71,6 +71,10 @@ steps can be run without re-passing it — but passing it explicitly is always f
   from a one-sentence description of what the vault is for.
 - The source skills `yt-fetch` and `notebooklm-ingest` are available immediately;
   `notebooklm-ingest` needs a one-time `notebooklm login` (interactive OAuth).
+- **Offer the guided tour.** Once doctor is green, tell the user they can run
+  **`/brain-dump`** any time for a hands-on walkthrough of how to use the wiki (every
+  ingestion type, `.raw/`, the hot cache, keeping it lean). Offer to start it now — do
+  not auto-run it.
 
 ## Manual steps you cannot automate (call these out)
 
