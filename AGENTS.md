@@ -25,7 +25,9 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
   GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
-  check + MCP repair) + ported `yt-fetch` / `notebooklm-ingest`.
+  check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
+  prompts to run, executes nothing; vault-agnostic, re-runnable) + ported `yt-fetch` /
+  `notebooklm-ingest`.
 
 ## Conventions
 
@@ -44,6 +46,11 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
   official CLI, read/execute it, but never patch it.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
+- **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
+  hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
+  with vault runtime hooks — claude-obsidian owns those, and plugin hooks are
+  machine-global, so duplicates double-fire. See `hooks/README.md` for the design
+  consideration.
 - **Auth probes must hit `/vault/`** (authenticated), not `/` (public, 200s with any
   key) — otherwise the key handshake is not validated.
 - **Attribution**: wherever code references claude-obsidian's repo, credit AgriciDaniel

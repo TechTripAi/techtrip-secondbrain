@@ -19,6 +19,20 @@ interactive and idempotent.
 > his is copied here. The MVP produces a **generic empty scaffold** (no personal
 > content) that you grow yourself. Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
 
+## Why this exists
+
+`techtrip-secondbrain` does exactly four things — it makes `claude-obsidian` easy to
+install and use, with added functionality:
+
+1. **Automates installation** of `claude-obsidian` and everything around it
+   (Obsidian, community plugins, dependencies, MCP wiring, sync).
+2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
+   `doctor`/`repair-mcp` diagnose and fix anything broken after.
+3. **Adds two ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts) and `notebooklm-ingest` (NotebookLM synthesis).
+4. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
+   through every ingestion type and the maintenance workflow.
+
 ## What is a "second brain"?
 
 The pattern comes from Andrej Karpathy's [**LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
@@ -173,6 +187,18 @@ Syncthing skips `.git/`, `workspace.json`, and the like, leaving version control
 git. **Caveat: edit on one machine at a time.** Both tools sync files, not intent, so
 truly concurrent edits to the same note produce `.sync-conflict` copies you'd merge by
 hand. See `skills/secondbrain/references/sync.md`.
+
+## Design note: claude-obsidian's hooks run machine-wide
+
+Claude Code plugin hooks can't be scoped to a directory, so once `claude-obsidian`
+is installed its hooks (hot-cache injection, git auto-commit, hot-cache refresh
+nudge) fire in **every** Claude session on the machine — they stay inert outside the
+vault only via sentinel checks on generic names like `wiki/`. Practical rules:
+**launch Claude from the vault root** (from a subdirectory the hooks silently
+no-op); avoid keeping `wiki/` directories in unrelated git repos you open with
+Claude (they'd get hot-cache injection and `wiki: auto-commit` commits); and a
+`.vault-meta/auto-commit.disabled` file opts any repo out of auto-commit. Full
+write-up: [`hooks/README.md`](hooks/README.md).
 
 ## Out of scope (MVP)
 
