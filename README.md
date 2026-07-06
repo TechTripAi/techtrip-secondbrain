@@ -294,6 +294,27 @@ note, and claude-obsidian's
 [SECURITY.md](https://github.com/AgriciDaniel/claude-obsidian/blob/main/SECURITY.md)
 for the upstream threat model.
 
+## Before you run any AI against your vault
+
+This project has Claude read and write files on your machine. Before running
+`/secondbrain` (or any AI agent) against a real vault, set up a proper set of
+guardrails in Claude Code — permissions, hooks, and directory scoping — so you know
+what it's allowed to touch. Start here: [Claude Code security
+docs](https://docs.claude.com/en/docs/claude-code/security) and
+`claude-obsidian`'s [SECURITY.md](https://github.com/AgriciDaniel/claude-obsidian/blob/main/SECURITY.md).
+
+## No warranty
+
+This software is provided **as is**, with no warranty of any kind — see
+[LICENSE.md](LICENSE.md) for the full disclaimer. Run it at your own risk and review
+what it does before pointing it at a machine or vault you care about.
+
+## Questions / issues
+
+Open an issue at
+[TechTripAi/techtrip-secondbrain](https://github.com/TechTripAi/techtrip-secondbrain/issues),
+or reach out directly: **terry.trippany@techtrip.ai**.
+
 ## Out of scope (MVP)
 
 Windows/Linux; cloning personal content (`wiki/`, `.raw/`, Pocket); `pocket-sync`;
