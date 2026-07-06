@@ -38,12 +38,12 @@ fi
 
 # ── 2. Install community plugins from the manifest ───────────────────────────
 step "Community plugins"
-while IFS=$'\t' read -r id repo; do
+while IFS=$'\t' read -r id repo tag; do
   [ -n "$id" ] || continue
   if [ -z "$repo" ]; then warn "$id has no repo in manifest; skipping"; continue; fi
-  bash "$SCRIPTS_DIR/install-obsidian-plugin.sh" "$VAULT" "$id" "$repo" \
+  bash "$SCRIPTS_DIR/install-obsidian-plugin.sh" "$VAULT" "$id" "$repo" "${tag:-latest}" \
     || warn "Could not install $id (continuing)"
-done < <(manifest_get 'm.obsidianPlugins.map(p=>[p.id,p.repo||""].join("\t")).join("\n")')
+done < <(manifest_get 'm.obsidianPlugins.map(p=>[p.id,p.repo||"",p.tag||""].join("\t")).join("\n")')
 
 # ── 3. Seed our own starter canvas (never AgriciDaniel content) ──────────────
 step "Starter content"

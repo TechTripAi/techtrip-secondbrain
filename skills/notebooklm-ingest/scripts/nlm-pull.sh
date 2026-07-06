@@ -37,6 +37,10 @@ if ! notebooklm list >/dev/null 2>&1; then
   exit 4
 fi
 
+# Emit $1 as a safely escaped YAML double-quoted scalar (collapses newlines,
+# escapes quotes/backslashes) so untrusted text can't break out of frontmatter.
+yaml_str() { python3 -c 'import json,sys; print(json.dumps(" ".join(sys.argv[1].split())))' "$1"; }
+
 # Resolve selector -> unique notebook id.
 NB_ID="$(notebooklm list --json | python3 "$SCRIPT_DIR/resolve_nb.py" "$SELECTOR")" || exit 5
 echo "==> Notebook: $NB_ID" >&2
@@ -74,13 +78,13 @@ notebooklm download report "$BODY" -n "$NB_ID" --force 1>&2
 {
   echo "---"
   echo "source_type: research-report"
-  printf 'title: "%s"\n' "${TITLE//\"/\'}"
+  printf 'title: %s\n' "$(yaml_str "$TITLE")"
   echo "fetched: $DATE"
   echo "notebook_id: $NB_ID"
   if [ "${#SOURCES[@]}" -gt 0 ]; then
     echo "sources:"
     for s in "${SOURCES[@]}"; do
-      [ -n "$s" ] && printf '  - "%s"\n' "$s"
+      [ -n "$s" ] && printf '  - %s\n' "$(yaml_str "$s")"
     done
   fi
   echo "tags:"

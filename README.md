@@ -303,6 +303,12 @@ what it's allowed to touch. Start here: [Claude Code security
 docs](https://docs.claude.com/en/docs/claude-code/security) and
 `claude-obsidian`'s [SECURITY.md](https://github.com/AgriciDaniel/claude-obsidian/blob/main/SECURITY.md).
 
+Also remember that **ingested content is untrusted input**: YouTube transcripts, web
+pages, and NotebookLM reports land in the vault and are later read by Claude sessions
+with tool access, so a malicious source can try to smuggle instructions in (prompt
+injection). Don't grant destructive or wide-open permissions to sessions that browse
+the wiki, and be pickier about what you ingest than about what you read.
+
 ## No warranty
 
 This software is provided **as is**, with no warranty of any kind — see

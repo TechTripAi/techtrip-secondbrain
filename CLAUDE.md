@@ -32,7 +32,10 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by
   downloading its GitHub-release assets into `<vault>/.obsidian/plugins/<id>/` (no
-  Obsidian plugin CLI exists).
+  Obsidian plugin CLI exists). Downloads are pinned to the manifest's `tag` and
+  verified against its `sha256` map; a mismatch aborts the install. Refresh pins
+  with `scripts/pin-obsidian-plugins.sh` and review the manifest diff before
+  committing.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
   check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
   prompts to run, executes nothing; vault-agnostic, re-runnable) + ported `yt-fetch` /

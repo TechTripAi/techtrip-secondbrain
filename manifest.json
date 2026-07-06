@@ -24,17 +24,66 @@
       "note": "By AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Pulled from his marketplace at install time — NOT vendored or forked. The CLI can't pin versions, so testedVersion is advisory: setup-claude-obsidian.sh warns if the installed version differs from the one this project was tested against."
     }
   ],
+  "obsidianPluginsNote": "Each plugin is PINNED to a release tag, and every downloaded asset is verified against its sha256 before install (supply-chain guard: a hijacked upstream release fails loudly instead of installing silently). Refresh pins + hashes with: bash scripts/pin-obsidian-plugins.sh",
   "obsidianPlugins": [
     { "id": "obsidian-local-rest-api", "repo": "coddingtonbear/obsidian-local-rest-api", "required": true,
-      "note": "Required for the Obsidian MCP server. Key generated locally in setup-mcp.sh." },
+      "note": "Required for the Obsidian MCP server. Key generated locally in setup-mcp.sh.",
+      "tag": "4.1.3",
+      "sha256": {
+        "manifest.json": "05d304daffef1b8095bad7b1602dfe22cd340f30bfd35610784ac2ba5e2deab2",
+        "main.js": "93588cbb6cf0214479c069a36f670acd0eb11b72072caa45a13a777a595b4389",
+        "styles.css": "1180db8e819c757a858e5591eb0a2f9b1fbe2e5db7fa642da576360c4b6c2c3b"
+      } },
     { "id": "obsidian-excalidraw-plugin", "repo": "zsviczian/obsidian-excalidraw-plugin",
-      "note": "~8MB main.js; pulled from release so the vault is self-contained." },
-    { "id": "dataview",           "repo": "blacksmithgu/obsidian-dataview" },
-    { "id": "templater-obsidian", "repo": "SilentVoid13/Templater" },
-    { "id": "calendar",           "repo": "liamcain/obsidian-calendar-plugin" },
-    { "id": "obsidian-banners",   "repo": "noatpad/obsidian-banners" },
-    { "id": "obsidian-memos",     "repo": "Quorafind/Obsidian-Memos" },
-    { "id": "list-to-table",      "repo": "kepano/list-to-table" }
+      "note": "~8MB main.js; pulled from release so the vault is self-contained.",
+      "tag": "2.25.2",
+      "sha256": {
+        "manifest.json": "8c24eab4a8c3bbd75c74b6346e547117ad3af502d773bb25f5345d200ae2b4a7",
+        "main.js": "6e016de2d94369606bdc0e2873926bf6da02ceb5cab1ced7af6b7b013c9f753c",
+        "styles.css": "236a113fee3581ec59856af22c6cecf79faf3521afae66227a40f6ff6cd98969"
+      } },
+    { "id": "dataview", "repo": "blacksmithgu/obsidian-dataview",
+      "tag": "0.5.70",
+      "sha256": {
+        "manifest.json": "9235db47112da81b85591c79ecb9ae2574e5e72207056e976472f90616286185",
+        "main.js": "6bb1cf7010afad830e73575fca0e2bfbd3279c562e3d9d24f2d2f45161eb7d00",
+        "styles.css": "3306dd9032e00f989ba7233a37fd255bc4d3f4340cee661762e952f3f6aa1de9"
+      } },
+    { "id": "templater-obsidian", "repo": "SilentVoid13/Templater",
+      "tag": "2.23.1",
+      "sha256": {
+        "manifest.json": "96218edf7d064768a62d198c8b69458911d539b8a13246803807944deef58918",
+        "main.js": "b566eb40c9a3919efc7a295ceba7d5def7f55e8a82411316a5b1ddf6bbc85415",
+        "styles.css": "eb94063be602679f397e3e35fcb7f6a4b027da82e17c213bb44a267c6b45d8de"
+      } },
+    { "id": "calendar", "repo": "liamcain/obsidian-calendar-plugin",
+      "tag": "2.0.0-beta.2",
+      "sha256": {
+        "manifest.json": "314fc17929a2270b17ea392538ee2d93330714800e244b2975b6c19f9b8dc689",
+        "main.js": "64d1c6c620803246724bc922c5c2e0a17c406ffc23f6bbcfbfb14c643958fbb7",
+        "styles.css": "486b450076f3439b9e40853665a3f51e5084caba60b882c285b60f4764c20852"
+      } },
+    { "id": "obsidian-banners", "repo": "noatpad/obsidian-banners",
+      "tag": "1.3.3",
+      "sha256": {
+        "manifest.json": "646b8da9c5cc8231034048b86e827c271d8da4206329775d3693c2656101192d",
+        "main.js": "97e3984dd0ca9388397c150eb9bb34aa3c16f89f4b818f1d26f6f2cd5405fd78",
+        "styles.css": "1457504f1ec4af0090a75f49a201c3134694d5e006837c4e7b2d156a82026a44"
+      } },
+    { "id": "obsidian-memos", "repo": "Quorafind/Obsidian-Memos",
+      "tag": "3.0.15",
+      "sha256": {
+        "manifest.json": "f4841d0252904c4ba56034cb06850f41a6b50c9f3d166475f15a54d425a79255",
+        "main.js": "817480328575e2e62ab5c97bd1c1172ac354b7b59d82584038fe55aeea3c0218",
+        "styles.css": "eca2238867a2ee8df082cb5dc260cfdd6a6958a8de26c20e6be4d85db7254b51"
+      } },
+    { "id": "list-to-table", "repo": "kepano/list-to-table",
+      "tag": "1.0.3",
+      "sha256": {
+        "manifest.json": "f182ffc23ef3e8c9bef834485c90033ff2ad09e5e80d8aeb427aa81337937d24",
+        "main.js": "1f23c6f81d96e331757b293d99bedcca5db11a2bdab5cde0b6a2a07d162efbf1",
+        "styles.css": "8764243cae0351ebdbb76e770c4feffcb1956ff42420d4ec159212dc7a8535ed"
+      } }
   ],
   "mcpServers": [
     {

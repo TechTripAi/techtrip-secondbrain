@@ -13,6 +13,11 @@ import re
 import sys
 
 
+def flat(s):
+    """Collapse untrusted metadata to a single line (no control chars)."""
+    return re.sub(r"[\x00-\x1f\x7f]+", " ", s).strip()
+
+
 def load_meta(info_path):
     with open(info_path, encoding="utf-8") as f:
         d = json.load(f)
@@ -22,8 +27,8 @@ def load_meta(info_path):
     else:
         up = ""
     return {
-        "title": (d.get("title") or "").strip(),
-        "author": (d.get("uploader") or d.get("channel") or "").strip(),
+        "title": flat(d.get("title") or ""),
+        "author": flat(d.get("uploader") or d.get("channel") or ""),
         "date_published": up,
         "url": (d.get("webpage_url") or "").strip(),
         "duration": d.get("duration_string") or "",
@@ -74,15 +79,17 @@ def main():
             body = ""
 
     today = datetime.date.today().isoformat()
-    title = meta["title"].replace('"', "'")
-    author = meta["author"].replace('"', "'")
+    # json.dumps yields a correctly escaped YAML double-quoted scalar — a title
+    # containing quotes or trailing backslashes can't break out of the frontmatter.
+    title = json.dumps(meta["title"])
+    author = json.dumps(meta["author"])
 
     print("---")
     print(f"source_url: {meta['url']}")
     print(f"url: {meta['url']}")
     print("source_type: video")
-    print(f'title: "{title}"')
-    print(f'author: "{author}"')
+    print(f"title: {title}")
+    print(f"author: {author}")
     print(f"date_published: {meta['date_published']}")
     print(f"fetched: {today}")
     print("tags:")

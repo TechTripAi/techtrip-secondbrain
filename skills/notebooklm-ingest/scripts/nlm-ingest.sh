@@ -38,6 +38,10 @@ fi
 # helper file so the heredoc program source can't collide with the piped JSON).
 extract_id() { python3 "$SCRIPT_DIR/find_id.py"; }
 
+# Emit $1 as a safely escaped YAML double-quoted scalar (collapses newlines,
+# escapes quotes/backslashes) so untrusted text can't break out of frontmatter.
+yaml_str() { python3 -c 'import json,sys; print(json.dumps(" ".join(sys.argv[1].split())))' "$1"; }
+
 DATE="$(date +%Y-%m-%d)"
 SLUG="$(printf '%s' "$TOPIC" | tr '[:upper:]' '[:lower:]' \
         | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')"
@@ -71,12 +75,12 @@ notebooklm download report "$BODY" -n "$NB_ID" --force 1>&2
 {
   echo "---"
   echo "source_type: research-report"
-  printf 'title: "%s"\n' "${TOPIC//\"/\'}"
+  printf 'title: %s\n' "$(yaml_str "$TOPIC")"
   echo "fetched: $DATE"
   echo "notebook_id: $NB_ID"
   echo "sources:"
   for u in "$@"; do
-    printf '  - "%s"\n' "$u"
+    printf '  - %s\n' "$(yaml_str "$u")"
   done
   echo "tags:"
   echo "  - source"

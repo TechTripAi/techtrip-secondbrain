@@ -44,14 +44,21 @@ def collect_sources(o, out):
             collect_sources(x, out)
 
 
+def flat(s):
+    """One line per value: the output contract is line-based, so embedded
+    newlines/control chars in untrusted metadata must never split a field."""
+    return " ".join(str(s).split())
+
+
 def main():
     try:
         d = json.load(sys.stdin)
     except Exception:
         d = {}
-    title = find_title(d) or "notebooklm"
+    title = flat(find_title(d) or "notebooklm")
     sources = []
     collect_sources(d, sources)
+    sources = [flat(s) for s in sources]
     slug = re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", title.lower())).strip("-") or "notebooklm"
     print(slug)
     print(title)

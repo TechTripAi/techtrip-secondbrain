@@ -22,6 +22,7 @@ info "Vault: $VAULT"
 # ── 1 + 2. Key + data.json ───────────────────────────────────────────────────
 if [ -f "$DATA" ] && node -e 'const d=require(process.argv[1]); process.exit(d.apiKey?0:1)' "$DATA" 2>/dev/null; then
   KEY="$(node -e 'process.stdout.write(require(process.argv[1]).apiKey)' "$DATA")"
+  [ "$TSB_DRY_RUN" = "1" ] || chmod 600 "$DATA" 2>/dev/null || true
   ok "Reusing existing Local REST API key from data.json"
 else
   KEY="$(openssl rand -hex 32)"
@@ -35,7 +36,8 @@ else
       d.apiKey=key; if(d.enableInsecureServer===undefined) d.enableInsecureServer=false;
       fs.writeFileSync(f, JSON.stringify(d,null,2)+"\n");
     ' "$DATA" "$KEY"
-    ok "Wrote Local REST API key to data.json (self-signed cert added by Obsidian on first launch)"
+    chmod 600 "$DATA"
+    ok "Wrote Local REST API key to data.json, mode 600 (self-signed cert added by Obsidian on first launch)"
   fi
 fi
 

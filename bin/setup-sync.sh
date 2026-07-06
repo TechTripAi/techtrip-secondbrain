@@ -31,7 +31,7 @@ else
   info "and history lives on the primary. See README: 'Add a second machine'."
   if confirm "Initialize a git repo in the vault (recommended — enables auto-commit + backup)?"; then
     run "git init" -- git -C "$VAULT" init -q
-    run "initial commit" -- bash -c "cd '$VAULT' && git add -A && git commit -qm 'chore: initial vault scaffold' || true"
+    run "initial commit" -- bash -c 'cd "$1" && git add -A && git commit -qm "chore: initial vault scaffold" || true' _ "$VAULT"
     ok "Git initialized"
   fi
 fi
@@ -91,6 +91,8 @@ if confirm "Set up Syncthing for real-time sync across your Macs?"; then
   info "Finish pairing in the Syncthing UI: http://127.0.0.1:8384"
   info "  1. On each Mac: brew install syncthing && brew services start syncthing"
   info "  2. Add Remote Device (exchange Device IDs), then share the vault folder."
+  info "  3. Set a GUI password (Settings → GUI → User/Password) — the UI controls"
+  info "     what syncs where, and without one any local process can reconfigure it."
   info "Adding a second Mac? Follow README: 'Add a second machine' (run this script"
   info "there too — .stignore is per-device; Syncthing does not sync it)."
   warn "Single-writer rule: edit on one machine at a time; concurrent edits create"

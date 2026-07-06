@@ -39,8 +39,10 @@ methodology) is vault config and **does** sync. The script is upgrade-idempotent
 an existing `.stignore` it appends only missing entries.
 
 Pair devices in the UI at http://127.0.0.1:8384 (exchange Device IDs, share the
-vault folder). **`.stignore` itself is never synced by Syncthing** — run
-`setup-sync.sh` on each machine so each has its own.
+vault folder), and **set a GUI password** (Settings → GUI → User/Password): the UI
+controls what syncs where, and without one any local process can reconfigure it.
+**`.stignore` itself is never synced by Syncthing** — run `setup-sync.sh` on each
+machine so each has its own.
 
 **Single-writer rule:** edit on one machine at a time. Concurrent edits to the same
 file produce `.sync-conflict-*` copies (Syncthing does not merge). Git history stays
