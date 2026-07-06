@@ -46,6 +46,11 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
   official CLI, read/execute it, but never patch it.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
+- **Two-machine model:** one vault mirrored by Syncthing; **git on the primary
+  machine only** — secondaries never `git init` the vault (that's what keeps
+  claude-obsidian's auto-commit inert there and histories from diverging). Both
+  machines share one REST API key; `.stignore` excludes machine-local
+  `.vault-meta/locks` + `transport.json` and is per-device (never synced).
 - **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
   hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
   with vault runtime hooks — claude-obsidian owns those, and plugin hooks are

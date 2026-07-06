@@ -183,10 +183,74 @@ over your own LAN** (your knowledge never passes through anyone's cloud), and it
 the working files in step between commits.
 
 `setup-sync.sh` wires this up and writes a `.stignore` so the two don't fight —
-Syncthing skips `.git/`, `workspace.json`, and the like, leaving version control to
-git. **Caveat: edit on one machine at a time.** Both tools sync files, not intent, so
+Syncthing skips `.git/`, `workspace.json`, machine-local `.vault-meta` state
+(locks, transport detection), and the like, leaving version control to git.
+**Caveat: edit on one machine at a time.** Both tools sync files, not intent, so
 truly concurrent edits to the same note produce `.sync-conflict` copies you'd merge by
 hand. See `skills/secondbrain/references/sync.md`.
+
+## Add a second machine
+
+One wiki, two Macs, in sync — the **primary/secondary model**: the primary (A) keeps
+the vault's git repo (history, backup, auto-commit); the secondary (B) is a Syncthing
+mirror with **no `.git`**. That absence is the point — claude-obsidian's auto-commit
+hook exits silently without `.git`, so the two machines can never grow divergent
+histories. You can read, query, and **ingest from either machine**; changes mirror
+within seconds and get committed on A.
+
+On the new Mac (B):
+
+1. **Prereqs** — Claude Code installed; Homebrew present.
+2. **Install this plugin:**
+   ```
+   claude plugin marketplace add TechTripAi/techtrip-secondbrain
+   claude plugin install techtrip-secondbrain@techtrip-secondbrain
+   ```
+3. **Machine-level setup** (everything *except* the vault scaffold — the vault
+   content, including the `.obsidian` community plugins, arrives via Syncthing):
+   ```bash
+   bash bin/precheck.sh
+   bash bin/setup-deps.sh
+   bash bin/setup-obsidian.sh
+   bash bin/setup-claude-obsidian.sh
+   ```
+   **Do NOT run `setup-vault.sh` on B.**
+4. **Create the empty vault folder** (same path as on A is simplest, e.g.
+   `~/LLM-Wiki`), then:
+   ```bash
+   mkdir -p ~/LLM-Wiki
+   bash bin/setup-sync.sh ~/LLM-Wiki
+   ```
+   **Decline git init** (B is a secondary); accept Syncthing (installs it, starts the
+   service, writes B's own `.stignore` — Syncthing never syncs `.stignore` itself, so
+   each machine needs one).
+5. **On A:** run/re-run `bash bin/setup-sync.sh <vault>` so A has a current
+   `.stignore` too, then pair the devices in the Syncthing UI
+   (http://127.0.0.1:8384): exchange Device IDs, share the vault folder from A,
+   accept on B. **Wait for the first full sync to finish before continuing.**
+6. **Open the vault in Obsidian on B**; trust it and enable community plugins (they
+   synced over from A). This activates the Local REST API plugin with A's key —
+   the two machines deliberately share one key.
+7. **Wire MCP on B:**
+   ```bash
+   bash bin/setup-mcp.sh ~/LLM-Wiki
+   ```
+   It detects the synced key (`Reusing existing Local REST API key`) and registers
+   the `obsidian` MCP server in B's `~/.claude.json`. Reload Claude Code. (Order
+   matters: if you run this *before* the first full sync, it generates a fresh key
+   that syncs back and breaks A's MCP until you run `repair-mcp.sh` there.)
+8. **Verify:** `bash bin/doctor.sh ~/LLM-Wiki` — green. No git on B is expected and
+   correct.
+
+**Living with two machines:**
+
+- **Work from one machine at a time** — the single-writer rule. Breaking it costs
+  you `.sync-conflict` copies (usually of `wiki/hot.md`), not data.
+- **Ingest from either machine** — ingestion is pure filesystem and needs no git.
+- **On B, end heavy sessions with "update the hot cache"** — the automatic
+  hot-cache refresh nudge is git-gated, and B has no git.
+- **History and `git push` live on A only.** B's safety net during a session is
+  Syncthing itself (changes land on A within seconds).
 
 ## Design note: claude-obsidian's hooks run machine-wide
 
@@ -199,6 +263,36 @@ no-op); avoid keeping `wiki/` directories in unrelated git repos you open with
 Claude (they'd get hot-cache injection and `wiki: auto-commit` commits); and a
 `.vault-meta/auto-commit.disabled` file opts any repo out of auto-commit. Full
 write-up: [`hooks/README.md`](hooks/README.md).
+
+## Limitations
+
+**Single-tenant by design: one user, one vault, one trust boundary.** The wiki
+runtime this project installs —
+[`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) by
+[AgriciDaniel](https://github.com/AgriciDaniel) — documents a **single-tenant threat
+model** in its SECURITY.md, and `techtrip-secondbrain` inherits it: standard
+macOS/Linux **filesystem permissions are the only trust boundary**; there are no
+application-layer identity checks anywhere in the stack.
+
+Why that is: the vault's advisory lock release is unconditional (any process able to
+write `.vault-meta/locks/` can release another's in-flight lock — intentional, since
+acquire and release are separate bash invocations); the git auto-commit hook runs as
+whoever invokes Claude Code; and cross-process resources (lockfiles, transport
+snapshots) are plain files.
+
+In practice:
+
+- **Don't** put the vault on a shared or multi-user host, or a shared-CI runner.
+- **Don't** grant other OS users write access to the vault directory.
+- **Do** note what single-tenant does *not* forbid: one user across multiple
+  machines (the Syncthing model in [Add a second machine](#add-a-second-machine))
+  is the same human and the same trust boundary — the single-writer rule covers
+  the rest.
+
+Related: [`hooks/README.md`](hooks/README.md) for the machine-global-hooks design
+note, and claude-obsidian's
+[SECURITY.md](https://github.com/AgriciDaniel/claude-obsidian/blob/main/SECURITY.md)
+for the upstream threat model.
 
 ## Out of scope (MVP)
 
