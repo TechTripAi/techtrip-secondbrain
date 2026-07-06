@@ -53,6 +53,6 @@
   "skills": [
     { "id": "yt-fetch",          "runtime": ["yt-dlp"] },
     { "id": "notebooklm-ingest", "runtime": ["uv"], "manual": "one-time `notebooklm login` (interactive OAuth)" },
-    { "id": "brain-dump",        "runtime": [], "note": "Interactive usage tutorial. No runtime deps; composes the existing ingest/lint skills against a live vault." }
+    { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." }
   ]
 }

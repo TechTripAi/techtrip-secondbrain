@@ -1,6 +1,6 @@
 ---
 name: yt-fetch
-description: "Fetch a YouTube video's transcript and metadata as clean markdown before ingesting into the wiki. Pulls auto-captions via yt-dlp, strips caption cruft, and emits a wiki-ingest-ready doc (source_type: video) to stdout. Triggers on: yt-fetch, fetch youtube, youtube transcript, ingest youtube, grab this video, transcript from url, pull captions."
+description: "Front door for YouTube sources going into the wiki: whenever a YouTube link (youtube.com / youtu.be) should be ingested, this fetches its transcript + metadata via yt-dlp, lands a wiki-ingest-ready doc (source_type: video) in .raw/videos/, then hands off to ingest. A YouTube watch page's HTML holds no spoken content, so a bare URL fetch/ingest would miss it — route YouTube URLs here first. Triggers on: yt-fetch, fetch youtube, youtube transcript, ingest youtube, ingest this youtube url, add this youtube video to my wiki, save this video to the wiki, put this video in the wiki, grab this video, transcript from url, pull captions, a youtube.com or youtu.be link to add/ingest."
 allowed-tools: Read Bash
 ---
 
@@ -15,6 +15,31 @@ it with zero changes.
 Like `defuddle`, this skill **only writes to `.raw/`** (via stdout redirect). It
 never touches `wiki/`. `/wiki-ingest` remains the single mutation path into the
 knowledge graph.
+
+---
+
+## Front door for YouTube sources
+
+You are the **YouTube adapter** for the wiki. Whenever the user wants a YouTube
+link in their wiki — "ingest this video", "add this youtube video", or a bare
+`youtube.com`/`youtu.be` URL aimed at ingest — **do the fetch here first**, then
+hand off to `ingest`. This matters because `ingest`'s plain-URL path is a WebFetch
+of the page HTML, and a YouTube watch page carries no spoken content — only the
+caption track does. A bare fetch would file an empty shell.
+
+The handoff is fixed, and you do **not** reimplement it:
+1. `yt-fetch` the URL → transcript + metadata land in `.raw/videos/<slug>.md`.
+2. Then trigger the normal `ingest .raw/videos/<slug>.md` — that is `wiki-ingest`'s
+   job. You only produce the raw file; you never write into `wiki/`.
+
+Note: this is techtrip-secondbrain's interim adapter for YouTube. If upstream
+`claude-obsidian` later ships native multimodal ingest (its v1.9 roadmap folds
+YouTube into `ingest` directly), a bare `ingest <youtube-url>` will work on its
+own and this front-door step becomes redundant.
+
+If `yt-dlp` is missing, **do not work around it** — say so and point the user at
+`/secondbrain-doctor` (or `/secondbrain`) to install it. This skill fetches; it
+does not install or replace techtrip-secondbrain's setup tooling.
 
 ---
 

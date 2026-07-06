@@ -15,9 +15,10 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
    manual follow-ups: open the vault in Obsidian + enable community plugins, reload
    Claude Code, run `/wiki` to scaffold content, and `notebooklm login` if they'll use
    notebooklm-ingest.
-6. Offer the guided tour: ask if they'd like to run **`/brain-dump`** now — a hands-on
+6. Offer the guided tour: ask if they'd like to run **`/brain-dump`** now — a guided
    walkthrough of how to use the wiki (every ingestion type, `.raw/`, the hot cache,
-   keeping it lean). Offer it; never auto-run it. They can run it any time later.
+   keeping it lean) that hands them prompts to run themselves. Offer it; never auto-run
+   it. They can run it any time later.
 
 If a vault already exists at the chosen path, skip scaffolding and run `doctor.sh` to
 report current state, then offer to fill any gaps.

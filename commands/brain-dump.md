@@ -1,17 +1,17 @@
 ---
-description: Interactive, hands-on tutorial for using your techtrip-secondbrain LLM Wiki — walks you through every ingestion type (files, URLs, YouTube, NotebookLM), .raw/, the hot cache, and keeping the vault lean. Live, exitable, re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), .raw/, the hot cache, and keeping the vault lean, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
-Read the `brain-dump` skill. Then run the interactive tutorial.
+Read the `brain-dump` skill. Then run it as a teaching guide.
 
-- It is **vault-agnostic**: locate the current vault (or ask which one to use) before
-  any live exercise — never assume a specific path.
-- It is a **live** tutorial: anything the user chooses to ingest becomes a **real,
-  permanent** page in their wiki. Confirm and say so before each ingest; do **not** clean
-  up afterward.
-- Show the menu, act only on the chosen section, and **return to the menu** after each.
-- Every prompt must let the user type `quit` / `exit` — honor it immediately.
-- Hand off actual ingestion to the existing triggers (`ingest …`, `yt-fetch`,
-  `notebooklm-ingest`, `wiki-lint`, `wiki-fold`); don't reimplement them.
+- **Teach, never execute.** Hand the user copy-paste prompts to run themselves; do NOT
+  run ingests, fetchers, lint, or fold, and do NOT read or modify their vault.
+- **It's a conversation, not a mode.** Never tell the user to type `quit`/`exit`/`stop`
+  (those can end their Claude session). If they say they're done or change the subject,
+  just wrap up. Never emit anything that ends the session.
+- **Defer, don't replace.** If a prerequisite is missing, point the user at
+  `/secondbrain-doctor` or `/secondbrain` — brain-dump installs/repairs nothing.
+- **Vault-agnostic.** Use generic placeholders (`.raw/articles/…`); never hardcode a path.
+- Show the menu, explain the chosen section, then invite the next one.
 
 This tour is re-runnable any time — it is not a one-and-done.

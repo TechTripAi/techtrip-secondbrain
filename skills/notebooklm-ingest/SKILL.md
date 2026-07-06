@@ -1,6 +1,6 @@
 ---
 name: notebooklm-ingest
-description: "Synthesize sources (YouTube, articles, PDFs) into a NotebookLM report and land it in the wiki with no manual copy-paste. Two modes: CREATE a new notebook from URLs, or PULL an existing notebook you already curated. Downloads the report markdown to .raw/ and hands off to wiki-ingest. Triggers on: notebooklm, notebooklm ingest, notebooklm pull, synthesize these sources, research report from these links, notebook from urls, pull my notebook, batch analyze sources."
+description: "Front door for multi-source synthesis into the wiki: when several sources (YouTube, articles, PDFs) should become one wiki entry, this offloads synthesis to Google's NotebookLM, downloads the report to .raw/notebooklm/ (source_type: research-report), then hands off to ingest — no manual copy-paste. Prefer this over the one-at-a-time fetchers when the user gives many links to combine. Two modes: CREATE a new notebook from URLs, or PULL an existing notebook you already curated. Triggers on: notebooklm, notebooklm ingest, notebooklm pull, synthesize these sources, add these sources to my wiki, ingest these urls together, combine these links into a wiki page, research report from these links, make a wiki page from these links, notebook from urls, pull my notebook, batch analyze sources."
 allowed-tools: Read Bash
 ---
 
@@ -13,6 +13,21 @@ workflow requires: the report is generated headlessly and downloaded to disk.
 
 This skill **only writes to `.raw/`**. `/wiki-ingest` stays the single mutation
 path into `wiki/`.
+
+## Front door for multi-source synthesis
+
+You are the **batch adapter** for the wiki. When the user hands you *several*
+sources to combine — "add these links to my wiki", "make one page out of these
+five urls", "synthesize these sources" — route here: create (or pull) the
+NotebookLM report, land it in `.raw/notebooklm/`, then hand off to the normal
+`ingest`. You **only** produce the raw report file; `wiki-ingest` remains the
+single path into `wiki/`, and you never reimplement it.
+
+For a *single* source, defer to the lighter adapters instead — 1 article →
+`defuddle`, 1 video → `/yt-fetch`. They're faster, free, and need no Google
+account. If the `notebooklm` CLI isn't installed or authenticated, **don't work
+around it** — run `notebooklm doctor` or point the user at the one-time setup
+below; this skill never logs in or installs on the user's behalf.
 
 **When to reach for this vs. the direct fetchers:**
 - 1 article → `defuddle`. 1 video → `/yt-fetch`. These are faster, free, and

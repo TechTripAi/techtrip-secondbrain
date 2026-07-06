@@ -34,8 +34,9 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   downloading its GitHub-release assets into `<vault>/.obsidian/plugins/<id>/` (no
   Obsidian plugin CLI exists).
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
-  check + MCP repair) + `brain-dump` (interactive, live usage tutorial — vault-agnostic,
-  re-runnable) + ported `yt-fetch` / `notebooklm-ingest`. Each has a matching
+  check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
+  prompts to run, executes nothing; vault-agnostic, re-runnable) + ported `yt-fetch` /
+  `notebooklm-ingest`. Each has a matching
   `commands/*.md` where relevant.
 
 ## Conventions (follow these when editing)
