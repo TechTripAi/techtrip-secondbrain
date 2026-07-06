@@ -39,6 +39,21 @@ else
   fi
 fi
 
+# ── 2b. Keep the key out of git ──────────────────────────────────────────────
+# setup-mcp creates data.json (REST key + cert) AFTER the vault's initial scaffold
+# commit, so nothing gitignores it by default — one `git add -A` later and the key
+# is in history. Seed the vault .gitignore here, idempotently.
+GITIGNORE="$VAULT/.gitignore"
+IGNORE_LINE=".obsidian/plugins/obsidian-local-rest-api/"
+if [ -f "$GITIGNORE" ] && grep -qxF "$IGNORE_LINE" "$GITIGNORE"; then
+  ok ".gitignore already excludes the Local REST API plugin dir"
+elif [ "$TSB_DRY_RUN" = "1" ]; then
+  info "[dry-run] would append '$IGNORE_LINE' to $GITIGNORE"
+else
+  printf '%s\n' "$IGNORE_LINE" >> "$GITIGNORE"
+  ok "Added '$IGNORE_LINE' to vault .gitignore (REST key + cert stay out of git)"
+fi
+
 # ── 3. Register the MCP server ───────────────────────────────────────────────
 step "Register MCP server (user scope)"
 have_cmd claude || die "claude CLI not found — install Claude Code first."
