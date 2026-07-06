@@ -54,17 +54,24 @@ if you need detail; summarize it for the user rather than dumping it.
    is open with the Local REST API plugin enabled, and needs a Claude reload.
 7. **Sync** — `bash bin/setup-sync.sh <path>` (git by default, optional Syncthing).
    See `references/sync.md`.
-8. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill: run
-   `bash bin/doctor.sh <path>`, and if any MCP row is red, `bash bin/repair-mcp.sh
-   <path>`. Report the health table. (The `obsidian` MCP will read red until Obsidian
-   is open with the Local REST API plugin enabled and Claude has been reloaded — say
-   so rather than treating it as a failure.)
+8. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
+   error or a red MCP row, **run the doctor yourself, in-session** — the user should
+   never have to exit and re-enter Claude Code to diagnose or repair. Run
+   `bash bin/doctor.sh <path>` (read-only, safe to auto-run); if any MCP row is red, run
+   `bash bin/repair-mcp.sh <path>` and walk its confirm prompts inline. Report the
+   health table. (The `obsidian` MCP will read red until Obsidian is open with the Local
+   REST API plugin enabled **and Claude has been reloaded** — a still-red probe right
+   after a fresh re-registration is expected, not a failure; say so.)
 
 Once the path is chosen in step 5, the scripts remember it (state file), so later
 steps can be run without re-passing it — but passing it explicitly is always fine.
 
 ## After setup — what to tell the user
 
+- **Reload Claude Code first.** The new plugin, skills, and hooks only activate after a
+  reload — run `/reload-skills` and `/reload-plugins`, or **restart Claude Code** if
+  those aren't available. Do this before expecting `/wiki`, `/brain-dump`, or the
+  `obsidian` MCP to work.
 - Open the vault in Obsidian; if prompted, trust the vault and enable community
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content

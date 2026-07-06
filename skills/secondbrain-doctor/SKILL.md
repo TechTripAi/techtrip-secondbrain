@@ -58,5 +58,10 @@ See `../secondbrain/references/mcp.md` for the key-handshake details.
 
 - Report-only `doctor.sh` never mutates; `repair-mcp.sh` is confirm-gated and supports
   `--dry-run`.
+- **Runs entirely in-session.** `doctor.sh` is read-only and safe to auto-run (including
+  automatically when the setup skill hits an error), and `repair-mcp.sh`'s confirm
+  prompts can be walked inline — the user never needs to exit and re-enter Claude Code to
+  diagnose or repair. The one thing that *does* require a reload is a fresh MCP
+  re-registration: its probe only flips green after Claude reloads.
 - A newly (re)registered MCP server only becomes callable after a Claude reload — say
   so explicitly so the user isn't confused by a still-red probe immediately after.

@@ -12,9 +12,13 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
    Never pass `--yes` unless the user asks for an unattended run; offer `--dry-run`
    first if they want a preview.
 5. Finish with `bash bin/doctor.sh <path>`, report the health table, and tell them the
-   manual follow-ups: open the vault in Obsidian + enable community plugins, reload
-   Claude Code, run `/wiki` to scaffold content, and `notebooklm login` if they'll use
-   notebooklm-ingest.
+   manual follow-ups: **reload Claude Code first** (run `/reload-skills` and
+   `/reload-plugins`, or restart Claude Code if those aren't available — the new skills,
+   hooks, and MCP only activate after a reload), open the vault in Obsidian + enable
+   community plugins, run `/wiki` to scaffold content, and `notebooklm login` if they'll
+   use notebooklm-ingest. On any error or red MCP row, run the doctor **in-session**
+   (`bash bin/doctor.sh <path>`, then `bash bin/repair-mcp.sh <path>` if red) — the user
+   never has to exit and re-enter to diagnose or repair.
 6. Offer the guided tour: ask if they'd like to run **`/brain-dump`** now — a guided
    walkthrough of how to use the wiki (every ingestion type, `.raw/`, the hot cache,
    keeping it lean) that hands them prompts to run themselves. Offer it; never auto-run
