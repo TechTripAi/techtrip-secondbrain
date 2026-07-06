@@ -64,6 +64,24 @@ else
   row "claude CLI" "$BADM  (install Claude Code)"
 fi
 
+# Optional features (informational — never a failure; enable via setup-features.sh)
+step "Optional features (off by default)"
+ONM="${_C_GRN}on${_C_RESET}"; OFFM="${_C_DIM}off${_C_RESET}"
+while IFS=$'\t' read -r id label binary; do
+  [ -n "$id" ] || continue
+  if [ "$id" = notebooklm ]; then
+    # 'on' = CLI installed; auth is a separate one-time step.
+    have_cmd notebooklm && row "$label" "$ONM (run 'notebooklm login' once if unauthed)" \
+      || row "$label" "$OFFM  → bin/setup-features.sh notebooklm"
+  elif [ "$id" = syncthing ]; then
+    { have_cmd syncthing && [ -f "$VAULT/.stignore" ]; } && row "$label" "$ONM" \
+      || row "$label" "$OFFM  → bin/setup-features.sh syncthing"
+  else
+    have_cmd "$binary" && row "$label" "$ONM" \
+      || row "$label" "$OFFM  → bin/setup-features.sh $id"
+  fi
+done < <(manifest_get 'm.optionalFeatures.map(f=>[f.id,f.label,f.binary||""].join("\t")).join("\n")')
+
 # Live REST API probe (only meaningful if Obsidian is running)
 step "Live REST API probe (optional)"
 if [ -f "$DATA" ]; then

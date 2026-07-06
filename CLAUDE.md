@@ -27,7 +27,21 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — the setup workflow, run in order: `precheck` → `setup-deps` →
   `setup-obsidian` → `setup-claude-obsidian` → `setup-vault` → `setup-mcp` →
-  `setup-sync` → `doctor` (+ `repair-mcp`). Each is **idempotent** and **interactive**.
+  `setup-sync` → `setup-features` → `doctor` (+ `repair-mcp`, `update`). Each is
+  **idempotent** and **interactive**.
+- **Optional features are off by default.** `yt-fetch` (YouTube/`yt-dlp`),
+  `notebooklm-ingest` (`notebooklm-py` + one-time `notebooklm login`), and Syncthing are
+  **not** installed by `setup-deps`/`setup-sync`'s defaults — their skills always ship,
+  but their runtimes are enabled on demand by **`bin/setup-features.sh`** (re-runnable;
+  `setup-features.sh <vault> youtube|notebooklm|syncthing` targets one). Driven by
+  `manifest.json → optionalFeatures`. Binaries carrying `"optional": true` (e.g.
+  `yt-dlp`) are skipped by `setup-deps`, shown as `optional` by `precheck`, and reported
+  on/off (never failed) by `doctor`. `uv` stays **required** (the MCP server needs
+  `uvx`), so "NotebookLM optional" means the `notebooklm-py` install + login, not `uv`.
+- **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
+  the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
+  re-pin community plugins to the manifest tags → `doctor`. Never touches notes, git
+  history, the MCP key, or feature choices.
 - **`scripts/common.sh`** — sourced by everything: logging, `confirm()`, `run()`,
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by
@@ -84,6 +98,8 @@ for f in bin/*.sh scripts/*.sh; do bash -n "$f"; done      # syntax
 bash bin/precheck.sh                                        # report-only audit
 bash bin/setup-vault.sh ~/llm-wiki-test --dry-run --yes     # dry-run (no mutations)
 bash bin/setup-vault.sh ~/llm-wiki-test --yes && bash bin/doctor.sh ~/llm-wiki-test
+bash bin/setup-features.sh ~/llm-wiki-test --dry-run --yes  # optional-features enabler
+bash bin/update.sh ~/llm-wiki-test --dry-run --yes          # in-place updater
 rm -rf ~/llm-wiki-test                                      # clean up throwaway vault
 ```
 A real run only downloads into a throwaway vault and does not touch global

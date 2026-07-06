@@ -127,7 +127,9 @@ Then, in Claude Code:
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
 | MCP | `bin/setup-mcp.sh <path>` | generate REST key, register `obsidian` MCP server |
 | Sync | `bin/setup-sync.sh <path>` | git remote (default) + optional Syncthing |
+| Optional features | `bin/setup-features.sh <path>` | enable YouTube / NotebookLM / Syncthing (off by default; re-runnable) |
 | Verify | `bin/doctor.sh <path>` | health check |
+| Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
 
 Everything is driven by **`manifest.json`** — the single source of truth for the
 binaries, apps, plugins, community plugins, MCP server, and skills. Edit it to change
@@ -145,6 +147,7 @@ bash bin/setup-claude-obsidian.sh
 bash bin/setup-vault.sh ~/LLM-Wiki
 bash bin/setup-mcp.sh   ~/LLM-Wiki
 bash bin/setup-sync.sh  ~/LLM-Wiki
+bash bin/setup-features.sh ~/LLM-Wiki    # optional: YouTube / NotebookLM / Syncthing
 bash bin/doctor.sh      ~/LLM-Wiki
 ```
 
@@ -159,9 +162,64 @@ These can't be automated:
 2. **Reload Claude Code** so the `claude-obsidian` skills/hooks and the `obsidian` MCP
    server activate.
 3. Run **`/wiki`** to scaffold content from a one-sentence description of the vault.
-4. If you'll use `notebooklm-ingest`, run **`notebooklm login`** once (interactive OAuth).
+4. Turn on any optional features you want with **`bash bin/setup-features.sh <vault>`**
+   (see below) — including the one-time **`notebooklm login`** OAuth for NotebookLM.
 5. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in
    and keep the vault healthy. `/secondbrain` offers to launch it once setup is green.
+
+## Optional features (off by default)
+
+The base second brain ships **lean**. Three features are off until you turn them on,
+so nothing you don't use gets installed. Their *skills* always ship with the plugin —
+this just installs the runtime each needs:
+
+| Feature | Skill | What it adds | Runtime installed |
+|---------|-------|--------------|-------------------|
+| **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) |
+| **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` |
+| **Syncthing** | — | real-time LAN mirror of the vault across your Macs | `syncthing` (Homebrew) + vault `.stignore` |
+
+Enable them any time — during setup or long after:
+
+```bash
+bash bin/setup-features.sh ~/LLM-Wiki                 # walk all three
+bash bin/setup-features.sh ~/LLM-Wiki youtube         # just one
+bash bin/setup-features.sh ~/LLM-Wiki notebooklm
+bash bin/setup-features.sh ~/LLM-Wiki syncthing
+```
+
+The script is **idempotent**: already-enabled features report green and change
+nothing. `bin/doctor.sh` shows each feature's on/off state. (Syncthing is also offered
+by `bin/setup-sync.sh`; `setup-features.sh` is the standalone/later door to the same
+setup.)
+
+## Updating an existing secondbrain
+
+Already bootstrapped this machine? Bring it current with one command:
+
+```bash
+bash bin/update.sh ~/LLM-Wiki
+```
+
+It refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
+`claude-obsidian` plugins to their latest versions, re-runs the idempotent vault
+scaffold so community plugins are re-pinned to this manifest's tags (each asset
+re-verified against its `sha256`), and finishes with `bin/doctor.sh`. It **does not**
+touch your notes, git history, MCP key, or optional-feature choices.
+
+Every prompt is confirm-gated; `--dry-run` previews without changing anything.
+**Restart Claude Code** (or `/reload-plugins` + `/reload-skills`) afterward so the new
+plugin, skill, and hook versions load.
+
+Prefer to do it by hand? The equivalent steps:
+
+```bash
+claude plugin marketplace update                      # refresh listings
+claude plugin update techtrip-secondbrain             # this plugin
+claude plugin update claude-obsidian                  # AgriciDaniel's runtime
+bash bin/setup-vault.sh ~/LLM-Wiki                    # re-pin community plugins
+bash bin/doctor.sh ~/LLM-Wiki
+```
 
 ## Sync model
 

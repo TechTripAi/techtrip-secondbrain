@@ -54,7 +54,14 @@ if you need detail; summarize it for the user rather than dumping it.
    is open with the Local REST API plugin enabled, and needs a Claude reload.
 7. **Sync** — `bash bin/setup-sync.sh <path>` (git by default, optional Syncthing).
    See `references/sync.md`.
-8. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
+8. **Optional features** — `bash bin/setup-features.sh <path>`. The base brain ships
+   lean: **YouTube (yt-fetch)**, **NotebookLM (notebooklm-ingest)**, and **Syncthing**
+   are all off by default. This script installs each one's runtime on demand and is
+   **re-runnable any time** to add a feature later (`bin/setup-features.sh <path>
+   youtube|notebooklm|syncthing` targets just one). Offer it; don't force it. NotebookLM
+   ends in a one-time interactive `notebooklm login` the user runs themselves. (Syncthing
+   is also reachable from step 7 — this is just the standalone/later door to the same thing.)
+9. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
    error or a red MCP row, **run the doctor yourself, in-session** — the user should
    never have to exit and re-enter Claude Code to diagnose or repair. Run
    `bash bin/doctor.sh <path>` (read-only, safe to auto-run); if any MCP row is red, run
@@ -76,8 +83,10 @@ steps can be run without re-passing it — but passing it explicitly is always f
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
   from a one-sentence description of what the vault is for.
-- The source skills `yt-fetch` and `notebooklm-ingest` are available immediately;
-  `notebooklm-ingest` needs a one-time `notebooklm login` (interactive OAuth).
+- The source skills `yt-fetch` and `notebooklm-ingest` ship with the plugin, but their
+  runtimes are **off by default** — run `bin/setup-features.sh` (step 8) to enable
+  YouTube and/or NotebookLM. `notebooklm-ingest` also needs a one-time `notebooklm login`
+  (interactive OAuth). Anything not enabled now can be added later by re-running that script.
 - **Offer the guided tour.** Once doctor is green, tell the user they can run
   **`/brain-dump`** any time for a guided walkthrough of how to use the wiki (every
   ingestion type, `.raw/`, the hot cache, keeping it lean). Offer to start it now — do

@@ -15,7 +15,9 @@ if ! have_cmd brew; then
 fi
 ok "Homebrew present"
 
-# Install each missing manifest binary via its declared brew command.
+# Install each missing REQUIRED manifest binary via its declared brew command.
+# optional:true binaries power an optional skill/feature (e.g. yt-dlp → yt-fetch)
+# and are installed on demand by bin/setup-features.sh, not here.
 while IFS=$'\t' read -r cmd label install; do
   [ -n "$cmd" ] || continue
   [ "$cmd" = "brew" ] && continue
@@ -29,6 +31,13 @@ while IFS=$'\t' read -r cmd label install; do
       else warn "Skipped $label — some features will not work."; fi ;;
     *) warn "$label ($cmd) missing; install manually: $install" ;;
   esac
-done < <(manifest_get 'm.binaries.map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')
+done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')
+
+# Surface (but never auto-install) optional feature binaries.
+while IFS=$'\t' read -r cmd label; do
+  [ -n "$cmd" ] || continue
+  if have_cmd "$cmd"; then ok "$label ($cmd) already present (optional)"
+  else info "$label ($cmd) optional — enable later with: bash bin/setup-features.sh"; fi
+done < <(manifest_get 'm.binaries.filter(b=>b.optional).map(b=>[b.cmd,b.label||b.cmd].join("\t")).join("\n")')
 
 ok "Dependency check complete"
