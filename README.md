@@ -195,31 +195,48 @@ setup.)
 
 ## Updating an existing secondbrain
 
-Already bootstrapped this machine? Bring it current with one command:
+Already bootstrapped this machine? How you update depends on how you installed —
+pick your path.
+
+### If you installed via the marketplace (most people)
+
+You don't have the `bin/` scripts checked out anywhere convenient — no git, no
+`bash` needed. Update the two plugins from Claude Code, then re-run the setup skill:
+
+```
+claude plugin marketplace update            # refresh listings
+claude plugin update techtrip-secondbrain   # this plugin
+claude plugin update claude-obsidian        # AgriciDaniel's runtime
+```
+
+Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
+versions load, and run:
+
+```
+/secondbrain
+```
+
+It's idempotent — it re-pins the community plugins to this release's manifest tags
+(each asset re-verified against its `sha256`) and finishes with a health check,
+without touching your notes, git history, MCP key, or optional-feature choices.
+
+### If you cloned the git repo
+
+You have the scripts locally, so one command does everything above:
 
 ```bash
+cd techtrip-secondbrain
+git pull                       # get the latest scripts + manifest
 bash bin/update.sh ~/LLM-Wiki
 ```
 
-It refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
-`claude-obsidian` plugins to their latest versions, re-runs the idempotent vault
-scaffold so community plugins are re-pinned to this manifest's tags (each asset
-re-verified against its `sha256`), and finishes with `bin/doctor.sh`. It **does not**
-touch your notes, git history, MCP key, or optional-feature choices.
-
-Every prompt is confirm-gated; `--dry-run` previews without changing anything.
-**Restart Claude Code** (or `/reload-plugins` + `/reload-skills`) afterward so the new
-plugin, skill, and hook versions load.
-
-Prefer to do it by hand? The equivalent steps:
-
-```bash
-claude plugin marketplace update                      # refresh listings
-claude plugin update techtrip-secondbrain             # this plugin
-claude plugin update claude-obsidian                  # AgriciDaniel's runtime
-bash bin/setup-vault.sh ~/LLM-Wiki                    # re-pin community plugins
-bash bin/doctor.sh ~/LLM-Wiki
-```
+`update.sh` refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
+`claude-obsidian` plugins, re-runs the idempotent vault scaffold so community plugins
+are re-pinned to the manifest's tags (each asset re-verified against its `sha256`),
+and finishes with `bin/doctor.sh`. It **does not** touch your notes, git history, MCP
+key, or optional-feature choices. Every prompt is confirm-gated; `--dry-run` previews
+without changing anything. **Restart Claude Code** afterward so the new plugin, skill,
+and hook versions load.
 
 ## Sync model
 
