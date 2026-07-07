@@ -29,15 +29,20 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `setup-obsidian` → `setup-claude-obsidian` → `setup-vault` → `setup-mcp` →
   `setup-sync` → `setup-features` → `doctor` (+ `repair-mcp`, `update`). Each is
   **idempotent** and **interactive**.
-- **Optional features are off by default.** `yt-fetch` (YouTube/`yt-dlp`),
-  `notebooklm-ingest` (`notebooklm-py` + one-time `notebooklm login`), and Syncthing are
-  **not** installed by `setup-deps`/`setup-sync`'s defaults — their skills always ship,
-  but their runtimes are enabled on demand by **`bin/setup-features.sh`** (re-runnable;
-  `setup-features.sh <vault> youtube|notebooklm|syncthing` targets one). Driven by
-  `manifest.json → optionalFeatures`. Binaries carrying `"optional": true` (e.g.
-  `yt-dlp`) are skipped by `setup-deps`, shown as `optional` by `precheck`, and reported
-  on/off (never failed) by `doctor`. `uv` stays **required** (the MCP server needs
-  `uvx`), so "NotebookLM optional" means the `notebooklm-py` install + login, not `uv`.
+- **Optional features are asked inline during setup; consent is tiered.** Their skills
+  always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;
+  `setup-features.sh <vault> youtube|notebooklm|syncthing` targets one), which the
+  `secondbrain` skill drives per-answer during setup instead of deferring. Driven by
+  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** carries
+  `defaultEnabled: true` (harmless freebie — `confirm_yes`, Enter installs) while
+  **NotebookLM** (data egress to Google + interactive `notebooklm login`) and
+  **Syncthing** (background network daemon, second-Mac-only) carry a `consentNote`
+  printed before a default-no confirm — never enable those two unprompted. Binaries
+  carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
+  `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
+  **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
+  `notebooklm-py` install + login, not `uv`. `/brain-dump` §8 is the user-facing
+  reference for enabling/disabling features after setup.
 - **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
   re-pin community plugins to the manifest tags → `doctor`. Never touches notes, git

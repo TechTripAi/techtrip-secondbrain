@@ -8,7 +8,7 @@
     { "cmd": "uvx",    "label": "uv / uvx",  "install": "brew install uv" },
     { "cmd": "yt-dlp", "label": "yt-dlp",    "install": "brew install yt-dlp", "optional": true,
       "feature": "youtube",
-      "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; enable via bin/setup-features.sh." }
+      "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." }
   ],
   "binariesNote": "optional:true binaries are NOT installed by setup-deps.sh (they power an optional skill/feature); precheck reports them as 'optional' not 'missing', and bin/setup-features.sh installs them on demand.",
   "apps": [
@@ -107,19 +107,24 @@
     { "id": "notebooklm-ingest", "runtime": ["uv"], "feature": "notebooklm", "manual": "one-time `notebooklm login` (interactive OAuth)" },
     { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." }
   ],
-  "optionalFeaturesNote": "Features are OFF by default so a base second brain stays lean. bin/setup-features.sh enables any of these on demand (idempotent, re-runnable); the secondbrain skill offers them as an optional step. NotebookLM has no dedicated binary — uv is already required by the MCP server — so enabling it just means the one-time interactive `notebooklm login`.",
+  "optionalFeaturesNote": "bin/setup-features.sh enables any of these on demand (idempotent, re-runnable); the secondbrain skill asks about each one inline during setup and drives this script per answer. defaultEnabled:true = harmless freebie, prompt defaults to YES (still confirm-gated, still skippable). consentNote = why the feature needs an explicit opt-in; setup-features prints it before asking, prompt defaults to NO. NotebookLM has no dedicated binary — uv is already required by the MCP server — so enabling it means the notebooklm-py CLI install + one-time interactive `notebooklm login`.",
   "optionalFeatures": [
     { "id": "youtube",    "label": "YouTube transcripts (yt-fetch)",
       "skill": "yt-fetch", "binary": "yt-dlp", "install": "brew install yt-dlp",
-      "desc": "Fetch a YouTube video's transcript + metadata into .raw/videos/ for ingestion." },
+      "defaultEnabled": true,
+      "desc": "Fetch a YouTube video's transcript + metadata into .raw/videos/ for ingestion. Low-risk freebie: a passive CLI binary — no daemon, no network listener, no credentials — so setup enables it by default (Enter accepts; 'n' skips)." },
     { "id": "notebooklm", "label": "NotebookLM synthesis (notebooklm-ingest)",
       "skill": "notebooklm-ingest", "requires": "uv", "binary": "notebooklm",
       "install": "uv tool install notebooklm-py",
       "login": "notebooklm login", "authProbe": "notebooklm list",
+      "defaultEnabled": false,
+      "consentNote": "Sends the sources you feed it to Google's NotebookLM for synthesis (data leaves your machine), and needs a one-time interactive Google OAuth login — so it stays off until you explicitly say yes.",
       "desc": "Offload multi-source synthesis to Google NotebookLM, then ingest the report. Installs the unofficial notebooklm-py CLI via uv, then needs a one-time interactive `notebooklm login`." },
     { "id": "syncthing",  "label": "Syncthing real-time LAN sync",
       "binary": "syncthing", "install": "brew install syncthing",
       "delegatesTo": "bin/setup-sync.sh",
+      "defaultEnabled": false,
+      "consentNote": "Installs a background network daemon: autostarts via brew services, listens on ports (22000 sync, 21027 discovery, 8384 web UI), and persists across reboots. Only useful with a second Mac — so it stays off until you explicitly say yes.",
       "desc": "Real-time mirror of the vault across your Macs. Git remains the default sync/backup path without it." }
   ]
 }

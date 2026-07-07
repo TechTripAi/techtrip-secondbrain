@@ -118,6 +118,21 @@ confirm() {
   case "$reply" in [yY]|[yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
+# Default-YES variant: Enter accepts, only an explicit n/no declines. Reserve for
+# low-risk "freebie" installs (no daemon, no credentials, no data egress) — anything
+# needing real consent keeps the default-no confirm above.
+confirm_yes() {
+  local prompt="$1"
+  if [ "$TSB_ASSUME_YES" = "1" ] || [ "$TSB_DRY_RUN" = "1" ]; then
+    printf '%s  ?%s %s %s[auto-yes]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$_C_RESET"
+    return 0
+  fi
+  local reply
+  printf '%s  ?%s %s [Y/n] ' "$_C_BLU" "$_C_RESET" "$prompt"
+  read -r reply </dev/tty || reply=""
+  case "$reply" in [nN]|[nN][oO]) return 1 ;; *) return 0 ;; esac
+}
+
 # ── manifest.json reader (node is a hard dependency of the whole system) ──────
 # Usage: manifest_get '<js expression over the parsed object `m`>'
 # e.g.   manifest_get 'm.obsidianPlugins.map(p=>p.id).join("\n")'

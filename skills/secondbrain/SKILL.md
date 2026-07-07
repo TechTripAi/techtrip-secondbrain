@@ -54,13 +54,26 @@ if you need detail; summarize it for the user rather than dumping it.
    is open with the Local REST API plugin enabled, and needs a Claude reload.
 7. **Sync** — `bash bin/setup-sync.sh <path>` (git by default, optional Syncthing).
    See `references/sync.md`.
-8. **Optional features** — `bash bin/setup-features.sh <path>`. The base brain ships
-   lean: **YouTube (yt-fetch)**, **NotebookLM (notebooklm-ingest)**, and **Syncthing**
-   are all off by default. This script installs each one's runtime on demand and is
-   **re-runnable any time** to add a feature later (`bin/setup-features.sh <path>
-   youtube|notebooklm|syncthing` targets just one). Offer it; don't force it. NotebookLM
-   ends in a one-time interactive `notebooklm login` the user runs themselves. (Syncthing
-   is also reachable from step 7 — this is just the standalone/later door to the same thing.)
+8. **Optional features — ask inline, you drive.** Do **not** defer this to "run
+   `setup-features.sh` later" — ask about each feature as part of setup, right now,
+   then run `bash bin/setup-features.sh <path> <feature>` per answer. The three
+   features are not equal; frame each honestly:
+   - **YouTube (yt-fetch)** — the freebie. `yt-dlp` is a passive CLI binary (no
+     daemon, no credentials, no data egress), so **recommend yes**; the script's
+     prompt defaults to yes. Ask: "Want to ingest YouTube videos?"
+   - **NotebookLM (notebooklm-ingest)** — **explicit opt-in.** It sends the user's
+     sources to Google for synthesis and needs a one-time interactive
+     `notebooklm login` (OAuth) — say both *before* asking. Never enable it
+     unprompted.
+   - **Syncthing** — **explicit opt-in.** It installs a background network daemon
+     (autostart, listening ports) and only makes sense with a **second Mac**. Ask
+     "Do you have a second Mac you want the vault mirrored to?" — if no, skip it
+     entirely. (Also reachable from step 7; same setup either way.)
+
+   A "no" costs nothing: the skills still ship, and any feature can be enabled later
+   by re-running `/secondbrain` or `bash bin/setup-features.sh <path>
+   youtube|notebooklm|syncthing`. `/brain-dump` has a section teaching users how to
+   turn any feature on or off after the fact.
 9. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
    error or a red MCP row, **run the doctor yourself, in-session** — the user should
    never have to exit and re-enter Claude Code to diagnose or repair. Run
@@ -83,14 +96,14 @@ steps can be run without re-passing it — but passing it explicitly is always f
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
   from a one-sentence description of what the vault is for.
-- The source skills `yt-fetch` and `notebooklm-ingest` ship with the plugin, but their
-  runtimes are **off by default** — run `bin/setup-features.sh` (step 8) to enable
-  YouTube and/or NotebookLM. `notebooklm-ingest` also needs a one-time `notebooklm login`
-  (interactive OAuth). Anything not enabled now can be added later by re-running that script.
+- Recap the optional-feature answers from step 8: which of YouTube / NotebookLM /
+  Syncthing are on. Anything declined can be enabled later — re-run `/secondbrain`, run
+  `bash bin/setup-features.sh <path> <feature>`, or ask `/brain-dump`, which has a
+  section walking through turning any feature on or off.
 - **Offer the guided tour.** Once doctor is green, tell the user they can run
   **`/brain-dump`** any time for a guided walkthrough of how to use the wiki (every
-  ingestion type, `.raw/`, the hot cache, keeping it lean). Offer to start it now — do
-  not auto-run it.
+  ingestion type, `.raw/`, the hot cache, keeping it lean) — including how to enable or
+  disable the optional features later. Offer to start it now — do not auto-run it.
 
 ## Manual steps you cannot automate (call these out)
 

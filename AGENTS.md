@@ -19,7 +19,7 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
   claude-obsidian entry, MCP server, skills). `precheck` audits against it; every
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — idempotent setup steps run in order:
-  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → doctor` (+ `repair-mcp`)
+  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → doctor` (+ `repair-mcp`, `update`). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) and Syncthing (network daemon) are explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer.
 - **`scripts/common.sh`** — sourced by every script: logging, `confirm()`, `run()`,
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading

@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), what .raw/ and the hot cache are, and how to keep the vault lean and clean — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM, Syncthing) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, disable syncthing, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -136,11 +136,16 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   5. What is .raw/?            — the immutable inbox
   6. hot cache vs index vs log — the three bookkeeping files
   7. Keep it lean & clean      — lint, fold, archive
-  8. Where to go next          — the rest of the toolkit
+  8. Optional features on/off  — YouTube, NotebookLM, Syncthing
+  9. Where to go next          — the rest of the toolkit
 ```
 
+Also mention — once, right here — that this tutorial is the **standing reference for
+turning optional features on or off** (Section 8): it can be re-run any time, so "how
+do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
+
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 8 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 9 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -249,8 +254,8 @@ ingest .raw/videos/<the-downloaded-file>.vtt
 
 **Notes:** auto-captions are imperfect (no speaker labels, occasional mishears — fine
 for meaning, quote carefully); no captions → metadata only. If a prompt errors that
-`yt-dlp` **isn't installed at all**, **don't work around it** — run `/secondbrain-doctor`
-(or `/secondbrain`) to install it (`brew install yt-dlp`).
+`yt-dlp` **isn't installed at all**, the YouTube feature was declined at setup —
+**don't work around it**; see **Section 8** to enable it (`/secondbrain` installs it).
 
 ---
 
@@ -282,8 +287,9 @@ ingest .raw/notebooklm/<slug>-<date>.md
 
 **Notes:** one-time `notebooklm login` first (interactive OAuth). Generation runs on
 Google's compute — only the final `ingest` spends Claude tokens. If the `notebooklm`
-CLI isn't set up, **defer** — run `notebooklm doctor` or the one-time login; brain-dump
-won't log in or install for you.
+CLI isn't set up, the NotebookLM feature was declined at setup — **defer**; see
+**Section 8** to enable it (`/secondbrain` installs it, then the one-time login).
+brain-dump won't log in or install for you.
 
 ---
 
@@ -347,7 +353,49 @@ fold the log, commit k=3    # then write it
 
 ---
 
-## Section 8 — Where to go next
+## Section 8 — Optional features on/off
+
+**Explain:** The second brain ships lean. Three features have runtimes that are only
+installed if you said yes during setup — and every one can be turned on or off later.
+This section is the standing reference for that; nothing here is permanent.
+
+| Feature | Skill | Runtime | Why it's optional |
+|---------|-------|---------|-------------------|
+| **YouTube** | `yt-fetch` | `yt-dlp` (Homebrew) | harmless freebie — setup recommends yes |
+| **NotebookLM** | `notebooklm-ingest` | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | sends your sources to Google — explicit opt-in |
+| **Syncthing** | — | `syncthing` daemon (Homebrew) | background network service; only useful with a second Mac |
+
+**Check what's on right now — Prompt — type into Claude Code:**
+```
+/secondbrain-doctor
+```
+Its health table reports each feature as on/off (never as a failure).
+
+**Turn a feature ON — Prompt — type into Claude Code:**
+```
+/secondbrain
+```
+It's idempotent — everything already installed reports green and is skipped, and it
+asks about each optional feature. (Cloned the git repo instead? The direct door is
+**Shell:** `bash bin/setup-features.sh <your-vault> youtube|notebooklm|syncthing`.)
+Remember brain-dump itself never installs anything — enabling always goes through
+`/secondbrain`.
+
+**Turn a feature OFF — Shell — run in your terminal:**
+```
+brew uninstall yt-dlp                                  # YouTube
+uv tool uninstall notebooklm-py                        # NotebookLM (CLI + its auth)
+brew services stop syncthing && brew uninstall syncthing   # Syncthing (stops the daemon too)
+```
+Notes: uninstalling a runtime never touches the vault — `.raw/` files, wiki pages,
+and the skills all stay; the skill just reports the runtime missing until you
+re-enable it. For Syncthing, stop the service *before* uninstalling (that's what the
+`brew services stop` does), and remember the vault stops mirroring to your other Mac
+the moment it's off.
+
+---
+
+## Section 9 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).
@@ -356,4 +404,6 @@ fold the log, commit k=3    # then write it
 - **`/brain-dump`** — re-run this tour any time; every section stands alone.
 
 Close warmly: the wiki grows by *feeding it* — a couple ingests a day compounds fast.
-When the user is done, just wrap up naturally — no command needed.
+Remind them once more that `/brain-dump` is always here — including Section 8 whenever
+they want to flip an optional feature on or off. When the user is done, just wrap up
+naturally — no command needed.

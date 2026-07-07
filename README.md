@@ -12,17 +12,17 @@ scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
 `notebooklm-ingest` source skills, and sets up git + optional Syncthing sync — all
 interactive and idempotent.
 
-> **Orchestrator, not a fork.** It installs the
+> **TechTrip Second Brain is an Orchestrator, not a fork.** It installs the
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
 > ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) from his marketplace at setup
-> time and fills only the OS-level and sync gaps that plugin leaves to you — nothing of
+> time and fills only the OS-level and sync gaps that the Agrici Claude Obsidian plugin leaves to you — nothing of
 > his is copied here. The MVP produces a **generic empty scaffold** (no personal
 > content) that you grow yourself. Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## Why this exists
 
 `techtrip-secondbrain` does exactly four things — it makes `claude-obsidian` easy to
-install and use, with added functionality:
+install and use, with some added functionality:
 
 1. **Automates installation** of `claude-obsidian` and everything around it
    (Obsidian, community plugins, dependencies, MCP wiring, sync).
@@ -82,10 +82,10 @@ is the LLM that maintains them behind the scenes.
 - **Source-ingestion skills** — ships `yt-fetch` (YouTube) and `notebooklm-ingest`
   (NotebookLM) as first-class skills for pulling material into the vault.
 - **Guided onboarding** — ships `/brain-dump`, an instructional tutorial that walks you
-  through every ingestion type, `.raw/`, the hot cache, and keeping the vault lean, and
-  hands you the exact prompts to run yourself. It teaches; it never changes your vault.
-  Re-runnable any time.
-- **Cross-machine sync** — git remote by default, with optional Syncthing and a safe
+  through every ingestion type, `.raw/`, the hot cache, keeping the vault lean, and
+  turning optional features on or off, and hands you the exact prompts to run yourself.
+  It teaches; it never changes your vault. Re-runnable any time.
+- **Cross-machine sync** — git remote by default, with optional Syncthing between two machines and a safe
   `.stignore` so real-time sync and git auto-commit don't fight.
 - **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
   `secondbrain-doctor` skill diagnoses and repairs the common "MCP registered globally
@@ -127,7 +127,7 @@ Then, in Claude Code:
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
 | MCP | `bin/setup-mcp.sh <path>` | generate REST key, register `obsidian` MCP server |
 | Sync | `bin/setup-sync.sh <path>` | git remote (default) + optional Syncthing |
-| Optional features | `bin/setup-features.sh <path>` | enable YouTube / NotebookLM / Syncthing (off by default; re-runnable) |
+| Optional features | `bin/setup-features.sh <path>` | YouTube (default-yes freebie) / NotebookLM + Syncthing (explicit opt-in); asked inline during setup, re-runnable any time |
 | Verify | `bin/doctor.sh <path>` | health check |
 | Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
 
@@ -135,7 +135,7 @@ Everything is driven by **`manifest.json`** — the single source of truth for t
 binaries, apps, plugins, community plugins, MCP server, and skills. Edit it to change
 what gets audited and installed.
 
-### Run manually (without the skill)
+### Although TechTrip Second Brain is designed to run via Claude you may Run it manually on the command line as follows:
 
 ```bash
 git clone https://github.com/TechTripAi/techtrip-secondbrain
@@ -153,33 +153,38 @@ bash bin/doctor.sh      ~/LLM-Wiki
 
 Flags: `--dry-run` (preview, mutates nothing), `--yes` (unattended, auto-confirm).
 
-## After setup — manual follow-ups
+## After setup — there are some manual follow-ups
 
 These can't be automated:
 
 1. **Open the vault in Obsidian** and, when prompted, trust it and enable community
    plugins (Settings → Community plugins). This also generates the REST API TLS cert.
 2. **Reload Claude Code** so the `claude-obsidian` skills/hooks and the `obsidian` MCP
-   server activate.
+   server activate. (/exit and then run `claude --resume`, alternatively you may to a `/reload-skills` followed by `/reload-plugins`)
 3. Run **`/wiki`** to scaffold content from a one-sentence description of the vault.
-4. Turn on any optional features you want with **`bash bin/setup-features.sh <vault>`**
-   (see below) — including the one-time **`notebooklm login`** OAuth for NotebookLM.
-5. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in
-   and keep the vault healthy. `/secondbrain` offers to launch it once setup is green.
+4. If you enabled **NotebookLM**, run the one-time **`notebooklm login`** OAuth (setup
+   offers it, but it's interactive so you may have deferred it). Any feature you
+   declined during setup can be enabled later — see below.
+5. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in,
+   keep the vault healthy, and turn optional features on or off. `/secondbrain` offers
+   to launch it once setup is green.
 
-## Optional features (off by default)
+## Optional features
 
-The base second brain ships **lean**. Three features are off until you turn them on,
-so nothing you don't use gets installed. Their *skills* always ship with the plugin —
-this just installs the runtime each needs:
+The base second brain ships **lean**, and setup asks about each optional feature
+**inline** — you answer three quick questions during `/secondbrain` instead of being
+told to run a script later. The three are deliberately not treated the same, because
+they don't carry the same risk:
 
-| Feature | Skill | What it adds | Runtime installed |
-|---------|-------|--------------|-------------------|
-| **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) |
-| **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` |
-| **Syncthing** | — | real-time LAN mirror of the vault across your Macs | `syncthing` (Homebrew) + vault `.stignore` |
+| Feature | Skill | What it adds | Runtime installed | Setup default |
+|---------|-------|--------------|-------------------|---------------|
+| **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
+| **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | **no — explicit opt-in**: it sends your sources to Google, and the login is an interactive OAuth |
+| **Syncthing** | — | real-time LAN mirror of the vault across your Macs | `syncthing` (Homebrew) + vault `.stignore` | **no — explicit opt-in**: it's a background network daemon (autostart, listening ports) that only pays off with a second Mac |
 
-Enable them any time — during setup or long after:
+Their *skills* always ship with the plugin; the questions only govern the runtime
+each needs. Declining costs nothing — enable any feature later by re-running
+`/secondbrain` (idempotent; everything already installed is skipped), or directly:
 
 ```bash
 bash bin/setup-features.sh ~/LLM-Wiki                 # walk all three
@@ -188,10 +193,21 @@ bash bin/setup-features.sh ~/LLM-Wiki notebooklm
 bash bin/setup-features.sh ~/LLM-Wiki syncthing
 ```
 
+To turn a feature **off**, uninstall its runtime — the vault, skills, and your notes
+are untouched:
+
+```bash
+brew uninstall yt-dlp                                      # YouTube
+uv tool uninstall notebooklm-py                            # NotebookLM
+brew services stop syncthing && brew uninstall syncthing   # Syncthing (stops the daemon too)
+```
+
 The script is **idempotent**: already-enabled features report green and change
-nothing. `bin/doctor.sh` shows each feature's on/off state. (Syncthing is also offered
-by `bin/setup-sync.sh`; `setup-features.sh` is the standalone/later door to the same
-setup.)
+nothing. `bin/doctor.sh` shows each feature's on/off state (off is reported, never
+failed). **`/brain-dump` is the standing reference for all of this** — its
+optional-features section walks through checking, enabling, and disabling each one,
+and it's re-runnable any time. (Syncthing is also offered by `bin/setup-sync.sh`;
+`setup-features.sh` is the standalone/later door to the same setup.)
 
 ## Updating an existing secondbrain
 
