@@ -160,7 +160,7 @@ These can't be automated:
 1. **Open the vault in Obsidian** and, when prompted, trust it and enable community
    plugins (Settings → Community plugins). This also generates the REST API TLS cert.
 2. **Reload Claude Code** so the `claude-obsidian` skills/hooks and the `obsidian` MCP
-   server activate. (/exit and then run `claude --resume`, alternatively you may to a `/reload-skills` followed by `/reload-plugins`)
+   server activate. (/exit and then run `claude --resume`, alternatively you may do a `/reload-skills` followed by `/reload-plugins`)
 3. Run **`/wiki`** to scaffold content from a one-sentence description of the vault.
 4. If you enabled **NotebookLM**, run the one-time **`notebooklm login`** OAuth (setup
    offers it, but it's interactive so you may have deferred it). Any feature you
