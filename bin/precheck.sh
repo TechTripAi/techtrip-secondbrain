@@ -40,11 +40,19 @@ done < <(manifest_get 'm.apps.map(a=>[a.name,a.check,a.cask||""].join("\t")).joi
 step "Claude Code plugins"
 if have_cmd claude; then
   plugins_out="$(claude plugin list 2>/dev/null || true)"
-  while IFS=$'\t' read -r id slug; do
+  while IFS=$'\t' read -r id slug tested; do
     [ -n "$id" ] || continue
-    if printf '%s' "$plugins_out" | grep -q "$id"; then row "$id" "$PRESENT_MARK"
+    if printf '%s' "$plugins_out" | grep -q "$id"; then
+      # claude-obsidian (AgriciDaniel) can't be version-pinned via the CLI, so
+      # testedVersion is advisory: report drift as a note, never a failure.
+      have=""; [ -n "$tested" ] && have="$(claude_obsidian_installed_version 2>/dev/null || true)"
+      if [ -n "$have" ] && [ -n "$tested" ] && [ "$have" != "$tested" ]; then
+        row "$id" "$PRESENT_MARK  ${_C_DIM}v$have ≠ tested v$tested (version drift)${_C_RESET}"
+      else
+        row "$id" "$PRESENT_MARK${have:+ v$have}"
+      fi
     else row "$id" "$MISSING_MARK  → claude plugin install $slug"; missing=$((missing+1)); fi
-  done < <(manifest_get 'm.claudePlugins.map(p=>[p.id,p.slug].join("\t")).join("\n")')
+  done < <(manifest_get 'm.claudePlugins.map(p=>[p.id,p.slug,p.testedVersion||""].join("\t")).join("\n")')
 else
   warn "claude CLI not found — install Claude Code first (prerequisite)."; missing=$((missing+1))
 fi

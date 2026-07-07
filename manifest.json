@@ -24,7 +24,7 @@
       "slug": "claude-obsidian@agricidaniel-claude-obsidian",
       "license": "MIT",
       "testedVersion": "1.9.2",
-      "note": "By AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Pulled from his marketplace at install time — NOT vendored or forked. The CLI can't pin versions, so testedVersion is advisory: setup-claude-obsidian.sh warns if the installed version differs from the one this project was tested against."
+      "note": "By AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Pulled from his marketplace at install time — NOT vendored or forked. The CLI can't pin versions (no --ref/--tag on marketplace add, no plugin@marketplace@version on install), so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor all surface a non-failing drift note when the installed version differs from the one this project was tested against."
     }
   ],
   "obsidianPluginsNote": "Each plugin is PINNED to a release tag, and every downloaded asset is verified against its sha256 before install (supply-chain guard: a hijacked upstream release fails loudly instead of installing silently). Refresh pins + hashes with: bash scripts/pin-obsidian-plugins.sh",
