@@ -12,6 +12,10 @@ The core LLM Wiki runtime (skills, hooks, vault scaffold) is provided entirely b
 - **Author:** AgriciDaniel — <https://github.com/AgriciDaniel>
 - **Repository:** <https://github.com/AgriciDaniel/claude-obsidian>
 - **License:** MIT
+- **Citation:** the upstream repo provides a
+  [`CITATION.cff`](https://github.com/AgriciDaniel/claude-obsidian/blob/main/CITATION.cff);
+  if you cite this second-brain system in writing or research, cite `claude-obsidian`
+  using that file's metadata.
 - **How we use it:** installed from AgriciDaniel's own Claude Code marketplace
   (`claude plugin marketplace add AgriciDaniel/claude-obsidian`) at setup time. It is
   **not** copied, vendored, forked, or redistributed in this repository. All of its
