@@ -14,6 +14,15 @@ info "Vault: $VAULT"
 # Vault scaffold
 [ -d "$VAULT/wiki" ] && row "wiki/ tree" "$OKM" || row "wiki/ tree" "$BADM  → bin/setup-vault.sh"
 
+# Required binaries (manifest-driven; includes claude-obsidian runtime deps like flock).
+# Optional binaries are reported by the optional-features section below, not here.
+step "Required binaries"
+while IFS=$'\t' read -r cmd label install; do
+  [ -n "$cmd" ] || continue
+  have_cmd "$cmd" && row "$label ($cmd)" "$OKM" \
+    || row "$label ($cmd)" "$BADM  → $install"
+done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')
+
 # Community plugins present + enabled
 step "Community plugins"
 CP="$VAULT/.obsidian/community-plugins.json"

@@ -6,6 +6,10 @@
     { "cmd": "git",    "label": "git",       "install": "brew install git" },
     { "cmd": "node",   "label": "Node.js",   "install": "brew install node" },
     { "cmd": "uvx",    "label": "uv / uvx",  "install": "brew install uv" },
+    { "cmd": "flock",  "label": "flock",     "install": "brew install flock",
+      "note": "Runtime dependency of claude-obsidian's wiki-lock.sh + allocate-address.sh (per-file write locking, DragonScale address counter). Not shipped with macOS; both call sites fail hard without it." },
+    { "cmd": "python3", "label": "Python 3", "install": "brew install python",
+      "note": "Runtime dependency of claude-obsidian's setup-retrieve.sh and setup-mode.sh. Usually present via Xcode CLT; declared so precheck/doctor verify it on fresh machines." },
     { "cmd": "yt-dlp", "label": "yt-dlp",    "install": "brew install yt-dlp", "optional": true,
       "feature": "youtube",
       "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." }

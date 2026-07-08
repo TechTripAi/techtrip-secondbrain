@@ -75,7 +75,7 @@ is the LLM that maintains them behind the scenes.
 `techtrip-secondbrain` closes that gap:
 
 - **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
-  dependency (`uv`, `yt-dlp`, `node`) via Homebrew, all idempotent.
+  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`) via Homebrew, all idempotent.
 - **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
@@ -121,7 +121,7 @@ Then, in Claude Code:
 | Step | Script | Result |
 |------|--------|--------|
 | Precheck | `bin/precheck.sh` | audit machine vs `manifest.json` (report-only) |
-| Dependencies | `bin/setup-deps.sh` | Homebrew + `uv`, `yt-dlp`, `node` |
+| Dependencies | `bin/setup-deps.sh` | Homebrew + `uv`, `node`, `flock`, `python3` |
 | Obsidian | `bin/setup-obsidian.sh` | `brew install --cask obsidian` |
 | claude-obsidian | `bin/setup-claude-obsidian.sh` | marketplace add + plugin install |
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
