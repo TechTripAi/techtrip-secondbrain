@@ -4,6 +4,18 @@
   <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
 </p>
 
+> [!NOTE]
+> **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
+> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (by
+> [AgriciDaniel](https://github.com/AgriciDaniel), MIT) from a lightly-patched fork we
+> maintain — [`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian) —
+> rather than directly from upstream. Upstream is backlogged on bug fixes (e.g. an invalid
+> `SessionStart` hook that errors at launch, [issue #116](https://github.com/AgriciDaniel/claude-obsidian/issues/116)),
+> and installing his current build breaks on setup. The fork carries **bug fixes only** — no
+> feature divergence — tracks upstream for periodic sync, and stays under AgriciDaniel's
+> copyright + MIT license. Fixes are filed upstream too. Already on the upstream copy?
+> `bin/setup-claude-obsidian.sh` (and `bin/doctor.sh`) detect it and offer a one-step migration.
+
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
 fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
 [**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
