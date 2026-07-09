@@ -66,6 +66,20 @@ if have_cmd claude; then
     else
       row "claude-obsidian plugin" "$OKM${cov:+ v$cov} (by AgriciDaniel)"
     fi
+    # Upstream bug (≤1.9.2): SessionStart supports only command/mcp_tool hooks, but
+    # the plugin ships a type:"prompt" hook there → harmless startup validation
+    # warning on stricter clients. REPORT-ONLY: secondbrain never patches
+    # claude-obsidian's files (AGENTS.md invariant) — the fix is upstream; advise
+    # `claude plugin update` once it ships.
+    coh="$(ls -1 "$HOME"/.claude/plugins/cache/*/claude-obsidian/*/hooks/hooks.json 2>/dev/null | sort -V | tail -1)"
+    if [ -n "$coh" ]; then
+      bad="$(node -e 'try{const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const ss=(j.hooks&&j.hooks.SessionStart)||[];let n=0;for(const g of ss)if(g&&Array.isArray(g.hooks))for(const h of g.hooks)if(h&&h.type==="prompt")n++;process.stdout.write(String(n))}catch(e){process.stdout.write("0")}' "$coh" 2>/dev/null)"
+      if [ "${bad:-0}" != 0 ]; then
+        row "SessionStart hooks valid" "$BADM  ($bad unsupported prompt hook(s); upstream ≤1.9.2 bug → update claude-obsidian once fixed)"
+      else
+        row "SessionStart hooks valid" "$OKM"
+      fi
+    fi
   else row "claude-obsidian plugin" "$BADM  → bin/setup-claude-obsidian.sh"; fi
   claude mcp list 2>/dev/null | grep -q obsidian \
     && row "obsidian MCP server" "$OKM" || row "obsidian MCP server" "$BADM  → bin/setup-mcp.sh"

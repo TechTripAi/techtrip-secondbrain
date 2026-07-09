@@ -27,6 +27,11 @@ Two scripts back this skill:
   uvx present, registered, key match, port 27124 listening, authenticated probe;
   then offers fixes (install uv, re-register with the correct key, open Obsidian +
   enable Local REST API, or advise a Claude reload / TLS-flag check).
+`doctor.sh` also reports a **"SessionStart hooks valid"** row: claude-obsidian ≤1.9.2
+ships a `type:"prompt"` hook under `SessionStart`, which Claude Code supports only for
+`command`/`mcp_tool` — a harmless startup validation warning on stricter clients. This
+is **report-only**: secondbrain never patches claude-obsidian's files (see AGENTS.md),
+so the fix is upstream, not here.
 
 ## Workflow
 
@@ -37,6 +42,13 @@ Two scripts back this skill:
    connect" — run `bash bin/repair-mcp.sh <vault>` and walk the interactive repairs,
    explaining each before confirming. Never pass `--yes` unless asked.
 4. Re-run `bin/repair-mcp.sh <vault>` after repairs to confirm it goes green.
+5. If the "SessionStart hooks valid" row is red (or the user reports a
+   `SessionStart::startup hook` error at launch), explain it is an upstream
+   claude-obsidian bug (≤1.9.2 ships a `type:"prompt"` hook under SessionStart,
+   which supports only `command`/`mcp_tool`). secondbrain does **not** patch
+   claude-obsidian's files — advise the user to `claude plugin update` once the
+   upstream fix ships. The warning is harmless: a sibling `command` hook still
+   restores the hot cache, so nothing is actually lost meanwhile.
 
 ## Reading the "registered but fails to connect" case
 

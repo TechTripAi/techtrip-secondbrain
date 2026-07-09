@@ -43,7 +43,11 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
 - **`manifest_get`** newline-terminates list output so `while read` keeps the last
   line — preserve that behavior when editing it.
 - **Never write into `~/.claude/plugins/cache/**`** — install claude-obsidian via the
-  official CLI, read/execute it, but never patch it.
+  official CLI, read/execute it, but never patch it. **claude-obsidian fixes belong in
+  upstream PRs to AgriciDaniel, not downstream patches** — a local patch hides the bug
+  from the maintainer and creates same-version/different-behavior skew across machines.
+  Detecting and *reporting* a claude-obsidian defect (e.g. in `doctor.sh`) is fine;
+  mutating its files to "fix" it is not.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
 - **Two-machine model:** one vault mirrored by Syncthing; **git on the primary
