@@ -66,16 +66,26 @@ if have_cmd claude; then
     else
       row "claude-obsidian plugin" "$OKM${cov:+ v$cov} (by AgriciDaniel)"
     fi
-    # Upstream bug (≤1.9.2): SessionStart supports only command/mcp_tool hooks, but
-    # the plugin ships a type:"prompt" hook there → harmless startup validation
-    # warning on stricter clients. REPORT-ONLY: secondbrain never patches
-    # claude-obsidian's files (AGENTS.md invariant) — the fix is upstream; advise
-    # `claude plugin update` once it ships.
+    # Installed from the maintained fork, or a stale upstream/other copy? The fork
+    # carries the bug fixes; an upstream slug means this machine misses them.
+    # (`|| true` guards the no-match grep; doctor has no `set -e` but keep it clean.)
+    want_slug="$(manifest_get 'm.claudePlugins[0].slug')"
+    have_slug="$(claude plugin list 2>/dev/null | grep -oE 'claude-obsidian@[a-z0-9._-]+' | head -1 || true)"
+    if [ -n "$have_slug" ] && [ "$have_slug" != "$want_slug" ]; then
+      row "claude-obsidian source" "$BADM  '$have_slug' ≠ fork '$want_slug' → bin/setup-claude-obsidian.sh migrates"
+    elif [ -n "$have_slug" ]; then
+      row "claude-obsidian source" "$OKM (maintained fork)"
+    fi
+    # Some builds (upstream ≤1.9.2) ship a type:"prompt" hook under SessionStart, which
+    # supports only command/mcp_tool → harmless startup validation warning on stricter
+    # clients. REPORT-ONLY: secondbrain never patches the installed cache (AGENTS.md
+    # invariant); the fix lives in the maintained fork, so the remedy is to
+    # migrate/reinstall from it (setup-claude-obsidian.sh).
     coh="$(ls -1 "$HOME"/.claude/plugins/cache/*/claude-obsidian/*/hooks/hooks.json 2>/dev/null | sort -V | tail -1)"
     if [ -n "$coh" ]; then
       bad="$(node -e 'try{const j=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const ss=(j.hooks&&j.hooks.SessionStart)||[];let n=0;for(const g of ss)if(g&&Array.isArray(g.hooks))for(const h of g.hooks)if(h&&h.type==="prompt")n++;process.stdout.write(String(n))}catch(e){process.stdout.write("0")}' "$coh" 2>/dev/null)"
       if [ "${bad:-0}" != 0 ]; then
-        row "SessionStart hooks valid" "$BADM  ($bad unsupported prompt hook(s); upstream ≤1.9.2 bug → update claude-obsidian once fixed)"
+        row "SessionStart hooks valid" "$BADM  ($bad unsupported prompt hook(s) → bin/setup-claude-obsidian.sh installs the fixed fork)"
       else
         row "SessionStart hooks valid" "$OKM"
       fi

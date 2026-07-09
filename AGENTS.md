@@ -6,12 +6,15 @@ Guidance for AI coding agents (Cursor, Codex, etc.) working in this repository.
 
 **`techtrip-secondbrain`** is a Claude Code plugin that bootstraps a generic,
 out-of-the-box LLM Wiki "second brain" on a fresh **macOS** machine. It is an
-**orchestrator / enhancement layer, not a fork**: the actual wiki runtime is
+**orchestrator / enhancement layer**: the actual wiki runtime is
 [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) by AgriciDaniel
-(MIT), which this project **installs from his marketplace at setup time** and never
-vendors, copies, or modifies. `techtrip-secondbrain` only fills the gaps that plugin
-leaves manual: installing Obsidian + community plugins, wiring/repairing the Obsidian
-MCP server, git + optional Syncthing sync, and the ported source skills.
+(MIT), which this project **installs at setup time from a lightly-patched fork it
+maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian))
+— bug fixes only (upstream is backlogged; fixes are filed upstream too, e.g. issue #116),
+no feature divergence, tracking upstream via git remote for periodic sync. Nothing of his
+is vendored or copied into this repo. `techtrip-secondbrain` only fills the gaps that
+plugin leaves manual: installing Obsidian + community plugins, wiring/repairing the
+Obsidian MCP server, git + optional Syncthing sync, and the ported source skills.
 
 ## Architecture
 
@@ -43,11 +46,15 @@ MCP server, git + optional Syncthing sync, and the ported source skills.
 - **`manifest_get`** newline-terminates list output so `while read` keeps the last
   line — preserve that behavior when editing it.
 - **Never write into `~/.claude/plugins/cache/**`** — install claude-obsidian via the
-  official CLI, read/execute it, but never patch it. **claude-obsidian fixes belong in
-  upstream PRs to AgriciDaniel, not downstream patches** — a local patch hides the bug
-  from the maintainer and creates same-version/different-behavior skew across machines.
-  Detecting and *reporting* a claude-obsidian defect (e.g. in `doctor.sh`) is fine;
-  mutating its files to "fix" it is not.
+  official CLI, read/execute it, but never patch the installed copy. Fixes for
+  claude-obsidian defects go into the **maintained fork**
+  ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian) —
+  transparent, attributed, MIT, tracks upstream) **and are filed upstream** (e.g.
+  issue #116), never as runtime patches to a user's cache. A cache patch hides the bug
+  from the maintainer and creates same-version/different-behavior skew across machines;
+  the fork does the opposite — one consistent, versioned source everyone installs.
+  Detecting and *reporting* a defect (e.g. in `doctor.sh`) is fine; mutating the
+  installed files is not.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
 - **Two-machine model:** one vault mirrored by Syncthing; **git on the primary

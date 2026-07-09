@@ -6,12 +6,15 @@ Guidance for Claude Code when working in this repository.
 
 **`techtrip-secondbrain`** is a Claude Code plugin that bootstraps a generic,
 out-of-the-box LLM Wiki "second brain" on a fresh **macOS** machine. It is an
-**orchestrator / enhancement layer, not a fork**: the actual wiki runtime is
+**orchestrator / enhancement layer**: the actual wiki runtime is
 [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) by AgriciDaniel
-(MIT), which this project **installs from his marketplace at setup time** and never
-vendors, copies, or modifies. `techtrip-secondbrain` only fills the gaps that plugin
-leaves manual: installing Obsidian + community plugins, wiring/repairing the Obsidian
-MCP server, git + optional Syncthing sync, and the ported source skills. See
+(MIT), which this project **installs at setup time from a lightly-patched fork it
+maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian))
+— bug fixes only (upstream is backlogged; fixes are filed upstream too, e.g. issue #116),
+no feature divergence, tracking upstream via git remote for periodic sync. Nothing of his
+is vendored or copied into this repo. `techtrip-secondbrain` only fills the gaps that
+plugin leaves manual: installing Obsidian + community plugins, wiring/repairing the
+Obsidian MCP server, git + optional Syncthing sync, and the ported source skills. See
 `ATTRIBUTION.md`.
 
 Install (same model as claude-obsidian):

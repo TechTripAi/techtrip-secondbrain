@@ -7,17 +7,21 @@
 **One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
 fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
 [**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
-[**AgriciDaniel**](https://github.com/AgriciDaniel) — from its own marketplace,
-scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
+[**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
+TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
+bug-fixes-only, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
 `notebooklm-ingest` source skills, and sets up git + optional Syncthing sync — all
 interactive and idempotent.
 
-> **TechTrip Second Brain is an Orchestrator, not a fork.** It installs the
+> **TechTrip Second Brain is an orchestrator.** It installs the
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
-> ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) from his marketplace at setup
-> time and fills only the OS-level and sync gaps that the Agrici Claude Obsidian plugin leaves to you — nothing of
-> his is copied here. The MVP produces a **generic empty scaffold** (no personal
-> content) that you grow yourself. Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
+> ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) at setup time — from a
+> **lightly-patched fork we maintain** ([TechTripAi/claude-obsidian](https://github.com/TechTripAi/claude-obsidian))
+> that carries bug fixes upstream is backlogged on (fixes only, no feature divergence;
+> tracks upstream for sync, and fixes are filed upstream too). It fills only the OS-level
+> and sync gaps the plugin leaves to you — nothing of his is copied into this repo. The
+> MVP produces a **generic empty scaffold** (no personal content) that you grow yourself.
+> Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## Why this exists
 

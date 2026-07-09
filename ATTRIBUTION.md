@@ -1,8 +1,11 @@
 # Attribution
 
 `techtrip-secondbrain` is an **orchestrator/enhancement layer**. It stands on the
-work of others and does not vendor or fork their code — it installs their published
-artifacts at setup time so you always get their upstream updates.
+work of others and does not vendor or copy their code into this repository — it
+installs their published artifacts at setup time. Where a dependency needs a bug fix
+its upstream hasn't shipped yet, we install from a transparent, attributed **fork**
+that retains the original author's copyright and license (see below), and we file the
+fix upstream.
 
 ## claude-obsidian — by AgriciDaniel
 
@@ -16,11 +19,17 @@ The core LLM Wiki runtime (skills, hooks, vault scaffold) is provided entirely b
   [`CITATION.cff`](https://github.com/AgriciDaniel/claude-obsidian/blob/main/CITATION.cff);
   if you cite this second-brain system in writing or research, cite `claude-obsidian`
   using that file's metadata.
-- **How we use it:** installed from AgriciDaniel's own Claude Code marketplace
-  (`claude plugin marketplace add AgriciDaniel/claude-obsidian`) at setup time. It is
-  **not** copied, vendored, forked, or redistributed in this repository. All of its
-  skills, hooks, `bin/setup-vault.sh` scaffold, and `WIKI.md`/`CLAUDE.md` schema are
-  his work and remain under his repository and license.
+- **How we use it:** installed at setup time from a **lightly-patched fork we maintain**
+  — [`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian)
+  (`claude plugin marketplace add TechTripAi/claude-obsidian`). The fork carries **bug
+  fixes only** (no feature divergence) that upstream is backlogged on — e.g. removing an
+  invalid `SessionStart` hook, [upstream issue #116](https://github.com/AgriciDaniel/claude-obsidian/issues/116)
+  — and tracks AgriciDaniel's repo via a git remote for periodic sync. Per its MIT
+  license, the fork **retains AgriciDaniel's copyright and `LICENSE`** and is
+  redistributed under those same terms. None of his code is copied or vendored into
+  *this* (`techtrip-secondbrain`) repository. All of the plugin's skills, hooks,
+  `bin/setup-vault.sh` scaffold, and `WIKI.md`/`CLAUDE.md` schema are his work and
+  remain under his copyright and MIT license.
 
 `techtrip-secondbrain` only adds the pieces AgriciDaniel's plugin leaves to the user:
 a macOS bootstrapper (install Obsidian + community plugins), MCP wiring + repair,

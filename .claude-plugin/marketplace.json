@@ -13,7 +13,7 @@
     {
       "name": "techtrip-secondbrain",
       "source": "./",
-      "description": "Bootstraps a generic LLM Wiki second brain: installs Obsidian + community plugins, pulls the claude-obsidian plugin from its own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch and notebooklm-ingest source skills, and configures git + optional Syncthing sync. macOS MVP. Interactive and idempotent.",
+      "description": "Bootstraps a generic LLM Wiki second brain: installs Obsidian + community plugins, pulls the claude-obsidian plugin (AgriciDaniel, MIT) from TechTrip's maintained bug-fix fork, scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch and notebooklm-ingest source skills, and configures git + optional Syncthing sync. macOS MVP. Interactive and idempotent.",
       "version": "0.1.0",
       "author": {
         "name": "Terry Trippany (Try AI Solutions)",

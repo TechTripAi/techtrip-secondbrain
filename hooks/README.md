@@ -48,7 +48,8 @@ Mitigations you control:
 - **Avoid `wiki/` directories in non-vault repos** you open with Claude, or accept
   the behaviors above.
 
-Why `techtrip-secondbrain` doesn't fix this: we are an orchestrator, not a fork —
-we never patch `~/.claude/plugins/cache/**`. The proper fix (guarding each hook on
-a scaffold-unique sentinel such as the vault's `WIKI.md`) belongs upstream in
-claude-obsidian.
+Why `techtrip-secondbrain` doesn't hot-fix this: we never patch the installed plugin
+cache (`~/.claude/plugins/cache/**`). The proper fix (guarding each hook on a
+scaffold-unique sentinel such as the vault's `WIKI.md`) belongs upstream in
+claude-obsidian — filed there, and carried in our maintained fork
+(`TechTripAi/claude-obsidian`) once validated, never as a runtime cache patch.

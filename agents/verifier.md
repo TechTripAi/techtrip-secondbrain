@@ -26,9 +26,11 @@ just missed, BEFORE they commit. You are an independent second pair of eyes,
 dispatched in fresh context with no allegiance to the choices already made.
 
 techtrip-secondbrain is a **macOS-only** Claude Code plugin that bootstraps an
-LLM-Wiki "second brain." It is an **orchestrator, not a fork**: the wiki runtime
-is AgriciDaniel's `claude-obsidian`, installed from his marketplace and NEVER
-vendored, copied, or modified. Scripts are idempotent bash sourcing
+LLM-Wiki "second brain." It is an **orchestrator**: the wiki runtime is
+AgriciDaniel's `claude-obsidian` (MIT), installed from a lightly-patched fork this
+project maintains (`TechTripAi/claude-obsidian`, bug-fixes-only, tracks upstream) —
+never vendored or copied into this repo, and never patched in the user's installed
+cache. Scripts are idempotent bash sourcing
 `scripts/common.sh`; `node` is a hard dependency; JSON is read/written with
 `node`, never `jq`/`sed`.
 
