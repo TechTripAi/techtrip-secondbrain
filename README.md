@@ -316,6 +316,31 @@ and hook versions load.
 
 ## Sync model
 
+> [!NOTE]
+> **Syncthing is optional — git-only is the recommended default.** The two-tool model
+> below (git + Syncthing) exists for people who genuinely need a *live* multi-machine
+> mirror. In practice most single-user setups are better served by **git alone**, and
+> that's the path this project now leans toward. Reasons we dropped Syncthing from our
+> own setup:
+> - **You already edit one machine at a time** (the single-writer rule). Given that,
+>   real-time propagation buys little — a `pull` before you start and a `push` when you
+>   finish covers it, and the git remote is already your off-machine backup.
+> - **Syncthing adds standing complexity**: a background daemon with listening ports,
+>   per-device pairing in a web UI, a per-machine `.stignore`, and `.sync-conflict`
+>   files when the single-writer rule slips.
+> - **It complicates the MCP key.** Because Syncthing mirrors the whole vault, both
+>   machines share one REST key and setup ordering matters (wire MCP before the first
+>   sync and you can clobber the primary's key). With git-only the key stays gitignored
+>   and each machine mints its **own** local key — no shared-key hazard at all.
+> - **We avoided cloud file-sync (iCloud/Dropbox/Obsidian Sync) too**: putting a `.git`
+>   dir under a cloud syncer risks repo corruption and conflict noise, and it sends the
+>   vault off your machine — git to a remote you control is simpler and private.
+>
+> To go git-only for a second machine: `git clone` the vault repo (community plugins are
+> committed, so they come with it), run `setup-mcp.sh` there for a local key, and adopt
+> pull-before / push-after. Syncthing remains available for anyone who wants true
+> real-time sync.
+
 The vault has two different sync needs, so it uses two tools:
 
 **Git — history and backup.** The `claude-obsidian` plugin auto-commits on every write,
