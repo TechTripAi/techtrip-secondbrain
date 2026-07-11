@@ -22,7 +22,7 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   claude-obsidian entry, MCP server, skills). `precheck` audits against it; every
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — idempotent setup steps run in order:
-  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `update`). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and offers a legacy teardown.
+  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `update`). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a legacy vault `.stignore` — it never stops or uninstalls Syncthing itself (external software the user may need).
 - **`scripts/common.sh`** — sourced by every script: logging, `confirm()`, `run()`,
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
@@ -41,6 +41,10 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   child scripts inherit them — do not break that.
 - **Idempotent**: detect already-present state and skip. A second run must mutate
   nothing and report green.
+- **Never uninstall or stop external software.** Scripts may only remove
+  artifacts this project itself created (e.g. a vault `.stignore`). Anything
+  brew/uv/npm-installed — even if we installed it — may serve other purposes on
+  the user's machine; print the manual removal commands and let the user decide.
 - **`TSB_` is the env-var prefix** — never reintroduce the old `CSB_` prefix.
 - **JSON is read/written with `node`** (a hard dependency), not `jq` or `sed`.
 - **`manifest_get`** newline-terminates list output so `while read` keeps the last

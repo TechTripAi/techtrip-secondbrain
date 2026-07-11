@@ -3,7 +3,10 @@
 `bin/setup-sync.sh` sets up how the vault travels between machines. **Git is the
 only sync path.** (Syncthing support was removed — a background network daemon
 and `.sync-conflict` merge copies were complexity the second brain doesn't need.
-The script detects a legacy Syncthing install and offers a teardown.)
+The script offers to remove a legacy vault `.stignore` — the only artifact we
+created. It NEVER stops or uninstalls Syncthing itself: that's external
+software the user may rely on for other folders; it only prints the manual
+removal commands for the user to run themselves.)
 
 ## Git (always)
 

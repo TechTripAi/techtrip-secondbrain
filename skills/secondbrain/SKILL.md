@@ -53,7 +53,8 @@ if you need detail; summarize it for the user rather than dumping it.
    `obsidian` MCP server). See `references/mcp.md`. Note: it only answers once Obsidian
    is open with the Local REST API plugin enabled, and needs a Claude reload.
 7. **Sync** — `bash bin/setup-sync.sh <path>` (git only: init + remote guidance;
-   offers a teardown if a legacy Syncthing install is detected). See `references/sync.md`.
+   offers to remove a legacy vault `.stignore` but never uninstalls Syncthing
+   itself — external software). See `references/sync.md`.
 8. **Optional features — ask inline, you drive.** Do **not** defer this to "run
    `setup-features.sh` later" — ask about each feature as part of setup, right now,
    then run `bash bin/setup-features.sh <path> <feature>` per answer. The three

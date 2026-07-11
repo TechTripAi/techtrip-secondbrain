@@ -3,16 +3,18 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.2.0] — 2026-07-11
 
 ### Removed
 - **Syncthing support dropped entirely — git is the only sync path.** The optional
   feature, its `setup-features.sh` branch, the doctor row, and the
   primary/secondary two-machine model are gone; a second machine is now a plain
   `git clone` with pull-before / push-after under the single-writer rule.
-  `bin/setup-sync.sh` is git-only and, if it detects a legacy Syncthing install
-  (binary or vault `.stignore`), offers a confirm-gated teardown (stop service,
-  uninstall, delete `.stignore`). Rationale: a background network daemon,
+  `bin/setup-sync.sh` is git-only; if the vault still has the `.stignore` an
+  earlier release wrote, it offers a confirm-gated removal of that file only —
+  the Syncthing install itself is external software the user may rely on for
+  other purposes, so it is never stopped or uninstalled (the script prints the
+  manual commands instead). Rationale: a background network daemon,
   per-device pairing, and `.sync-conflict` copies were standing complexity that
   real-time mirroring doesn't earn in a single-writer workflow — and it forced a
   shared REST API key across machines, which git-only removes.

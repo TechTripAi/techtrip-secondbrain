@@ -8,7 +8,10 @@
 #      this manifest's tags (verified by sha256) and any new plugins get added.
 #   4. Re-run setup-harnesses.sh so cross-harness skill symlinks re-point at the
 #      newly installed plugin versions (they go stale on version-dir changes).
-#   5. Doctor the result.
+#   5. Warn if the vault still has a legacy .stignore (Syncthing support was
+#      removed in 0.2.0) and point at setup-sync.sh to clean it up. We never
+#      touch the Syncthing install itself — it's external software.
+#   6. Doctor the result.
 #
 # Does NOT touch your notes, git history, MCP key, or optional-feature choices.
 # Community-plugin downloads stay pinned + hash-verified (see scripts/
@@ -86,7 +89,18 @@ else
   info "(Enable any time: bash bin/setup-harnesses.sh)"
 fi
 
-# ── 5. Doctor ────────────────────────────────────────────────────────────────
+# ── 5. Legacy Syncthing (removed in 0.2.0) ────────────────────────────────────
+# Syncthing support was dropped. Only flag the vault-side leftover we created
+# (.stignore); the Syncthing install itself is external software the user may
+# use for other purposes — never stop or uninstall it.
+if [ -f "$VAULT/.stignore" ]; then
+  step "Legacy Syncthing config detected"
+  warn "Syncthing support was removed in 0.2.0 — git is the only sync path."
+  info "The vault still has the .stignore an earlier release wrote. Clean it up:"
+  info "  bash bin/setup-sync.sh $VAULT"
+fi
+
+# ── 6. Doctor ────────────────────────────────────────────────────────────────
 step "Post-update health check"
 run "Running doctor" -- bash "$BIN_DIR/doctor.sh" "$VAULT" || true
 

@@ -40,7 +40,8 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `defaultEnabled: true` (harmless freebie — `confirm_yes`, Enter installs) while
   **NotebookLM** (data egress to Google + interactive `notebooklm login`) carries a
   `consentNote` printed before a default-no confirm — never enable it unprompted.
-  (Syncthing was removed; `setup-sync.sh` is git-only + legacy teardown.) Binaries
+  (Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a
+  legacy vault `.stignore` — it never uninstalls Syncthing itself.) Binaries
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
   `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
@@ -80,6 +81,10 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   last line — keep that when editing it.
 - **Never write into `~/.claude/plugins/cache/**` (his plugin).** We install it via
   the official CLI, read/execute it, but never patch it.
+- **Never uninstall or stop external software.** Scripts may only remove
+  artifacts this project itself created (e.g. a vault `.stignore`). Anything
+  brew/uv/npm-installed — even if we installed it — may serve other purposes on
+  the user's machine; print the manual removal commands and let the user decide.
 - **MCP is machine-global** (user scope in `~/.claude.json`, one server / one port
   27124 / one key). Design assumes **one vault per machine**.
 - **Two-machine model:** plain git — the second machine is a `git clone` of the

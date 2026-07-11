@@ -34,23 +34,24 @@ if [ -d "$VAULT/.git" ] && ! git -C "$VAULT" remote get-url origin >/dev/null 2>
 fi
 
 # ── Legacy Syncthing cleanup ─────────────────────────────────────────────────
-# Earlier releases offered Syncthing; if this machine still carries it, offer
-# a teardown so no daemon lingers.
-if have_cmd syncthing || [ -f "$VAULT/.stignore" ]; then
-  step "Legacy Syncthing detected"
+# Earlier releases offered Syncthing. We only ever touch what WE created — the
+# vault's .stignore. The Syncthing install itself is external software the user
+# may rely on for other folders; never stop or uninstall it, only inform.
+if [ -f "$VAULT/.stignore" ]; then
+  step "Legacy Syncthing config detected in vault"
   warn "Syncthing support was removed from techtrip-secondbrain (git is the sync path)."
-  if confirm "Remove Syncthing (stop service, uninstall, delete vault .stignore)?"; then
-    if have_cmd syncthing; then
-      run "Stop Syncthing service" -- brew services stop syncthing || true
-      run "Uninstall Syncthing" -- brew uninstall syncthing || true
-    fi
-    if [ -f "$VAULT/.stignore" ]; then
-      run "Remove vault .stignore" -- rm "$VAULT/.stignore"
-    fi
-    ok "Syncthing removed"
+  if confirm "Remove the vault's .stignore (written by an earlier release)?"; then
+    run "Remove vault .stignore" -- rm "$VAULT/.stignore"
+    ok "Vault .stignore removed"
   else
-    info "Left in place. Remove later: brew services stop syncthing && brew uninstall syncthing"
+    info "Left in place."
   fi
+fi
+if have_cmd syncthing; then
+  info "Note: Syncthing is installed on this machine. The second brain no longer"
+  info "uses it — if (and only if) you don't use it for anything else, you can"
+  info "remove it yourself: brew services stop syncthing && brew uninstall syncthing"
+  info "If it still syncs the vault folder, un-share the folder in its UI first."
 fi
 
 step "Sync setup complete"

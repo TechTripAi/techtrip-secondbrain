@@ -186,7 +186,7 @@ it after `bin/update.sh` so the skill links re-point at the new plugin version.
 | claude-obsidian | `bin/setup-claude-obsidian.sh` | marketplace add + plugin install |
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
 | MCP | `bin/setup-mcp.sh <path>` | generate REST key, register `obsidian` MCP server |
-| Sync | `bin/setup-sync.sh <path>` | git init + remote guidance (offers legacy Syncthing teardown if found) |
+| Sync | `bin/setup-sync.sh <path>` | git init + remote guidance (offers to remove a legacy vault `.stignore`) |
 | Optional features | `bin/setup-features.sh <path>` | YouTube (default-yes freebie) / NotebookLM (explicit opt-in); asked inline during setup, re-runnable any time |
 | Verify | `bin/doctor.sh <path>` | health check |
 | Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
@@ -364,8 +364,9 @@ Machine-local state (`.vault-meta/locks/`, `transport.json`) stays out of git vi
 the vault `.gitignore`. See `skills/secondbrain/references/sync.md`.
 
 Upgrading from an earlier release that set up Syncthing? `bin/setup-sync.sh`
-detects it and offers a full teardown (stop service, uninstall, remove
-`.stignore`).
+offers to remove the vault `.stignore` it wrote back then — and only that. The
+Syncthing install itself is never touched (you may use it for other folders);
+if you don't, the script prints the manual removal commands for you to run.
 
 ## Add a second machine
 
