@@ -4,8 +4,8 @@ description: >
   Bootstrap a generic, out-of-the-box LLM Wiki "second brain" on a fresh Mac.
   Installs Obsidian + community plugins, pulls the claude-obsidian plugin from its
   own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the
-  yt-fetch + notebooklm-ingest source skills, and sets up git + optional Syncthing
-  sync. Interactive and idempotent. Triggers on: "set up my second brain",
+  yt-fetch + notebooklm-ingest source skills, and sets up git sync + backup.
+  Interactive and idempotent. Triggers on: "set up my second brain",
   "/secondbrain", "bootstrap the wiki", "install the llm wiki on this machine",
   "clone my obsidian setup", "new machine setup".
 allowed-tools: Read Bash
@@ -52,8 +52,8 @@ if you need detail; summarize it for the user rather than dumping it.
 6. **MCP** — `bash bin/setup-mcp.sh <path>` (generate REST key + register the
    `obsidian` MCP server). See `references/mcp.md`. Note: it only answers once Obsidian
    is open with the Local REST API plugin enabled, and needs a Claude reload.
-7. **Sync** — `bash bin/setup-sync.sh <path>` (git by default, optional Syncthing).
-   See `references/sync.md`.
+7. **Sync** — `bash bin/setup-sync.sh <path>` (git only: init + remote guidance;
+   offers a teardown if a legacy Syncthing install is detected). See `references/sync.md`.
 8. **Optional features — ask inline, you drive.** Do **not** defer this to "run
    `setup-features.sh` later" — ask about each feature as part of setup, right now,
    then run `bash bin/setup-features.sh <path> <feature>` per answer. The three
@@ -65,14 +65,10 @@ if you need detail; summarize it for the user rather than dumping it.
      sources to Google for synthesis and needs a one-time interactive
      `notebooklm login` (OAuth) — say both *before* asking. Never enable it
      unprompted.
-   - **Syncthing** — **explicit opt-in.** It installs a background network daemon
-     (autostart, listening ports) and only makes sense with a **second Mac**. Ask
-     "Do you have a second Mac you want the vault mirrored to?" — if no, skip it
-     entirely. (Also reachable from step 7; same setup either way.)
 
    A "no" costs nothing: the skills still ship, and any feature can be enabled later
    by re-running `/secondbrain` or `bash bin/setup-features.sh <path>
-   youtube|notebooklm|syncthing`. `/brain-dump` has a section teaching users how to
+   youtube|notebooklm`. `/brain-dump` has a section teaching users how to
    turn any feature on or off after the fact.
 9. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
    error or a red MCP row, **run the doctor yourself, in-session** — the user should
@@ -96,8 +92,8 @@ steps can be run without re-passing it — but passing it explicitly is always f
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
   from a one-sentence description of what the vault is for.
-- Recap the optional-feature answers from step 8: which of YouTube / NotebookLM /
-  Syncthing are on. Anything declined can be enabled later — re-run `/secondbrain`, run
+- Recap the optional-feature answers from step 8: which of YouTube / NotebookLM
+  are on. Anything declined can be enabled later — re-run `/secondbrain`, run
   `bash bin/setup-features.sh <path> <feature>`, or ask `/brain-dump`, which has a
   section walking through turning any feature on or off.
 - **Offer the guided tour.** Once doctor is green, tell the user they can run

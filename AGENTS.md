@@ -14,7 +14,7 @@ maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude
 no feature divergence, tracking upstream via git remote for periodic sync. Nothing of his
 is vendored or copied into this repo. `techtrip-secondbrain` only fills the gaps that
 plugin leaves manual: installing Obsidian + community plugins, wiring/repairing the
-Obsidian MCP server, git + optional Syncthing sync, and the ported source skills.
+Obsidian MCP server, git sync + backup, and the ported source skills.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ Obsidian MCP server, git + optional Syncthing sync, and the ported source skills
   claude-obsidian entry, MCP server, skills). `precheck` audits against it; every
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — idempotent setup steps run in order:
-  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → doctor` (+ `repair-mcp`, `update`). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) and Syncthing (network daemon) are explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer.
+  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `update`). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and offers a legacy teardown.
 - **`scripts/common.sh`** — sourced by every script: logging, `confirm()`, `run()`,
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
@@ -57,11 +57,11 @@ Obsidian MCP server, git + optional Syncthing sync, and the ported source skills
   installed files is not.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
-- **Two-machine model:** one vault mirrored by Syncthing; **git on the primary
-  machine only** — secondaries never `git init` the vault (that's what keeps
-  claude-obsidian's auto-commit inert there and histories from diverging). Both
-  machines share one REST API key; `.stignore` excludes machine-local
-  `.vault-meta/locks` + `transport.json` and is per-device (never synced).
+- **Two-machine model:** plain git — the second machine is a `git clone` of the
+  vault remote, with pull-before / push-after under the single-writer rule. Each
+  machine mints its own REST API key. Machine-local state
+  (`.vault-meta/locks/`, `transport.json`) stays out of git via the vault
+  `.gitignore`.
 - **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
   hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
   with vault runtime hooks — claude-obsidian owns those, and plugin hooks are

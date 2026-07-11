@@ -106,9 +106,6 @@ while IFS=$'\t' read -r id label binary; do
     # 'on' = CLI installed; auth is a separate one-time step.
     have_cmd notebooklm && row "$label" "$ONM (run 'notebooklm login' once if unauthed)" \
       || row "$label" "$OFFM  → bin/setup-features.sh notebooklm"
-  elif [ "$id" = syncthing ]; then
-    { have_cmd syncthing && [ -f "$VAULT/.stignore" ]; } && row "$label" "$ONM" \
-      || row "$label" "$OFFM  → bin/setup-features.sh syncthing"
   else
     have_cmd "$binary" && row "$label" "$ONM" \
       || row "$label" "$OFFM  → bin/setup-features.sh $id"

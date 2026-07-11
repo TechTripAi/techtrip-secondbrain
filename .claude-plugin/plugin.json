@@ -1,7 +1,7 @@
 {
   "name": "techtrip-secondbrain",
   "version": "0.1.0",
-  "description": "One-command bootstrapper for a generic, out-of-the-box LLM Wiki second brain on a fresh Mac. Installs Obsidian, the community plugins, and the claude-obsidian plugin (AgriciDaniel, MIT — pulled from TechTrip's maintained bug-fix fork), scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch and notebooklm-ingest source skills, and sets up git + optional Syncthing sync. Interactive and idempotent.",
+  "description": "One-command bootstrapper for a generic, out-of-the-box LLM Wiki second brain on a fresh Mac. Installs Obsidian, the community plugins, and the claude-obsidian plugin (AgriciDaniel, MIT — pulled from TechTrip's maintained bug-fix fork), scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch and notebooklm-ingest source skills, and sets up git sync + backup. Interactive and idempotent.",
   "author": {
     "name": "Terry Trippany (Try AI Solutions)",
     "email": "terry.trippany@techtrip.ai",
@@ -18,7 +18,6 @@
     "installer",
     "claude-code",
     "knowledge-base",
-    "mcp",
-    "syncthing"
+    "mcp"
   ]
 }

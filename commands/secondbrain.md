@@ -15,9 +15,7 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
    (passive `yt-dlp` binary — no daemon, no credentials; recommend yes, prompt
    defaults to yes); **NotebookLM** is explicit opt-in (sends the user's sources to
    Google + needs a one-time interactive `notebooklm login` — say both *before*
-   asking); **Syncthing** is explicit opt-in (background network daemon — only worth
-   it with a second Mac; if they don't have one, skip it). A "no" costs nothing:
-   every feature can be enabled later. Never pass `--yes` unless the user asks for an
+   asking). A "no" costs nothing: every feature can be enabled later. Never pass `--yes` unless the user asks for an
    unattended run; offer `--dry-run` first if they want a preview.
 5. Finish with `bash bin/doctor.sh <path>`, report the health table, and tell them the
    manual follow-ups: **reload Claude Code first** (run `/reload-skills` and

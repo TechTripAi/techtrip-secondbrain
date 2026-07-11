@@ -93,4 +93,4 @@ run "Running doctor" -- bash "$BIN_DIR/doctor.sh" "$VAULT" || true
 step "Update complete"
 info "Restart Claude Code (or /reload-plugins + /reload-skills) to load the new"
 info "plugin, skill, and hook versions."
-info "To add optional features (YouTube / NotebookLM / Syncthing): bin/setup-features.sh"
+info "To add optional features (YouTube / NotebookLM): bin/setup-features.sh"

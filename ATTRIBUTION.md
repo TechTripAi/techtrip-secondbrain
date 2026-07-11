@@ -33,7 +33,7 @@ The core LLM Wiki runtime (skills, hooks, vault scaffold) is provided entirely b
 
 `techtrip-secondbrain` only adds the pieces AgriciDaniel's plugin leaves to the user:
 a macOS bootstrapper (install Obsidian + community plugins), MCP wiring + repair,
-git/Syncthing sync setup, and our own `yt-fetch` / `notebooklm-ingest` source skills
+git sync setup, and our own `yt-fetch` / `notebooklm-ingest` source skills
 (original work — see the tool-dependency note below for the runtime tools they invoke).
 Full credit for the second-brain wiki system itself goes to AgriciDaniel.
 

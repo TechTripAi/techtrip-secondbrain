@@ -7,9 +7,8 @@
 # which splits them in two:
 #   - defaultEnabled:true  (YouTube/yt-dlp) — a harmless freebie: passive CLI, no
 #     daemon, no credentials. Prompt defaults to YES; Enter installs, 'n' skips.
-#   - consentNote          (NotebookLM, Syncthing) — need an explicit opt-in
-#     (data egress to Google / a background network daemon). The note is printed
-#     before a default-NO confirm.
+#   - consentNote          (NotebookLM) — needs an explicit opt-in (data egress
+#     to Google). The note is printed before a default-NO confirm.
 # The secondbrain skill asks about each feature inline during setup and drives
 # this script per answer — nothing is deferred to "run it later" by default.
 #
@@ -18,7 +17,7 @@
 #
 # Usage:
 #   bash bin/setup-features.sh [/path/to/vault] [--yes] [--dry-run]
-#   bash bin/setup-features.sh [/path/to/vault] youtube|notebooklm|syncthing
+#   bash bin/setup-features.sh [/path/to/vault] youtube|notebooklm
 set -euo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$BIN_DIR/../scripts/common.sh"
@@ -29,7 +28,7 @@ require_macos
 VAULT_ARG=""; ONLY=""
 for a in "$@"; do
   case "$a" in
-    youtube|notebooklm|syncthing) ONLY="$a" ;;
+    youtube|notebooklm) ONLY="$a" ;;
     *) VAULT_ARG="$a" ;;
   esac
 done
@@ -39,8 +38,8 @@ step "Optional features"
 info "Vault: $VAULT"
 [ -n "$ONLY" ] && info "Targeting only: $ONLY"
 info "Skills ship regardless; this installs the runtime they need. Safe to re-run"
-info "to add a feature later. YouTube is a default-yes freebie; NotebookLM and"
-info "Syncthing need an explicit opt-in (you'll see why before each prompt)."
+info "to add a feature later. YouTube is a default-yes freebie; NotebookLM needs"
+info "an explicit opt-in (you'll see why before the prompt)."
 
 # ── youtube (yt-fetch → yt-dlp) — the default-yes freebie ────────────────────
 feature_youtube() {
@@ -95,28 +94,8 @@ feature_notebooklm() {
   fi
 }
 
-# ── syncthing (delegate to setup-sync.sh, which owns the .stignore logic) ─────
-# Explicit opt-in: it's a background network daemon, not a CLI tool.
-feature_syncthing() {
-  step "Syncthing real-time LAN sync"
-  if have_cmd syncthing && [ -f "$VAULT/.stignore" ]; then
-    ok "Syncthing installed and vault has a .stignore — looks configured"
-    info "Re-run bin/setup-sync.sh to re-check pairing/.stignore, or open http://127.0.0.1:8384"
-    return
-  fi
-  local consent; consent="$(manifest_get 'm.optionalFeatures.find(f=>f.id==="syncthing").consentNote')"
-  warn "Heads up: $consent"
-  info "Handing off to setup-sync.sh, which installs Syncthing and writes the"
-  info "vault .stignore (keeps Syncthing and git from fighting). Answer 'yes' at"
-  info "its Syncthing prompt (or 'n' to keep git-only sync)."
-  # setup-sync.sh is idempotent: an existing git repo reports green, then it
-  # prompts for Syncthing. Flags are exported, so --yes/--dry-run carry through.
-  run "Running setup-sync.sh" -- bash "$BIN_DIR/setup-sync.sh" "$VAULT"
-}
-
 if [ -z "$ONLY" ] || [ "$ONLY" = youtube ];    then feature_youtube;    fi
 if [ -z "$ONLY" ] || [ "$ONLY" = notebooklm ]; then feature_notebooklm; fi
-if [ -z "$ONLY" ] || [ "$ONLY" = syncthing ];  then feature_syncthing;  fi
 
 step "Optional features complete"
-info "Add another any time: bash bin/setup-features.sh [youtube|notebooklm|syncthing]"
+info "Add another any time: bash bin/setup-features.sh [youtube|notebooklm]"

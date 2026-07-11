@@ -5,6 +5,18 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Removed
+- **Syncthing support dropped entirely — git is the only sync path.** The optional
+  feature, its `setup-features.sh` branch, the doctor row, and the
+  primary/secondary two-machine model are gone; a second machine is now a plain
+  `git clone` with pull-before / push-after under the single-writer rule.
+  `bin/setup-sync.sh` is git-only and, if it detects a legacy Syncthing install
+  (binary or vault `.stignore`), offers a confirm-gated teardown (stop service,
+  uninstall, delete `.stignore`). Rationale: a background network daemon,
+  per-device pairing, and `.sync-conflict` copies were standing complexity that
+  real-time mirroring doesn't earn in a single-writer workflow — and it forced a
+  shared REST API key across machines, which git-only removes.
+
 ### Changed
 - **Optional features are now asked inline during setup, with tiered consent.**
   `/secondbrain` no longer defers features to "run `setup-features.sh` later" — it
@@ -13,9 +25,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   - **YouTube (`yt-dlp`)** — `defaultEnabled: true`: a harmless passive CLI (no
     daemon, no credentials, no data egress), so its prompt defaults to **yes**
     (new `confirm_yes()` in `scripts/common.sh`; Enter installs, `n` skips).
-  - **NotebookLM** and **Syncthing** — explicit opt-in with a `consentNote` printed
-    before a default-no confirm (data egress to Google + interactive OAuth;
-    background network daemon that only pays off with a second Mac).
+  - **NotebookLM** — explicit opt-in with a `consentNote` printed before a
+    default-no confirm (data egress to Google + interactive OAuth).
 - `/brain-dump` gained **Section 8 — Optional features on/off**: the standing,
   re-runnable reference for checking (`/secondbrain-doctor`), enabling
   (`/secondbrain`), and disabling (`brew`/`uv` uninstall) each feature; the tour now

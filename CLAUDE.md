@@ -14,7 +14,7 @@ maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude
 no feature divergence, tracking upstream via git remote for periodic sync. Nothing of his
 is vendored or copied into this repo. `techtrip-secondbrain` only fills the gaps that
 plugin leaves manual: installing Obsidian + community plugins, wiring/repairing the
-Obsidian MCP server, git + optional Syncthing sync, and the ported source skills. See
+Obsidian MCP server, git sync + backup, and the ported source skills. See
 `ATTRIBUTION.md`.
 
 Install (same model as claude-obsidian):
@@ -34,13 +34,13 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   **idempotent** and **interactive**.
 - **Optional features are asked inline during setup; consent is tiered.** Their skills
   always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;
-  `setup-features.sh <vault> youtube|notebooklm|syncthing` targets one), which the
+  `setup-features.sh <vault> youtube|notebooklm` targets one), which the
   `secondbrain` skill drives per-answer during setup instead of deferring. Driven by
   `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** carries
   `defaultEnabled: true` (harmless freebie — `confirm_yes`, Enter installs) while
-  **NotebookLM** (data egress to Google + interactive `notebooklm login`) and
-  **Syncthing** (background network daemon, second-Mac-only) carry a `consentNote`
-  printed before a default-no confirm — never enable those two unprompted. Binaries
+  **NotebookLM** (data egress to Google + interactive `notebooklm login`) carries a
+  `consentNote` printed before a default-no confirm — never enable it unprompted.
+  (Syncthing was removed; `setup-sync.sh` is git-only + legacy teardown.) Binaries
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
   `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
@@ -82,11 +82,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   the official CLI, read/execute it, but never patch it.
 - **MCP is machine-global** (user scope in `~/.claude.json`, one server / one port
   27124 / one key). Design assumes **one vault per machine**.
-- **Two-machine model:** one vault mirrored by Syncthing; **git on the primary
-  machine only** — secondaries never `git init` the vault (that's what keeps
-  claude-obsidian's auto-commit inert there and histories from diverging). Both
-  machines share one REST API key; `.stignore` excludes machine-local
-  `.vault-meta/locks` + `transport.json` and is per-device (never synced).
+- **Two-machine model:** plain git — the second machine is a `git clone` of the
+  vault remote, with pull-before / push-after under the single-writer rule. Each
+  machine mints its own REST API key. Machine-local state
+  (`.vault-meta/locks/`, `transport.json`) stays out of git via the vault
+  `.gitignore`.
 - **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
   hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
   with vault runtime hooks — claude-obsidian owns those, and plugin hooks are

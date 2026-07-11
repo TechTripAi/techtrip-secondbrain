@@ -64,7 +64,7 @@ of truth for what gets installed) and `scripts/common.sh` (the shared helpers).
 2. **Consent tiering / data egress.** Any new outbound network call, subprocess
    to a remote, or feature touching a network daemon. Default-yes is allowed
    ONLY for local, no-credential, no-egress "freebies" (the `yt-dlp` precedent);
-   anything with data egress (NotebookLM → Google) or a daemon (Syncthing) MUST
+   anything with data egress (NotebookLM → Google) or a background daemon MUST
    be explicit opt-in via a default-no `confirm` + `setup-features.sh`. No
    opt-in gate → **BLOCKER**.
 3. **Dry-run / --yes honored.** Every mutation must route through
@@ -84,9 +84,8 @@ of truth for what gets installed) and `scripts/common.sh` (the shared helpers).
    → **HIGH**.
 7. **Auth probe correctness.** REST probes hit `/vault/` (authenticated), never
    `/` (public, 200s with any key) → **HIGH** if a new probe uses `/`.
-8. **Git-on-primary-only + .gitignore hygiene.** secondaries never `git init`
-   the vault. Any new runtime artifact path (locks, logs, transport.json, temp,
-   backups) not covered by `.stignore`/`.gitignore` → **MEDIUM**.
+8. **.gitignore hygiene.** Any new runtime artifact path (locks, logs,
+   transport.json, temp, backups) not covered by `.gitignore` → **MEDIUM**.
 9. **Attribution.** Any code referencing claude-obsidian's repo must credit
    AgriciDaniel with the URL → **LOW** if missing.
 

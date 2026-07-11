@@ -22,7 +22,7 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
 bug-fixes-only, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
-`notebooklm-ingest` source skills, and sets up git + optional Syncthing sync — all
+`notebooklm-ingest` source skills, and sets up git sync + backup — all
 interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
@@ -101,8 +101,8 @@ is the LLM that maintains them behind the scenes.
   through every ingestion type, `.raw/`, the hot cache, keeping the vault lean, and
   turning optional features on or off, and hands you the exact prompts to run yourself.
   It teaches; it never changes your vault. Re-runnable any time.
-- **Cross-machine sync** — git remote by default, with optional Syncthing between two machines and a safe
-  `.stignore` so real-time sync and git auto-commit don't fight.
+- **Cross-machine sync** — git remote: auto-commit gives history and recovery, the
+  remote gives backup, and a second machine is just a `git clone`.
 - **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
   `secondbrain-doctor` skill diagnoses and repairs the common "MCP registered globally
   but won't connect" failure.
@@ -186,8 +186,8 @@ it after `bin/update.sh` so the skill links re-point at the new plugin version.
 | claude-obsidian | `bin/setup-claude-obsidian.sh` | marketplace add + plugin install |
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
 | MCP | `bin/setup-mcp.sh <path>` | generate REST key, register `obsidian` MCP server |
-| Sync | `bin/setup-sync.sh <path>` | git remote (default) + optional Syncthing |
-| Optional features | `bin/setup-features.sh <path>` | YouTube (default-yes freebie) / NotebookLM + Syncthing (explicit opt-in); asked inline during setup, re-runnable any time |
+| Sync | `bin/setup-sync.sh <path>` | git init + remote guidance (offers legacy Syncthing teardown if found) |
+| Optional features | `bin/setup-features.sh <path>` | YouTube (default-yes freebie) / NotebookLM (explicit opt-in); asked inline during setup, re-runnable any time |
 | Verify | `bin/doctor.sh <path>` | health check |
 | Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
 
@@ -207,7 +207,7 @@ bash bin/setup-claude-obsidian.sh
 bash bin/setup-vault.sh ~/LLM-Wiki
 bash bin/setup-mcp.sh   ~/LLM-Wiki
 bash bin/setup-sync.sh  ~/LLM-Wiki
-bash bin/setup-features.sh ~/LLM-Wiki    # optional: YouTube / NotebookLM / Syncthing
+bash bin/setup-features.sh ~/LLM-Wiki    # optional: YouTube / NotebookLM
 bash bin/doctor.sh      ~/LLM-Wiki
 ```
 
@@ -232,25 +232,23 @@ These can't be automated:
 ## Optional features
 
 The base second brain ships **lean**, and setup asks about each optional feature
-**inline** — you answer three quick questions during `/secondbrain` instead of being
-told to run a script later. The three are deliberately not treated the same, because
+**inline** — you answer two quick questions during `/secondbrain` instead of being
+told to run a script later. The two are deliberately not treated the same, because
 they don't carry the same risk:
 
 | Feature | Skill | What it adds | Runtime installed | Setup default |
 |---------|-------|--------------|-------------------|---------------|
 | **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
 | **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | **no — explicit opt-in**: it sends your sources to Google, and the login is an interactive OAuth |
-| **Syncthing** | — | real-time LAN mirror of the vault across your Macs | `syncthing` (Homebrew) + vault `.stignore` | **no — explicit opt-in**: it's a background network daemon (autostart, listening ports) that only pays off with a second Mac |
 
 Their *skills* always ship with the plugin; the questions only govern the runtime
 each needs. Declining costs nothing — enable any feature later by re-running
 `/secondbrain` (idempotent; everything already installed is skipped), or directly:
 
 ```bash
-bash bin/setup-features.sh ~/LLM-Wiki                 # walk all three
+bash bin/setup-features.sh ~/LLM-Wiki                 # walk both
 bash bin/setup-features.sh ~/LLM-Wiki youtube         # just one
 bash bin/setup-features.sh ~/LLM-Wiki notebooklm
-bash bin/setup-features.sh ~/LLM-Wiki syncthing
 ```
 
 To turn a feature **off**, uninstall its runtime — the vault, skills, and your notes
@@ -259,15 +257,13 @@ are untouched:
 ```bash
 brew uninstall yt-dlp                                      # YouTube
 uv tool uninstall notebooklm-py                            # NotebookLM
-brew services stop syncthing && brew uninstall syncthing   # Syncthing (stops the daemon too)
 ```
 
 The script is **idempotent**: already-enabled features report green and change
 nothing. `bin/doctor.sh` shows each feature's on/off state (off is reported, never
 failed). **`/brain-dump` is the standing reference for all of this** — its
 optional-features section walks through checking, enabling, and disabling each one,
-and it's re-runnable any time. (Syncthing is also offered by `bin/setup-sync.sh`;
-`setup-features.sh` is the standalone/later door to the same setup.)
+and it's re-runnable any time.
 
 ## Updating an existing secondbrain
 
@@ -316,65 +312,34 @@ and hook versions load.
 
 ## Sync model
 
-> [!NOTE]
-> **Syncthing is optional — git-only is the recommended default.** The two-tool model
-> below (git + Syncthing) exists for people who genuinely need a *live* multi-machine
-> mirror. In practice most single-user setups are better served by **git alone**, and
-> that's the path this project now leans toward. Reasons we dropped Syncthing from our
-> own setup:
-> - **You already edit one machine at a time** (the single-writer rule). Given that,
->   real-time propagation buys little — a `pull` before you start and a `push` when you
->   finish covers it, and the git remote is already your off-machine backup.
-> - **Syncthing adds standing complexity**: a background daemon with listening ports,
->   per-device pairing in a web UI, a per-machine `.stignore`, and `.sync-conflict`
->   files when the single-writer rule slips.
-> - **It complicates the MCP key.** Because Syncthing mirrors the whole vault, both
->   machines share one REST key and setup ordering matters (wire MCP before the first
->   sync and you can clobber the primary's key). With git-only the key stays gitignored
->   and each machine mints its **own** local key — no shared-key hazard at all.
-> - **We avoided cloud file-sync (iCloud/Dropbox/Obsidian Sync) too**: putting a `.git`
->   dir under a cloud syncer risks repo corruption and conflict noise, and it sends the
->   vault off your machine — git to a remote you control is simpler and private.
->
-> To go git-only for a second machine: `git clone` the vault repo (community plugins are
-> committed, so they come with it), run `setup-mcp.sh` there for a local key, and adopt
-> pull-before / push-after. Syncthing remains available for anyone who wants true
-> real-time sync.
+**Git only.** The `claude-obsidian` plugin auto-commits on every write, so every
+change is versioned and recoverable, and a remote gives you an off-machine backup.
+Since you already edit one machine at a time (the single-writer rule), a `pull`
+before you start and a `push` when you finish covers multi-machine use — no
+daemons, no pairing, no conflict copies.
 
-The vault has two different sync needs, so it uses two tools:
+Why nothing else:
 
-**Git — history and backup.** The `claude-obsidian` plugin auto-commits on every write,
-so every change is versioned and recoverable, and a remote gives you an off-machine
-backup. But git is *commit-and-push* by design: it's a snapshot ledger, not a live
-mirror. Nothing lands on your other Mac until you push there and pull here, and it has
-no answer for "I just typed a sentence on the laptop and want it on the desktop now."
+- **No Syncthing** (removed): a background daemon with listening ports, per-device
+  pairing in a web UI, a per-machine `.stignore`, and `.sync-conflict` files when
+  the single-writer rule slips — standing complexity that real-time mirroring
+  doesn't earn in a single-writer workflow. It also forced both machines to share
+  one REST API key with fragile setup ordering; with git-only, the key stays
+  gitignored and each machine mints its **own**.
+- **No cloud file-sync (iCloud/Dropbox/Obsidian Sync)**: putting a `.git` dir
+  under a cloud syncer risks repo corruption and conflict noise, and it sends the
+  vault off your machine — git to a remote you control is simpler and private.
 
-**Syncthing — the live layer (optional).** A second brain you actually work in is
-useless if the note you wrote thirty seconds ago on one machine isn't already on the
-other. Syncthing closes that gap: it watches the vault folder and continuously mirrors
-changes between your machines within seconds — no commit, no push, no thinking about
-it. Two properties make it the right fit for a *personal* vault: it's **peer-to-peer
-over your own LAN** (your knowledge never passes through anyone's cloud), and it needs
-**no server or account**. Git still runs underneath for history; Syncthing just keeps
-the working files in step between commits.
+Machine-local state (`.vault-meta/locks/`, `transport.json`) stays out of git via
+the vault `.gitignore`. See `skills/secondbrain/references/sync.md`.
 
-`setup-sync.sh` wires this up and writes a `.stignore` so the two don't fight —
-Syncthing skips `.git/`, `workspace.json`, machine-local `.vault-meta` state
-(locks, transport detection), and the like, leaving version control to git.
-**Caveat: edit on one machine at a time.** Both tools sync files, not intent, so
-truly concurrent edits to the same note produce `.sync-conflict` copies you'd merge by
-hand. See `skills/secondbrain/references/sync.md`.
+Upgrading from an earlier release that set up Syncthing? `bin/setup-sync.sh`
+detects it and offers a full teardown (stop service, uninstall, remove
+`.stignore`).
 
 ## Add a second machine
 
-One wiki, two Macs, in sync — the **primary/secondary model**: the primary (A) keeps
-the vault's git repo (history, backup, auto-commit); the secondary (B) is a Syncthing
-mirror with **no `.git`**. That absence is the point — claude-obsidian's auto-commit
-hook exits silently without `.git`, so the two machines can never grow divergent
-histories. You can read, query, and **ingest from either machine**; changes mirror
-within seconds and get committed on A.
-
-On the new Mac (B):
+One wiki, two Macs, plain git:
 
 1. **Prereqs** — Claude Code installed; Homebrew present.
 2. **Install this plugin:**
@@ -383,50 +348,29 @@ On the new Mac (B):
    claude plugin install techtrip-secondbrain@techtrip-secondbrain
    ```
 3. **Machine-level setup** (everything *except* the vault scaffold — the vault
-   content, including the `.obsidian` community plugins, arrives via Syncthing):
+   content, including the `.obsidian` community plugins, arrives via the clone):
    ```bash
    bash bin/precheck.sh
    bash bin/setup-deps.sh
    bash bin/setup-obsidian.sh
    bash bin/setup-claude-obsidian.sh
    ```
-   **Do NOT run `setup-vault.sh` on B.**
-4. **Create the empty vault folder** (same path as on A is simplest, e.g.
-   `~/LLM-Wiki`), then:
+   **Do NOT run `setup-vault.sh` on the new machine.**
+4. **Clone the vault** from your remote:
    ```bash
-   mkdir -p ~/LLM-Wiki
-   bash bin/setup-sync.sh ~/LLM-Wiki
+   git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki
    ```
-   **Decline git init** (B is a secondary); accept Syncthing (installs it, starts the
-   service, writes B's own `.stignore` — Syncthing never syncs `.stignore` itself, so
-   each machine needs one).
-5. **On A:** run/re-run `bash bin/setup-sync.sh <vault>` so A has a current
-   `.stignore` too, then pair the devices in the Syncthing UI
-   (http://127.0.0.1:8384): exchange Device IDs, share the vault folder from A,
-   accept on B. **Wait for the first full sync to finish before continuing.**
-6. **Open the vault in Obsidian on B**; trust it and enable community plugins (they
-   synced over from A). This activates the Local REST API plugin with A's key —
-   the two machines deliberately share one key.
-7. **Wire MCP on B:**
-   ```bash
-   bash bin/setup-mcp.sh ~/LLM-Wiki
-   ```
-   It detects the synced key (`Reusing existing Local REST API key`) and registers
-   the `obsidian` MCP server in B's `~/.claude.json`. Reload Claude Code. (Order
-   matters: if you run this *before* the first full sync, it generates a fresh key
-   that syncs back and breaks A's MCP until you run `repair-mcp.sh` there.)
-8. **Verify:** `bash bin/doctor.sh ~/LLM-Wiki` — green. No git on B is expected and
-   correct.
+5. **Open the vault in Obsidian**; trust it and enable community plugins (they
+   came with the clone).
+6. **Wire MCP:** `bash bin/setup-mcp.sh ~/LLM-Wiki` — it reuses the committed
+   plugin config and mints this machine's own Local REST API key. Reload Claude
+   Code.
+7. **Verify:** `bash bin/doctor.sh ~/LLM-Wiki` — green.
 
-**Living with two machines:**
-
-- **Work from one machine at a time** — the single-writer rule. Breaking it costs
-  you `.sync-conflict` copies (usually of `wiki/hot.md`), not data.
-- **Ingest from either machine** — ingestion is pure filesystem and needs no git.
-- **On B, end heavy sessions with "update the hot cache"** — the automatic
-  hot-cache refresh nudge is git-gated, and B has no git.
-- **History and `git push` live on A only.** B's safety net during a session is
-  Syncthing itself (changes land on A within seconds).
+**Living with two machines:** work from one machine at a time (the single-writer
+rule), `git pull` before you start, `git push` when you finish. Auto-commit runs
+wherever the edit happens, so an unpushed machine is simply behind — never
+conflicted — as long as you follow that rhythm.
 
 ## Design note: claude-obsidian's hooks run machine-wide
 
@@ -461,7 +405,7 @@ In practice:
 - **Don't** put the vault on a shared or multi-user host, or a shared-CI runner.
 - **Don't** grant other OS users write access to the vault directory.
 - **Do** note what single-tenant does *not* forbid: one user across multiple
-  machines (the Syncthing model in [Add a second machine](#add-a-second-machine))
+  machines (the git-clone model in [Add a second machine](#add-a-second-machine))
   is the same human and the same trust boundary — the single-writer rule covers
   the rest.
 

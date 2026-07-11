@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM, Syncthing) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, disable syncthing, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -136,7 +136,7 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   5. What is .raw/?            — the immutable inbox
   6. hot cache vs index vs log — the three bookkeeping files
   7. Keep it lean & clean      — lint, fold, archive
-  8. Optional features on/off  — YouTube, NotebookLM, Syncthing
+  8. Optional features on/off  — YouTube, NotebookLM
   9. Where to go next          — the rest of the toolkit
 ```
 
@@ -363,7 +363,6 @@ This section is the standing reference for that; nothing here is permanent.
 |---------|-------|---------|-------------------|
 | **YouTube** | `yt-fetch` | `yt-dlp` (Homebrew) | harmless freebie — setup recommends yes |
 | **NotebookLM** | `notebooklm-ingest` | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | sends your sources to Google — explicit opt-in |
-| **Syncthing** | — | `syncthing` daemon (Homebrew) | background network service; only useful with a second Mac |
 
 **Check what's on right now — Prompt — type into Claude Code:**
 ```
@@ -377,7 +376,7 @@ Its health table reports each feature as on/off (never as a failure).
 ```
 It's idempotent — everything already installed reports green and is skipped, and it
 asks about each optional feature. (Cloned the git repo instead? The direct door is
-**Shell:** `bash bin/setup-features.sh <your-vault> youtube|notebooklm|syncthing`.)
+**Shell:** `bash bin/setup-features.sh <your-vault> youtube|notebooklm`.)
 Remember brain-dump itself never installs anything — enabling always goes through
 `/secondbrain`.
 
@@ -385,13 +384,10 @@ Remember brain-dump itself never installs anything — enabling always goes thro
 ```
 brew uninstall yt-dlp                                  # YouTube
 uv tool uninstall notebooklm-py                        # NotebookLM (CLI + its auth)
-brew services stop syncthing && brew uninstall syncthing   # Syncthing (stops the daemon too)
 ```
 Notes: uninstalling a runtime never touches the vault — `.raw/` files, wiki pages,
 and the skills all stay; the skill just reports the runtime missing until you
-re-enable it. For Syncthing, stop the service *before* uninstalling (that's what the
-`brew services stop` does), and remember the vault stops mirroring to your other Mac
-the moment it's off.
+re-enable it.
 
 ---
 

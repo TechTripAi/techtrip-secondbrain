@@ -30,7 +30,7 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
   side-by-side Claude Code terminal** so wiki work stays out of the walkthrough — not
   required, just nicer; the same session is fine too.
 - **Optional features (Section 8):** brain-dump is the standing reference for turning
-  YouTube / NotebookLM / Syncthing on or off after setup — enabling routes through
+  YouTube / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user
   runs themselves. Remind the user once, up front, that this section exists.
 - Show the menu, explain the chosen section, then invite the next one.
