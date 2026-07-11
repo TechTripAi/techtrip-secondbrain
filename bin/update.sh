@@ -37,23 +37,25 @@ else
 fi
 
 # ── 2. Update the Claude Code plugins ────────────────────────────────────────
-# Update this plugin, plus claude-obsidian (by AgriciDaniel — pulled from his
-# marketplace, never vendored): https://github.com/AgriciDaniel/claude-obsidian
+# Update this plugin. claude-obsidian is handled separately below: a bare
+# `claude plugin update claude-obsidian` only refreshes it within whatever
+# marketplace it's currently on, so it can never migrate an upstream
+# (AgriciDaniel) install over to TechTripAi's maintained fork. Only
+# setup-claude-obsidian.sh has that migrate-or-install logic, so delegate to it.
 step "Update Claude Code plugins"
 plist="$(claude plugin list 2>/dev/null || true)"
-update_plugin() {
-  local name="$1" label="$2"
-  if ! printf '%s' "$plist" | grep -q "$name"; then
-    warn "$label not installed — skipping (run the /secondbrain setup to install it)."
-    return
-  fi
-  if confirm "Update $label to the latest version?"; then
-    run "Updating $label" -- claude plugin update "$name" || \
-      warn "Update for $label reported an issue (continuing)."
-  else info "Skipped $label."; fi
-}
-update_plugin "techtrip-secondbrain" "techtrip-secondbrain (this plugin)"
-update_plugin "claude-obsidian" "claude-obsidian (by AgriciDaniel)"
+if printf '%s' "$plist" | grep -q "techtrip-secondbrain"; then
+  if confirm "Update techtrip-secondbrain (this plugin) to the latest version?"; then
+    run "Updating techtrip-secondbrain (this plugin)" -- claude plugin update techtrip-secondbrain || \
+      warn "Update for techtrip-secondbrain (this plugin) reported an issue (continuing)."
+  else info "Skipped techtrip-secondbrain (this plugin)."; fi
+else
+  warn "techtrip-secondbrain (this plugin) not installed — skipping (run the /secondbrain setup to install it)."
+fi
+
+step "Update claude-obsidian (by AgriciDaniel — installed from TechTrip's maintained fork)"
+run "Checking claude-obsidian install / migrating to the fork if needed" -- \
+  bash "$BIN_DIR/setup-claude-obsidian.sh"
 
 # ── 3. Re-pin community plugins via the idempotent scaffold ───────────────────
 step "Re-pin community plugins"
