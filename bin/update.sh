@@ -6,7 +6,9 @@
 #   2. Update both Claude Code plugins to their latest versions.
 #   3. Re-run the idempotent vault scaffold so community plugins are re-pinned to
 #      this manifest's tags (verified by sha256) and any new plugins get added.
-#   4. Doctor the result.
+#   4. Re-run setup-harnesses.sh so cross-harness skill symlinks re-point at the
+#      newly installed plugin versions (they go stale on version-dir changes).
+#   5. Doctor the result.
 #
 # Does NOT touch your notes, git history, MCP key, or optional-feature choices.
 # Community-plugin downloads stay pinned + hash-verified (see scripts/
@@ -70,7 +72,21 @@ else
   warn "  bash bin/update.sh /path/to/vault"
 fi
 
-# ── 4. Doctor ────────────────────────────────────────────────────────────────
+# ── 4. Re-point cross-harness skill links ────────────────────────────────────
+# Skill symlinks in ~/.agents/skills (and ~/.codex/skills) point at versioned
+# plugin-cache dirs, so a plugin update strands them. Only refresh when the
+# machine-level links already exist — update never introduces new surface area.
+step "Refresh cross-harness skill links"
+if [ -d "$HOME/.agents/skills" ] || [ -d "$HOME/.codex/skills" ]; then
+  run "Re-pointing skill symlinks at the updated plugins" -- \
+    bash "$BIN_DIR/setup-harnesses.sh" "$VAULT" || \
+    warn "setup-harnesses.sh reported an issue (continuing)."
+else
+  info "Cross-harness links not set up on this machine — skipping."
+  info "(Enable any time: bash bin/setup-harnesses.sh)"
+fi
+
+# ── 5. Doctor ────────────────────────────────────────────────────────────────
 step "Post-update health check"
 run "Running doctor" -- bash "$BIN_DIR/doctor.sh" "$VAULT" || true
 
