@@ -111,7 +111,10 @@ is the LLM that maintains them behind the scenes.
 ## Requirements
 
 - **macOS** (MVP is macOS-only; Windows/Linux deferred).
-- **Claude Code** already installed — a Claude plugin can't install Claude itself.
+- **Claude Code** already installed — the plugin marketplace is how both plugins
+  get onto the machine (a Claude plugin can't install Claude itself). After
+  setup, you can drive the vault from Claude Code **or** other harnesses; see
+  [Not Claude-only](#not-claude-only--use-with-cursor-and-other-harnesses).
 - **Homebrew** — the bootstrapper installs the rest, but if brew is missing it prints
   the official one-liner for you to run once.
 
@@ -131,6 +134,33 @@ Then, in Claude Code:
 ```
 
 …and follow the interactive workflow. Or run the scripts directly (see below).
+
+## Not Claude-only — use with Cursor and other harnesses
+
+Claude Code is the **install vehicle** (the plugin marketplace is how
+`claude-obsidian` and this orchestrator land on disk). That is **not** a runtime
+lock-in. The wiki is plain Markdown in a vault folder, and every skill is an
+ordinary `SKILL.md` under the Claude plugin cache. Any agent harness that can
+read those files and edit the vault — Cursor, Codex, and others — can drive the
+same ingest / query / lint workflow. Using multiple harnesses against one vault
+is expected, not a workaround.
+
+Example — after setup, tell Cursor something like:
+
+```
+Read the skills under
+~/.claude/plugins/cache/techtripai-claude-obsidian/claude-obsidian/<version>/skills/
+and
+~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
+Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
+wiki-query, wiki-lint, yt-fetch, and notebooklm-ingest as first-class workflows,
+the same way Claude Code would.
+```
+
+Replace `<version>` with the installed version directory (e.g. `1.9.2`) and
+`~/LLM-Wiki` with your vault path. Claude Code–specific hooks (auto-commit,
+hot-cache injection) only fire inside Claude Code sessions; other harnesses get
+the skills and the vault.
 
 ## What it does
 
