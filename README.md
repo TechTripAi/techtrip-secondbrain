@@ -213,6 +213,13 @@ bash bin/doctor.sh      ~/LLM-Wiki
 
 Flags: `--dry-run` (preview, mutates nothing), `--yes` (unattended, auto-confirm).
 
+> [!NOTE]
+> **`~/LLM-Wiki` is the example default — your vault path may differ** (you
+> choose it during setup, e.g. `~/TechTrip.AI`). Substitute your own path in
+> every example in this README. The scripts also remember the path from setup:
+> omit the argument and they fall back to the saved vault path before the
+> `~/LLM-Wiki` default.
+
 ## After setup — there are some manual follow-ups
 
 These can't be automated:
@@ -272,25 +279,31 @@ pick your path.
 
 ### If you installed via the marketplace (most people)
 
-You don't have the `bin/` scripts checked out anywhere convenient — no git, no
-`bash` needed. Update the two plugins from Claude Code, then re-run the setup skill:
+The orchestrator handles everything downstream — including updating
+`claude-obsidian` (installed from TechTrip's maintained fork) and re-pinning
+the community plugins. The only thing you update by hand is the orchestrator
+itself:
 
 ```
 claude plugin marketplace update            # refresh listings
-claude plugin update techtrip-secondbrain   # this plugin
-claude plugin update claude-obsidian        # AgriciDaniel's runtime
+claude plugin update techtrip-secondbrain   # the orchestrator
 ```
 
 Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
-versions load, and run:
+version loads, and run:
 
 ```
 /secondbrain
 ```
 
-It's idempotent — it re-pins the community plugins to this release's manifest tags
-(each asset re-verified against its `sha256`) and finishes with a health check,
-without touching your notes, git history, MCP key, or optional-feature choices.
+It re-runs the idempotent setup scripts from the plugin: `setup-claude-obsidian.sh`
+updates `claude-obsidian` (and migrates an upstream install over to the fork if
+needed), the vault scaffold re-pins the community plugins to this release's
+manifest tags (each asset re-verified against its `sha256`), and it finishes with
+a health check — without touching your notes, git history, MCP key, or
+optional-feature choices. **Do not run `claude plugin update claude-obsidian`
+yourself** — the orchestrator owns that plugin's lifecycle: a bare plugin update
+can't migrate an upstream install to the fork, only the orchestrator can.
 
 ### If you cloned the git repo
 
@@ -299,7 +312,7 @@ You have the scripts locally, so one command does everything above:
 ```bash
 cd techtrip-secondbrain
 git pull                       # get the latest scripts + manifest
-bash bin/update.sh ~/LLM-Wiki
+bash bin/update.sh ~/LLM-Wiki  # substitute your vault path (or omit — the saved setup path is used)
 ```
 
 `update.sh` refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
@@ -382,10 +395,10 @@ ways) and the **vault content** (your notes — never reinstalled, always a
   **Do NOT run `setup-vault.sh` on the new machine.**
 
 **Step 2 — vault content.** Clone your *vault repo* (not this repo) from your
-remote:
+remote, to whatever path you use for the vault:
 
 ```bash
-git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki
+git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki   # your path may differ
 ```
 
 **Step 3 — wire up and verify:**
