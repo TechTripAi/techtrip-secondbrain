@@ -19,6 +19,13 @@ git -C <vault> push -u origin main
 
 Versioned, portable, works off-LAN.
 
+**User not comfortable with git?** Obsidian Sync (official, paid) is an
+acceptable multi-device alternative to a git remote — it ignores hidden folders,
+so it won't corrupt `.git`. Tell the user the caveats: `.raw/` and `.vault-meta/`
+don't sync (hidden folders), git history stays per-machine, the single-writer
+rule still applies, and the encrypted vault transits Obsidian's cloud. See the
+README "Sync model" tip for the full write-up.
+
 ## Machine-local state stays out of git
 
 `.vault-meta/locks/` and `transport.json` are per-machine state — sharing locks
@@ -29,15 +36,17 @@ versioned.
 
 ## Second machine
 
-Clone the remote and work with normal git flow:
+Two distinct pieces: **tooling** (this plugin — installed fresh, via marketplace
+OR a git checkout of the orchestrator repo, not both) and **vault content**
+(always a `git clone` of the user's *vault* repo — never re-scaffolded).
 
 1. Machine-level setup: `precheck` → `setup-deps` → `setup-obsidian` →
    `setup-claude-obsidian`. **Do NOT run `setup-vault.sh`** — content (including
-   `.obsidian` community plugins) arrives via the clone.
-2. `git clone <remote> <vault-path>`, then open the vault in Obsidian and enable
-   community plugins.
-3. `setup-mcp.sh <path>` — it **reuses the cloned Local REST API key** (machines
-   deliberately share one key; `setup-mcp` never regenerates an existing key).
+   `.obsidian` community plugins) arrives via the vault clone.
+2. `git clone <vault-remote> <vault-path>`, then open the vault in Obsidian and
+   enable community plugins.
+3. `setup-mcp.sh <path>` — reuses the committed plugin config and mints this
+   machine's **own** Local REST API key.
 4. `doctor.sh <path>` — green.
 
 **Single-writer rule still applies:** edit on one machine at a time and

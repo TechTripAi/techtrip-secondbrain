@@ -326,9 +326,26 @@ Why nothing else:
   doesn't earn in a single-writer workflow. It also forced both machines to share
   one REST API key with fragile setup ordering; with git-only, the key stays
   gitignored and each machine mints its **own**.
-- **No cloud file-sync (iCloud/Dropbox/Obsidian Sync)**: putting a `.git` dir
-  under a cloud syncer risks repo corruption and conflict noise, and it sends the
-  vault off your machine — git to a remote you control is simpler and private.
+- **No cloud file-sync (iCloud/Dropbox)**: putting a `.git` dir under a cloud
+  syncer risks repo corruption and conflict noise, and it sends the vault off
+  your machine — git to a remote you control is simpler and private.
+
+> [!TIP]
+> **Not comfortable with git?** [Obsidian Sync](https://obsidian.md/sync) (the
+> official paid service) is a reasonable multi-device alternative — it's
+> end-to-end encrypted and, unlike iCloud/Dropbox, it ignores hidden folders, so
+> it won't corrupt the vault's `.git` directory. Caveats:
+>
+> - **Hidden folders don't sync.** `.raw/` (your immutable source inbox) and
+>   `.vault-meta/` stay on the machine where they were created — other devices
+>   get the wiki pages but not the raw sources behind them.
+> - **Git history stays per-machine.** Auto-commit still runs locally wherever
+>   you edit, but histories on different machines will diverge; treat one
+>   machine as the keeper of record (or skip git entirely and rely on Obsidian
+>   Sync's own version history).
+> - **The single-writer rule still applies** — edit on one device at a time or
+>   you'll be merging conflicting versions by hand.
+> - It's a subscription, and your (encrypted) vault transits Obsidian's cloud.
 
 Machine-local state (`.vault-meta/locks/`, `transport.json`) stays out of git via
 the vault `.gitignore`. See `skills/secondbrain/references/sync.md`.
@@ -339,33 +356,46 @@ detects it and offers a full teardown (stop service, uninstall, remove
 
 ## Add a second machine
 
-One wiki, two Macs, plain git:
+One wiki, two Macs, plain git. Two separate things land on the new machine:
+the **tooling** (this plugin + its dependencies — installed fresh, one of two
+ways) and the **vault content** (your notes — never reinstalled, always a
+`git clone` of your vault remote).
 
-1. **Prereqs** — Claude Code installed; Homebrew present.
-2. **Install this plugin:**
-   ```
-   claude plugin marketplace add TechTripAi/techtrip-secondbrain
-   claude plugin install techtrip-secondbrain@techtrip-secondbrain
-   ```
-3. **Machine-level setup** (everything *except* the vault scaffold — the vault
-   content, including the `.obsidian` community plugins, arrives via the clone):
-   ```bash
-   bash bin/precheck.sh
-   bash bin/setup-deps.sh
-   bash bin/setup-obsidian.sh
-   bash bin/setup-claude-obsidian.sh
-   ```
-   **Do NOT run `setup-vault.sh` on the new machine.**
-4. **Clone the vault** from your remote:
-   ```bash
-   git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki
-   ```
-5. **Open the vault in Obsidian**; trust it and enable community plugins (they
+**Step 1 — tooling.** Pick ONE install path, same as on the first machine:
+
+- **Marketplace (most people):** install the plugin and let `/secondbrain`
+  drive the setup — you never touch `bin/` directly:
+  ```
+  claude plugin marketplace add TechTripAi/techtrip-secondbrain
+  claude plugin install techtrip-secondbrain@techtrip-secondbrain
+  ```
+  Then run `/secondbrain` and tell it this is a second machine — **skip the
+  vault scaffold** (`setup-vault.sh`); the vault arrives in step 2.
+- **Git checkout (developers):** clone *this orchestrator repo* and run the
+  machine-level scripts yourself:
+  ```bash
+  bash bin/precheck.sh
+  bash bin/setup-deps.sh
+  bash bin/setup-obsidian.sh
+  bash bin/setup-claude-obsidian.sh
+  ```
+  **Do NOT run `setup-vault.sh` on the new machine.**
+
+**Step 2 — vault content.** Clone your *vault repo* (not this repo) from your
+remote:
+
+```bash
+git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki
+```
+
+**Step 3 — wire up and verify:**
+
+1. **Open the vault in Obsidian**; trust it and enable community plugins (they
    came with the clone).
-6. **Wire MCP:** `bash bin/setup-mcp.sh ~/LLM-Wiki` — it reuses the committed
-   plugin config and mints this machine's own Local REST API key. Reload Claude
-   Code.
-7. **Verify:** `bash bin/doctor.sh ~/LLM-Wiki` — green.
+2. **Wire MCP:** `setup-mcp.sh <vault>` (via `/secondbrain` or `bin/`) — it
+   reuses the committed plugin config and mints this machine's own Local REST
+   API key. Reload Claude Code.
+3. **Verify:** `doctor.sh <vault>` — green.
 
 **Living with two machines:** work from one machine at a time (the single-writer
 rule), `git pull` before you start, `git push` when you finish. Auto-commit runs
