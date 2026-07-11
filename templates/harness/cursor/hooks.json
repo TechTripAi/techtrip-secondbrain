@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/wiki-session-start.sh"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/wiki-autocommit.sh"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/wiki-stop-reminder.sh",
+        "loop_limit": 2
+      }
+    ]
+  }
+}

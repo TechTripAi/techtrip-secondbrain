@@ -1,0 +1,20 @@
+---
+description: Cursor-specific vault behavior — defers to AGENTS.md for the full operating contract
+alwaysApply: true
+---
+
+# LLM Wiki Vault (Cursor specifics)
+
+The full operating contract lives in `AGENTS.md` at the vault root — read and
+follow it (session start: read `wiki/hot.md` silently; re-read after context
+compaction).
+
+Cursor-specific carve-outs:
+
+- The project hook `.cursor/hooks/wiki-autocommit.sh` auto-commits `wiki/`,
+  `.raw/`, `.vault-meta/` after file edits. This is user-sanctioned automation
+  and an explicit exception to any global ask-before-commit rule — do not
+  fight it or warn about it. Ask-before-commit still applies to every other
+  path and to commits you make yourself.
+- The `stop` hook may prompt you to refresh `wiki/hot.md` if wiki pages
+  changed; comply using the hot-cache format in `AGENTS.md`.

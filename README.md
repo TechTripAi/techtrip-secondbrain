@@ -162,6 +162,20 @@ Replace `<version>` with the installed version directory (e.g. `1.9.2`) and
 hot-cache injection) only fire inside Claude Code sessions; other harnesses get
 the skills and the vault.
 
+**Or automate all of that** with the harness setup step:
+
+```bash
+bash bin/setup-harnesses.sh ~/LLM-Wiki
+```
+
+It symlinks the installed skills into the cross-vendor discovery dirs
+(`~/.agents/skills/`, and `~/.codex/skills/` when Codex is present) and stamps
+harness-parity artifacts into the vault: a root `AGENTS.md` (the operating
+contract every agent reads), plus `.cursor/hooks.json` + hook scripts that port
+the claude-obsidian hooks (auto-commit, stale-lock cleanup, hot-cache refresh
+nudge) to Cursor. Idempotent; never overwrites files you've customized. Re-run
+it after `bin/update.sh` so the skill links re-point at the new plugin version.
+
 ## What it does
 
 | Step | Script | Result |
