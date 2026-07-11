@@ -4,6 +4,16 @@
   <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
 </p>
 
+> [!IMPORTANT]
+> **New release: v0.2.0 (2026-07-11) — Syncthing support removed; git is now the
+> only sync path.** If you're on 0.1.0, update now — see
+> [Updating an existing secondbrain](#updating-an-existing-secondbrain):
+> [via the plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
+> (most people) or [via a local git clone](#if-you-cloned-the-git-repo).
+> Nothing on your machine is uninstalled by the update; if your vault has a
+> leftover `.stignore` from 0.1.0, `bin/setup-sync.sh` offers to remove it.
+> Full details in the [CHANGELOG](CHANGELOG.md).
+
 > [!NOTE]
 > **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (by
