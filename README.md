@@ -295,9 +295,12 @@ the community plugins. The only thing you update by hand is the orchestrator
 itself:
 
 ```
-claude plugin marketplace update            # refresh listings
-claude plugin update techtrip-secondbrain   # the orchestrator
+claude plugin marketplace update                                  # refresh listings
+claude plugin update techtrip-secondbrain@techtrip-secondbrain    # the orchestrator
 ```
+
+(The full `name@marketplace` spec is required — a bare
+`claude plugin update techtrip-secondbrain` fails with "Plugin not found".)
 
 Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
 version loads, and run:

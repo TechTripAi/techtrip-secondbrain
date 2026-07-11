@@ -5,6 +5,24 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [0.2.0] — 2026-07-11
 
+### Fixed
+- **`bin/update.sh` never actually updated either plugin.**
+  `claude plugin update <name>` fails with "Plugin not found" unless given the
+  full `name@marketplace` spec — the failure was masked by the script's
+  continue-on-warn. update.sh now reads the exact spec off `claude plugin list`.
+  Likewise, `setup-claude-obsidian.sh` treated "already on the fork" as done and
+  exited without checking for a newer version; it now offers a confirm-gated
+  in-place `claude plugin update` of the fork slug.
+
+### Added
+- **Stale upstream-marketplace cleanup.** After migrating to the fork (or on any
+  later run once already on it), `setup-claude-obsidian.sh` detects the upstream
+  `agricidaniel-claude-obsidian` marketplace registration lingering with no
+  plugin installed from it and offers a confirm-gated
+  `claude plugin marketplace remove` — preventing a future bare
+  `claude plugin install claude-obsidian` from resolving to upstream's broken
+  build. Never removes a marketplace that still serves an installed plugin.
+
 ### Removed
 - **Syncthing support dropped entirely — git is the only sync path.** The optional
   feature, its `setup-features.sh` branch, the doctor row, and the

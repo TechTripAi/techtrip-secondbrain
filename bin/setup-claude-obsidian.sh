@@ -38,8 +38,42 @@ version_notice() {
 # non-zero when nothing matches.)
 INSTALLED_SLUG="$(claude plugin list 2>/dev/null | grep -oE "${ID}@[a-z0-9._-]+" | head -1 || true)"
 
+# If the upstream marketplace is still registered but nothing is installed from
+# it, offer to unregister it. This is OUR config to manage (the install flow
+# adds marketplaces), it's one-command reversible, and leaving it risks a future
+# bare `claude plugin install claude-obsidian` resolving to the broken upstream
+# build. We never remove a marketplace that still serves an installed plugin.
+UPSTREAM="$(manifest_get 'm.claudePlugins[0].upstream')"
+cleanup_upstream_marketplace() {
+  local up_mp
+  up_mp="$(printf '%s' "$UPSTREAM" | tr '[:upper:]/' '[:lower:]-')"
+  [ "$up_mp" = "${SLUG#*@}" ] && return 0   # fork IS upstream — nothing to do
+  claude plugin marketplace list 2>/dev/null | grep -q "$up_mp" || return 0
+  if claude plugin list 2>/dev/null | grep -qE "@${up_mp}\b"; then
+    info "Marketplace '$up_mp' still serves an installed plugin — leaving it registered."
+    return 0
+  fi
+  info "The upstream marketplace '$up_mp' is still registered but unused. Removing it"
+  info "prevents a future 'claude plugin install $ID' from resolving to upstream's"
+  info "broken build instead of the fork."
+  if confirm "Unregister marketplace '$up_mp'? (reversible: claude plugin marketplace add $UPSTREAM)"; then
+    run "Removing marketplace $up_mp" -- claude plugin marketplace remove "$up_mp" || \
+      warn "marketplace remove returned non-zero (continuing)"
+  else
+    info "Left registered."
+  fi
+}
+
 if [ "$INSTALLED_SLUG" = "$SLUG" ]; then
-  ok "$SLUG already installed (maintained fork)"; version_notice; exit 0
+  ok "$SLUG already installed (maintained fork)"
+  # Already on the fork — offer an in-place update so bin/update.sh (which
+  # delegates here) actually refreshes claude-obsidian instead of no-opping.
+  if confirm "Check for a newer $SLUG and update in place?"; then
+    run "Updating $SLUG" -- claude plugin update "$SLUG" || \
+      warn "Update for $SLUG reported an issue (continuing)."
+  fi
+  cleanup_upstream_marketplace
+  version_notice; exit 0
 fi
 
 if [ -n "$INSTALLED_SLUG" ]; then
@@ -53,7 +87,9 @@ if [ -n "$INSTALLED_SLUG" ]; then
     run "Adding marketplace $MP" -- claude plugin marketplace add "$MP" \
       || info "marketplace add returned non-zero (may already be added) — continuing"
     run "Installing $SLUG" -- claude plugin install "$SLUG"
-    ok "Migrated to $SLUG"; version_notice
+    ok "Migrated to $SLUG"
+    cleanup_upstream_marketplace
+    version_notice
     info "Reload/restart Claude Code so the fork's skills + hooks activate."
   else
     warn "Kept '$INSTALLED_SLUG'. You'll keep hitting already-fixed bugs until you migrate."
