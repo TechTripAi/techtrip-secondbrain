@@ -71,7 +71,16 @@ if you need detail; summarize it for the user rather than dumping it.
    by re-running `/secondbrain` or `bash bin/setup-features.sh <path>
    youtube|notebooklm`. `/brain-dump` has a section teaching users how to
    turn any feature on or off after the fact.
-9. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
+9. **Cross-harness links** — `bash bin/setup-harnesses.sh <path>`. Symlinks the
+   installed skills into `~/.agents/skills` (and `~/.codex/skills` when Codex is
+   present) and stamps `AGENTS.md` + Cursor hook/rule parity artifacts into the
+   vault so Cursor and Codex discover the same skills Claude Code uses. Claude Code
+   itself needs none of this, but run the step by default — it's idempotent, its
+   `ln -sfn` re-points stale links, and **on a `/secondbrain` re-run after a plugin
+   update this step is what moves the links to the new version** (marketplace users
+   have no `bin/update.sh`; this is their re-point path). `doctor` flags stale
+   links if it's ever skipped.
+10. **Post-build checkout** — defer to the **`secondbrain-doctor`** skill. On any setup
    error or a red MCP row, **run the doctor yourself, in-session** — the user should
    never have to exit and re-enter Claude Code to diagnose or repair. Run
    `bash bin/doctor.sh <path>` (read-only, safe to auto-run); if any MCP row is red, run

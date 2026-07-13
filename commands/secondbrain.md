@@ -9,7 +9,11 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
 3. Ask ONE question up front: "Where should the vault live?" (default `~/LLM-Wiki`).
 4. Walk the steps in order, pausing at each confirm prompt and explaining what it does:
    deps → Obsidian → claude-obsidian plugin → scaffold vault → MCP → sync →
-   **optional features** → doctor. Ask about each optional feature **inline** — don't
+   **optional features** → harnesses → doctor. The harnesses step
+   (`bash bin/setup-harnesses.sh <path>`) links the installed skills into the
+   cross-vendor dirs (Cursor/Codex) and stamps vault parity artifacts; run it by
+   default — on a `/secondbrain` re-run after a plugin update it is what re-points
+   the links at the new version. Ask about each optional feature **inline** — don't
    defer to "run setup-features.sh later" — and drive `bash bin/setup-features.sh
    <path> <feature>` per answer: **YouTube (yt-fetch)** is the harmless freebie
    (passive `yt-dlp` binary — no daemon, no credentials; recommend yes, prompt

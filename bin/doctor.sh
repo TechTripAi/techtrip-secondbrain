@@ -112,6 +112,42 @@ while IFS=$'\t' read -r id label binary; do
   fi
 done < <(manifest_get 'm.optionalFeatures.map(f=>[f.id,f.label,f.binary||""].join("\t")).join("\n")')
 
+# Cross-harness skill links (informational — Claude Code itself never needs them).
+# A link is stale when its cache target was pruned or a newer plugin version is
+# installed; that happens when the plugin was updated without re-running
+# setup-harnesses.sh (bin/update.sh and the /secondbrain re-run both do).
+step "Cross-harness skill links (Cursor/Codex)"
+check_harness_links() {
+  local dir="$1" total=0 stale=0 l dest plugdir newest
+  if [ ! -d "$dir" ]; then
+    row "$dir" "$OFFM  → bin/setup-harnesses.sh"
+    return 0
+  fi
+  for l in "$dir"/*; do
+    [ -L "$l" ] || continue
+    dest="$(readlink "$l" 2>/dev/null)" || continue
+    case "$dest" in "$HOME"/.claude/plugins/cache/*) ;; *) continue ;; esac
+    total=$((total+1))
+    plugdir="${dest%/skills/*}"                                  # …/<plugin>/<version>
+    newest="$(ls -1d "${plugdir%/*}"/*/ 2>/dev/null | sort -V | tail -1)"
+    newest="${newest%/}"
+    if [ ! -d "$dest" ] || { [ -n "$newest" ] && [ "$plugdir" != "$newest" ]; }; then
+      stale=$((stale+1))
+    fi
+  done
+  if [ "$total" = 0 ]; then
+    row "$dir" "$OFFM  → bin/setup-harnesses.sh"
+  elif [ "$stale" = 0 ]; then
+    row "$dir" "$OKM ($total link(s) current)"
+  else
+    row "$dir" "$BADM  $stale of $total link(s) stale → bin/setup-harnesses.sh re-points"
+  fi
+}
+check_harness_links "$HOME/.agents/skills"
+if [ -d "$HOME/.codex" ] || have_cmd codex; then
+  check_harness_links "$HOME/.codex/skills"
+fi
+
 # Live REST API probe (only meaningful if Obsidian is running)
 step "Live REST API probe (optional)"
 if [ -f "$DATA" ]; then

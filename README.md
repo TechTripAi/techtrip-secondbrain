@@ -315,9 +315,11 @@ version loads, and run:
 It re-runs the idempotent setup scripts from the plugin: `setup-claude-obsidian.sh`
 updates `claude-obsidian` (and migrates an upstream install over to the fork if
 needed), the vault scaffold re-pins the community plugins to this release's
-manifest tags (each asset re-verified against its `sha256`), and it finishes with
-a health check — without touching your notes, git history, MCP key, or
-optional-feature choices. **Do not run `claude plugin update claude-obsidian`
+manifest tags (each asset re-verified against its `sha256`), the cross-harness
+skill links (Cursor/Codex) are re-pointed at the new plugin version, and it
+finishes with a health check — without touching your notes, git history, MCP key,
+or optional-feature choices. (Skip the `/secondbrain` re-run and those harness
+links silently keep serving the *old* skills — `doctor` flags this as stale.) **Do not run `claude plugin update claude-obsidian`
 yourself** — the orchestrator owns that plugin's lifecycle: a bare plugin update
 can't migrate an upstream install to the fork, only the orchestrator can.
 

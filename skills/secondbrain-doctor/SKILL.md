@@ -22,7 +22,9 @@ Two scripts back this skill:
 
 - **`bin/doctor.sh <vault>`** — read-only health table: `wiki/` tree, each community
   plugin (files present + enabled), the REST-API-key ↔ MCP-env-key match, the
-  `claude-obsidian` plugin, the `obsidian` MCP registration, and a live REST probe.
+  `claude-obsidian` plugin, the `obsidian` MCP registration, the cross-harness
+  skill links (Cursor/Codex — stale after a plugin update if `setup-harnesses.sh`
+  wasn't re-run), and a live REST probe.
 - **`bin/repair-mcp.sh <vault>`** — deeper MCP diagnosis + **interactive repair**:
   uvx present, registered, key match, port 27124 listening, authenticated probe;
   then offers fixes (install uv, re-register with the correct key, open Obsidian +
@@ -42,7 +44,14 @@ so the fix is upstream, not here.
    connect" — run `bash bin/repair-mcp.sh <vault>` and walk the interactive repairs,
    explaining each before confirming. Never pass `--yes` unless asked.
 4. Re-run `bin/repair-mcp.sh <vault>` after repairs to confirm it goes green.
-5. If the "SessionStart hooks valid" row is red (or the user reports a
+5. If a **"Cross-harness skill links"** row reads stale, self-heal it in-session:
+   run `bash bin/setup-harnesses.sh <vault>` (idempotent; its `ln -sfn` re-points
+   the links at the newest installed plugin version) and re-run `doctor.sh` to
+   confirm. This is the expected state after a `claude plugin update` that wasn't
+   followed by a `/secondbrain` re-run — say so, no alarm needed. An `off` row
+   just means cross-harness links were never set up (Claude Code doesn't need
+   them); offer the same script, don't push it.
+6. If the "SessionStart hooks valid" row is red (or the user reports a
    `SessionStart::startup hook` error at launch), explain it is an upstream
    claude-obsidian bug (≤1.9.2 ships a `type:"prompt"` hook under SessionStart,
    which supports only `command`/`mcp_tool`). secondbrain does **not** patch

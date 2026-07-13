@@ -5,6 +5,22 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [0.2.1] — 2026-07-13
 
+### Fixed
+- **Marketplace installs never got cross-harness links created or re-pointed.**
+  `setup-harnesses.sh` was only invoked by `bin/update.sh` — a script marketplace
+  users don't have — so the documented `/secondbrain` setup/update flow skipped it
+  entirely: Cursor/Codex symlinks were never created at setup, and after a
+  `claude plugin update` any existing links kept serving the old cached version.
+  Self-healing, doctor-first fix:
+  - The `secondbrain` skill and command gained a **harnesses step** (after optional
+    features, before doctor) — a `/secondbrain` re-run after a plugin update now
+    re-points the links, which is the marketplace users' update path.
+  - `bin/doctor.sh` gained a report-only **"Cross-harness skill links"** section:
+    `off` when never set up (informational), **stale** when a link's cache target
+    was pruned or a newer plugin version is installed.
+  - The `secondbrain-doctor` skill self-heals a stale row in-session by running
+    `setup-harnesses.sh` and re-checking.
+
 ### Added
 - `/brain-dump` gained **Section 5 — Research a topic (autoresearch)**: teaches
   that `/autoresearch` takes a *topic, not a source*, shows a standalone research
