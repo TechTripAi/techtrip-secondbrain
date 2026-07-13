@@ -3,6 +3,19 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.1] — 2026-07-13
+
+### Added
+- `/brain-dump` gained **Section 5 — Research a topic (autoresearch)**: teaches
+  that `/autoresearch` takes a *topic, not a source*, shows a standalone research
+  prompt, and the two-step "research a source" pattern (ingest the source first,
+  then autoresearch the topic it raised, so the researched pages cross-link to it).
+  Sections 5–9 renumbered to 6–10; the optional-features standing reference is now
+  **Section 9** (was §8). Doc-only release — no script, manifest, or setup changes;
+  delivered to every harness by the normal update path (`bin/update.sh` re-runs
+  `setup-harnesses.sh`, whose `ln -sfn` re-points the Cursor/Codex/`~/.agents`
+  skill symlinks at the new plugin version).
+
 ## [0.2.0] — 2026-07-11
 
 ### Fixed

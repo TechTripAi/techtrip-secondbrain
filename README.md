@@ -5,8 +5,10 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.0 (2026-07-11) — Syncthing support removed; git is now the
-> only sync path.** If you're on 0.1.0, update now — see
+> **New release: v0.2.1 (2026-07-13) — `/brain-dump` gains Section 5: researching
+> topics with `/autoresearch`** (doc-only; sections renumbered, optional-features
+> reference is now §9). **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
+> is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
 > [via the plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
 > (most people) or [via a local git clone](#if-you-cloned-the-git-repo).
@@ -57,7 +59,8 @@ install and use, with some added functionality:
 3. **Adds two ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
    transcripts) and `notebooklm-ingest` (NotebookLM synthesis).
 4. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
-   through every ingestion type and the maintenance workflow.
+   through every ingestion type, topic research with `/autoresearch`, and the
+   maintenance workflow.
 
 ## What is a "second brain"?
 
