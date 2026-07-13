@@ -77,6 +77,13 @@ See `../secondbrain/references/mcp.md` for the key-handshake details.
 
 ## Notes
 
+- **Never tell the user to run `bin/*.sh` themselves unless they cloned the git
+  repo.** Doctor's remediation arrows (`→ bin/setup-mcp.sh` etc.) name the script
+  that fixes a row — for marketplace installs those scripts live in the plugin
+  cache with no repo to run them from, so **you** run them in-session (you're
+  executing from the plugin root) or route the user to `/secondbrain` /
+  `/secondbrain-doctor`. Only a user who cloned the repo gets a bash command.
+
 - Report-only `doctor.sh` never mutates; `repair-mcp.sh` is confirm-gated and supports
   `--dry-run`.
 - **Runs entirely in-session.** `doctor.sh` is read-only and safe to auto-run (including

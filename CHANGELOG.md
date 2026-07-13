@@ -21,6 +21,12 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   - The `secondbrain-doctor` skill self-heals a stale row in-session by running
     `setup-harnesses.sh` and re-checking.
 
+### Changed
+- **`bin/*.sh` is now consistently marked as the git-clone door.** README, the
+  skills, and doctor's output footer all route marketplace installs to the skills
+  (`/secondbrain`, `/secondbrain-doctor`) instead of bash commands — a marketplace
+  install has no repo to run `bin/` from, so the skills are its only interface.
+
 ### Added
 - `/brain-dump` gained **Section 5 — Research a topic (autoresearch)**: teaches
   that `/autoresearch` takes a *topic, not a source*, shows a standalone research

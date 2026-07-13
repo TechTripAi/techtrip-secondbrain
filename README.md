@@ -175,7 +175,9 @@ Replace `<version>` with the installed version directory (e.g. `1.9.2`) and
 hot-cache injection) only fire inside Claude Code sessions; other harnesses get
 the skills and the vault.
 
-**Or automate all of that** with the harness setup step:
+**Or automate all of that** with the harness setup step. **Installed from the
+marketplace?** It's a step inside `/secondbrain` — run that; you never touch
+`bin/` directly. **Cloned the git repo?** The direct door is:
 
 ```bash
 bash bin/setup-harnesses.sh ~/LLM-Wiki
@@ -186,8 +188,10 @@ It symlinks the installed skills into the cross-vendor discovery dirs
 harness-parity artifacts into the vault: a root `AGENTS.md` (the operating
 contract every agent reads), plus `.cursor/hooks.json` + hook scripts that port
 the claude-obsidian hooks (auto-commit, stale-lock cleanup, hot-cache refresh
-nudge) to Cursor. Idempotent; never overwrites files you've customized. Re-run
-it after `bin/update.sh` so the skill links re-point at the new plugin version.
+nudge) to Cursor. Idempotent; never overwrites files you've customized. It must
+re-run after every plugin update so the skill links re-point at the new version —
+both update paths do this for you (`bin/update.sh` for clones, the `/secondbrain`
+re-run for marketplace installs).
 
 ## What it does
 
@@ -208,7 +212,13 @@ Everything is driven by **`manifest.json`** — the single source of truth for t
 binaries, apps, plugins, community plugins, MCP server, and skills. Edit it to change
 what gets audited and installed.
 
-### Although TechTrip Second Brain is designed to run via Claude you may Run it manually on the command line as follows:
+These scripts are what the skills drive for you: `/secondbrain` runs the setup
+steps, `/secondbrain-doctor` runs doctor and the MCP repair. **If you installed
+from the marketplace, the skills are your interface — use them.** Running the
+scripts by hand is for git-clone users only (the marketplace install buries them
+in the plugin cache; there's no repo to `cd` into).
+
+### Running it manually on the command line (git clone only)
 
 ```bash
 git clone https://github.com/TechTripAi/techtrip-secondbrain
@@ -263,10 +273,11 @@ they don't carry the same risk:
 
 Their *skills* always ship with the plugin; the questions only govern the runtime
 each needs. Declining costs nothing — enable any feature later by re-running
-`/secondbrain` (idempotent; everything already installed is skipped), or directly:
+`/secondbrain` (idempotent; everything already installed is skipped). That's the
+whole answer for marketplace installs; git-clone users can also go in directly:
 
 ```bash
-bash bin/setup-features.sh ~/LLM-Wiki                 # walk both
+bash bin/setup-features.sh ~/LLM-Wiki                 # walk both (git clone only)
 bash bin/setup-features.sh ~/LLM-Wiki youtube         # just one
 bash bin/setup-features.sh ~/LLM-Wiki notebooklm
 ```
@@ -280,8 +291,8 @@ uv tool uninstall notebooklm-py                            # NotebookLM
 ```
 
 The script is **idempotent**: already-enabled features report green and change
-nothing. `bin/doctor.sh` shows each feature's on/off state (off is reported, never
-failed). **`/brain-dump` is the standing reference for all of this** — its
+nothing. `/secondbrain-doctor` (or `bin/doctor.sh` from a clone) shows each
+feature's on/off state (off is reported, never failed). **`/brain-dump` is the standing reference for all of this** — its
 optional-features section walks through checking, enabling, and disabling each one,
 and it's re-runnable any time.
 
@@ -387,7 +398,8 @@ Why nothing else:
 Machine-local state (`.vault-meta/locks/`, `transport.json`) stays out of git via
 the vault `.gitignore`. See `skills/secondbrain/references/sync.md`.
 
-Upgrading from an earlier release that set up Syncthing? `bin/setup-sync.sh`
+Upgrading from an earlier release that set up Syncthing? The sync step (run via
+`/secondbrain` for marketplace installs, or `bash bin/setup-sync.sh` from a clone)
 offers to remove the vault `.stignore` it wrote back then — and only that. The
 Syncthing install itself is never touched (you may use it for other folders);
 if you don't, the script prints the manual removal commands for you to run.
@@ -433,7 +445,7 @@ git clone git@github.com:TechTripAi/<vault-repo>.git ~/LLM-Wiki   # your path ma
 2. **Wire MCP:** `setup-mcp.sh <vault>` (via `/secondbrain` or `bin/`) — it
    reuses the committed plugin config and mints this machine's own Local REST
    API key. Reload Claude Code.
-3. **Verify:** `doctor.sh <vault>` — green.
+3. **Verify:** `doctor.sh <vault>` (via `/secondbrain-doctor` or `bin/`) — green.
 
 **Living with two machines:** work from one machine at a time (the single-writer
 rule), `git pull` before you start, `git push` when you finish. Auto-commit runs

@@ -68,8 +68,9 @@ if you need detail; summarize it for the user rather than dumping it.
      unprompted.
 
    A "no" costs nothing: the skills still ship, and any feature can be enabled later
-   by re-running `/secondbrain` or `bash bin/setup-features.sh <path>
-   youtube|notebooklm`. `/brain-dump` has a section teaching users how to
+   by re-running `/secondbrain` (the answer for marketplace installs — only
+   git-clone users can also run `bash bin/setup-features.sh <path>
+   youtube|notebooklm` directly). `/brain-dump` has a section teaching users how to
    turn any feature on or off after the fact.
 9. **Cross-harness links** — `bash bin/setup-harnesses.sh <path>`. Symlinks the
    installed skills into `~/.agents/skills` (and `~/.codex/skills` when Codex is
@@ -103,9 +104,11 @@ steps can be run without re-passing it — but passing it explicitly is always f
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
   from a one-sentence description of what the vault is for.
 - Recap the optional-feature answers from step 8: which of YouTube / NotebookLM
-  are on. Anything declined can be enabled later — re-run `/secondbrain`, run
-  `bash bin/setup-features.sh <path> <feature>`, or ask `/brain-dump`, which has a
-  section walking through turning any feature on or off.
+  are on. Anything declined can be enabled later — re-run `/secondbrain`, or ask
+  `/brain-dump`, which has a section walking through turning any feature on or off.
+  (Only mention `bash bin/setup-features.sh <path> <feature>` to users who cloned
+  the git repo — marketplace installs have no repo to run it from; the skills are
+  their interface.)
 - **Plant the periodic-doctor habit.** Mention once: `/secondbrain-doctor` is
   read-only and safe to run any time — a periodic check (monthly is plenty, or
   whenever something feels off) catches drift early. Updates end with it

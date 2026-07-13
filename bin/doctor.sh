@@ -162,4 +162,7 @@ if [ -f "$DATA" ]; then
 fi
 
 step "Doctor complete"
+info "The bin/*.sh remediation paths above are direct doors for git-clone installs."
+info "Marketplace install? Use the skills — /secondbrain re-runs any setup step and"
+info "/secondbrain-doctor drives repairs; both run these scripts for you."
 exit 0

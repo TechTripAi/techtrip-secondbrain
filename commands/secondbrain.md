@@ -27,8 +27,9 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
    hooks, and MCP only activate after a reload), open the vault in Obsidian + enable
    community plugins, run `/wiki` to scaffold content, and recap which optional
    features they enabled — anything declined can be turned on later (re-run
-   `/secondbrain`, or `bash bin/setup-features.sh <path> <feature>`; `/brain-dump` has
-   a section on enabling/disabling features). On any error or red MCP row, run the
+   `/secondbrain`; `/brain-dump` has a section on enabling/disabling features; the
+   direct `bash bin/setup-features.sh <path> <feature>` is for git-clone users only —
+   marketplace installs use the skills, never bin paths). On any error or red MCP row, run the
    doctor **in-session** (`bash bin/doctor.sh <path>`, then `bash bin/repair-mcp.sh
    <path>` if red) — the user never has to exit and re-enter to diagnose or repair.
 6. Offer the guided tour: ask if they'd like to run **`/brain-dump`** now — a guided

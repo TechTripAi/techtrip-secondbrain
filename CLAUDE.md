@@ -86,6 +86,12 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   last line — keep that when editing it.
 - **Never write into `~/.claude/plugins/cache/**` (his plugin).** We install it via
   the official CLI, read/execute it, but never patch it.
+- **`bin/*.sh` is the git-clone door only.** Any user-facing text (README, skills,
+  commands, script output) that offers a `bash bin/…` command must say it's for
+  git-clone users and route marketplace installs to the skills (`/secondbrain`,
+  `/secondbrain-doctor`, `/brain-dump`) — a marketplace install has no repo to run
+  `bin/` from. Claude-facing skill steps are exempt (skills execute from the
+  plugin root either way).
 - **Never uninstall or stop external software.** Scripts may only remove
   artifacts this project itself created (e.g. a vault `.stignore`). Anything
   brew/uv/npm-installed — even if we installed it — may serve other purposes on
