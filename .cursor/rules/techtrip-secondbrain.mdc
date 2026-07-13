@@ -14,7 +14,8 @@ Installs [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (A
 - `bin/*.sh` — idempotent steps in order: `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → doctor`
 - `scripts/common.sh` — sourced by every script; provides logging, `confirm()`, `run()`, dry-run, `manifest_get`, vault helpers.
 - `scripts/install-obsidian-plugin.sh` — downloads community plugin GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
-- `skills/` — `secondbrain`, `secondbrain-doctor`, `yt-fetch`, `notebooklm-ingest`.
+- `skills/` — `secondbrain`, `secondbrain-doctor`, `brain-dump`, `new-idea`, `yt-fetch`, `notebooklm-ingest`.
+- `assets/vault/` — vault content seeded by `setup-vault.sh` (origination templates + `origination-workflow.md` for `new-idea`).
 
 ## Conventions
 

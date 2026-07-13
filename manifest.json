@@ -115,7 +115,8 @@
   "skills": [
     { "id": "yt-fetch",          "runtime": ["yt-dlp"], "feature": "youtube" },
     { "id": "notebooklm-ingest", "runtime": ["uv"], "feature": "notebooklm", "manual": "one-time `notebooklm login` (interactive OAuth)" },
-    { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." }
+    { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." },
+    { "id": "new-idea",          "runtime": [], "note": "Greenfield origination-project scaffolder: stamps wiki/projects/<slug>/ from the origination template (node-based, no extra deps). Vault-side templates + origination-workflow.md are seeded by setup-vault.sh from assets/vault/; the script self-seeds the templates on pre-existing vaults." }
   ],
   "optionalFeaturesNote": "bin/setup-features.sh enables any of these on demand (idempotent, re-runnable); the secondbrain skill asks about each one inline during setup and drives this script per answer. defaultEnabled:true = harmless freebie, prompt defaults to YES (still confirm-gated, still skippable). consentNote = why the feature needs an explicit opt-in; setup-features prints it before asking, prompt defaults to NO. NotebookLM has no dedicated binary — uv is already required by the MCP server — so enabling it means the notebooklm-py CLI install + one-time interactive `notebooklm login`. Syncthing support was removed (git is the only sync path); setup-sync.sh offers to remove a legacy vault .stignore but never uninstalls Syncthing itself — external software is the user's to manage.",
   "optionalFeatures": [

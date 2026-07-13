@@ -5,9 +5,10 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.2 (2026-07-13) — cross-harness skill links now work for
-> marketplace installs** (the `/secondbrain` flow gains a harnesses step; `doctor`
-> flags stale links and reports when plugin updates are available).
+> **New release: v0.2.3 (2026-07-13) — `/new-idea`, the origination scaffolder**:
+> start a greenfield project (thesis → decisions → spec) when *you* are the source;
+> `setup-vault` seeds the templates + workflow page, `doctor` nudges stale projects,
+> and `/brain-dump` teaches it in the new Section 6.
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
@@ -35,8 +36,8 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
 bug-fixes-only, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
-`notebooklm-ingest` source skills, and sets up git sync + backup — all
-interactive and idempotent.
+`notebooklm-ingest` source skills plus the `new-idea` origination scaffolder, and
+sets up git sync + backup — all interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
@@ -50,7 +51,7 @@ interactive and idempotent.
 
 ## Why this exists
 
-`techtrip-secondbrain` does exactly four things — it makes `claude-obsidian` easy to
+`techtrip-secondbrain` does exactly five things — it makes `claude-obsidian` easy to
 install and use, with some added functionality:
 
 1. **Automates installation** of `claude-obsidian` and everything around it
@@ -59,9 +60,12 @@ install and use, with some added functionality:
    `doctor`/`repair-mcp` diagnose and fix anything broken after.
 3. **Adds two ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
    transcripts) and `notebooklm-ingest` (NotebookLM synthesis).
-4. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
-   through every ingestion type, topic research with `/autoresearch`, and the
-   maintenance workflow.
+4. **Adds origination** — `/new-idea` scaffolds a greenfield project
+   (thesis → decisions → spec) for the ideas *you* originate, the generative
+   front-half that graduates back into the ingest pipeline.
+5. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
+   through every ingestion type, topic research with `/autoresearch`, starting a
+   new idea, and the maintenance workflow.
 
 ## What is a "second brain"?
 
@@ -111,10 +115,16 @@ is the LLM that maintains them behind the scenes.
   `~/.claude.json`.
 - **Source-ingestion skills** — ships `yt-fetch` (YouTube) and `notebooklm-ingest`
   (NotebookLM) as first-class skills for pulling material into the vault.
+- **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
+  (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
+  decisions log, spec) from a seeded template for the ideas you originate yourself;
+  the seeded `origination-workflow` page documents the loop
+  (Frame → Mull → Decide → Reconcile → Log → Graduate), and `doctor` nudges stale
+  projects toward graduate-or-archive.
 - **Guided onboarding** — ships `/brain-dump`, an instructional tutorial that walks you
-  through every ingestion type, `.raw/`, the hot cache, keeping the vault lean, and
-  turning optional features on or off, and hands you the exact prompts to run yourself.
-  It teaches; it never changes your vault. Re-runnable any time.
+  through every ingestion type, `.raw/`, the hot cache, starting a new idea, keeping
+  the vault lean, and turning optional features on or off, and hands you the exact
+  prompts to run yourself. It teaches; it never changes your vault. Re-runnable any time.
 - **Cross-machine sync** — git remote: auto-commit gives history and recovery, the
   remote gives backup, and a second machine is just a `git clone`.
 - **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
@@ -167,8 +177,8 @@ Read the skills under
 and
 ~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
-wiki-query, wiki-lint, yt-fetch, and notebooklm-ingest as first-class workflows,
-the same way Claude Code would.
+wiki-query, wiki-lint, yt-fetch, notebooklm-ingest, and new-idea as first-class
+workflows, the same way Claude Code would.
 ```
 
 Replace `<version>` with the installed version directory (e.g. `1.9.2`) and
@@ -257,8 +267,8 @@ These can't be automated:
    offers it, but it's interactive so you may have deferred it). Any feature you
    declined during setup can be enabled later — see below.
 5. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in,
-   keep the vault healthy, and turn optional features on or off. `/secondbrain` offers
-   to launch it once setup is green.
+   start a new idea with `/new-idea`, keep the vault healthy, and turn optional
+   features on or off. `/secondbrain` offers to launch it once setup is green.
 
 ## Optional features
 

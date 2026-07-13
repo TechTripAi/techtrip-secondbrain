@@ -29,8 +29,11 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
   check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
-  prompts to run, executes nothing; vault-agnostic, re-runnable) + ported `yt-fetch` /
-  `notebooklm-ingest`.
+  prompts to run, executes nothing; vault-agnostic, re-runnable) + `new-idea`
+  (greenfield origination-project scaffolder; its vault-side templates +
+  `origination-workflow.md` live in `assets/vault/` and are seeded by
+  `setup-vault.sh`; `doctor` reports stale/unindexed projects, advisory only) +
+  ported `yt-fetch` / `notebooklm-ingest`.
 
 ## Conventions
 

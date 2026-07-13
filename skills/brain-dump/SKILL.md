@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -134,19 +134,20 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   3. Ingest a YouTube video    — name it as a video so it routes right
   4. Ingest via NotebookLM     — combine many sources into one page
   5. Research a topic          — autoresearch: Claude finds the sources
-  6. What is .raw/?            — the immutable inbox
-  7. hot cache vs index vs log — the three bookkeeping files
-  8. Keep it lean & clean      — lint, fold, archive
-  9. Optional features on/off  — YouTube, NotebookLM
- 10. Where to go next          — the rest of the toolkit
+  6. Start a new idea          — origination: you are the source
+  7. What is .raw/?            — the immutable inbox
+  8. hot cache vs index vs log — the three bookkeeping files
+  9. Keep it lean & clean      — lint, fold, archive
+ 10. Optional features on/off  — YouTube, NotebookLM
+ 11. Where to go next          — the rest of the toolkit
 ```
 
 Also mention — once, right here — that this tutorial is the **standing reference for
-turning optional features on or off** (Section 9): it can be re-run any time, so "how
+turning optional features on or off** (Section 10): it can be re-run any time, so "how
 do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
 
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 10 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 11 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -256,7 +257,7 @@ ingest .raw/videos/<the-downloaded-file>.vtt
 **Notes:** auto-captions are imperfect (no speaker labels, occasional mishears — fine
 for meaning, quote carefully); no captions → metadata only. If a prompt errors that
 `yt-dlp` **isn't installed at all**, the YouTube feature was declined at setup —
-**don't work around it**; see **Section 9** to enable it (`/secondbrain` installs it).
+**don't work around it**; see **Section 10** to enable it (`/secondbrain` installs it).
 
 ---
 
@@ -289,7 +290,7 @@ ingest .raw/notebooklm/<slug>-<date>.md
 **Notes:** one-time `notebooklm login` first (interactive OAuth). Generation runs on
 Google's compute — only the final `ingest` spends Claude tokens. If the `notebooklm`
 CLI isn't set up, the NotebookLM feature was declined at setup — **defer**; see
-**Section 9** to enable it (`/secondbrain` installs it, then the one-time login).
+**Section 10** to enable it (`/secondbrain` installs it, then the one-time login).
 brain-dump won't log in or install for you.
 
 ---
@@ -334,7 +335,42 @@ earns its keep.
 
 ---
 
-## Section 6 — What is `.raw/`?
+## Section 6 — Start a new idea (origination)
+
+**Explain:** Everything above is *convergent* — you have a source (or a topic) and
+distill it into the graph. **`/new-idea` is the divergent direction: no source exists
+yet, because *you are the source.*** It scaffolds an **origination project** under
+`wiki/projects/<slug>/` — five files (project tracker, a messy thesis workbench, an
+open-questions backlog, an append-only decisions log, and a spec that fills in as
+things harden) — then registers it in `index.md` and `log.md`. Use it when you have an
+idea to work out: an article, a tool, an argument, a plan.
+
+**Prompt — type into Claude Code:**
+```
+/new-idea pricing-model --claim "Usage-based pricing beats seats for our product."
+```
+The slug becomes the folder name; the claim seeds the thesis. Skip `--claim` and just
+describe the idea — Claude will ask for the one-liner.
+
+**What to expect:** a new `wiki/projects/<slug>/` folder, a line under `## Active
+projects` in `wiki/index.md`, and a `scaffold` entry in `log.md`. Then the loop is
+**Frame → Mull → Decide → Reconcile → Log → Graduate** (the seeded
+`wiki/meta/origination-workflow.md` page explains it): think against the thesis, append
+load-bearing calls to `decisions.md` (append-only — the ADR spine), keep the thesis
+reconciled, and **graduate** — promote hardened ideas to `wiki/concepts/` as you go,
+and at the finish ingest the project's outputs into the substrate like any other
+source, then archive the folder.
+
+**Two hygiene rules worth stating:**
+- **Origination ends in ingestion.** A project isn't "done" until its outputs entered
+  the graph the normal way. Origination and ingest are two halves of one pipeline.
+- **Graduate or archive — don't hoard open projects.** An `active` project nobody has
+  touched in a month is rot, not work-in-progress. `/secondbrain-doctor` reports stale
+  and unregistered projects so they don't silently pile up.
+
+---
+
+## Section 7 — What is `.raw/`?
 
 **Explain:** `.raw/` is the **immutable inbox** — where source documents land before
 they become wiki pages.
@@ -355,7 +391,7 @@ from the vault root run `ls -R .raw` in your terminal.
 
 ---
 
-## Section 7 — hot cache vs index vs log
+## Section 8 — hot cache vs index vs log
 
 Three bookkeeping files live in `wiki/`, each with a different job:
 
@@ -368,14 +404,14 @@ Three bookkeeping files live in `wiki/`, each with a different job:
 
 **Why it matters:** a new session reads `hot.md` **first** — the cheap path (~500 tokens
 vs crawling everything). `hot.md` stays tiny on purpose; `log.md` grows forever — which
-is what Section 8 manages.
+is what Section 9 manages.
 
 **See it yourself:** open `wiki/hot.md` and `wiki/log.md` in Obsidian, or `cat wiki/hot.md`
 from the vault root.
 
 ---
 
-## Section 8 — Keep it lean & clean
+## Section 9 — Keep it lean & clean
 
 **Explain:** As the wiki grows, four habits keep it healthy:
 - **`wiki-lint`** — finds orphan pages, dead wikilinks, stale claims, missing
@@ -400,7 +436,7 @@ fold the log, commit k=3    # then write it
 
 ---
 
-## Section 9 — Optional features on/off
+## Section 10 — Optional features on/off
 
 **Explain:** The second brain ships lean. Three features have runtimes that are only
 installed if you said yes during setup — and every one can be turned on or off later.
@@ -438,15 +474,16 @@ re-enable it.
 
 ---
 
-## Section 10 — Where to go next
+## Section 11 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).
+- **`/new-idea`** — start an origination project (Section 6) whenever an idea needs a home.
 - **`/save`** — capture the current chat or an insight into the vault.
 - **`/secondbrain-doctor`** — health-check the whole stack (Obsidian, MCP, sync).
 - **`/brain-dump`** — re-run this tour any time; every section stands alone.
 
 Close warmly: the wiki grows by *feeding it* — a couple ingests a day compounds fast.
-Remind them once more that `/brain-dump` is always here — including Section 9 whenever
+Remind them once more that `/brain-dump` is always here — including Section 10 whenever
 they want to flip an optional feature on or off. When the user is done, just wrap up
 naturally — no command needed.

@@ -20,9 +20,10 @@ not just at install. The `secondbrain` setup skill calls you for its final check
 
 Two scripts back this skill:
 
-- **`bin/doctor.sh <vault>`** — read-only health table: `wiki/` tree, each community
-  plugin (files present + enabled), the REST-API-key ↔ MCP-env-key match, the
-  `claude-obsidian` plugin, the `obsidian` MCP registration, **update
+- **`bin/doctor.sh <vault>`** — read-only health table: `wiki/` tree, **origination
+  projects** (stale/unindexed rows under `wiki/projects/` — advisory, see below),
+  each community plugin (files present + enabled), the REST-API-key ↔ MCP-env-key
+  match, the `claude-obsidian` plugin, the `obsidian` MCP registration, **update
   availability** for both plugins (installed cache version vs the repo's `main`;
   offline skips the check), the cross-harness skill links (Cursor/Codex — stale
   after a plugin update if `setup-harnesses.sh` wasn't re-run), and a live REST
@@ -60,7 +61,17 @@ so the fix is upstream, not here.
    followed by a `/secondbrain` re-run — say so, no alarm needed. An `off` row
    just means cross-harness links were never set up (Claude Code doesn't need
    them); offer the same script, don't push it.
-7. If the "SessionStart hooks valid" row is red (or the user reports a
+7. If an **"Origination projects"** row is flagged, there is **no auto-repair** —
+   these are content decisions, not stack breakage. **stale** means the project is
+   `status: active` but nothing in its folder was touched in 30+ days: remind the
+   user of the rule from the origination workflow — *graduate or archive, don't
+   hoard open projects* — and offer to help with either (promote hardened concepts
+   / ingest the outputs and archive the folder, or set `status:` to something
+   other than `active` if it's deliberately parked). **not in wiki/index.md**
+   means the post-scaffold registration step was skipped: offer to add the
+   `## Active projects` bullet per the `new-idea` skill. Never mutate the vault
+   without the user's go-ahead.
+8. If the "SessionStart hooks valid" row is red (or the user reports a
    `SessionStart::startup hook` error at launch), explain it is an upstream
    claude-obsidian bug (≤1.9.2 ships a `type:"prompt"` hook under SessionStart,
    which supports only `command`/`mcp_tool`). secondbrain does **not** patch

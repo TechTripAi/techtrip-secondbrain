@@ -14,6 +14,32 @@ info "Vault: $VAULT"
 # Vault scaffold
 [ -d "$VAULT/wiki" ] && row "wiki/ tree" "$OKM" || row "wiki/ tree" "$BADM  → bin/setup-vault.sh"
 
+# Origination projects (report-only; content decisions — graduate vs archive —
+# are the user's, so there is no auto-repair; see the new-idea skill). A project
+# is 'stale' when project.md says status: active but nothing in its folder was
+# touched in 30+ days, and 'unindexed' when it was never registered in
+# wiki/index.md (the agent-side step after /new-idea scaffolds).
+if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2>&1; then
+  step "Origination projects (wiki/projects/)"
+  for pdir in "$VAULT/wiki/projects"/*/; do
+    slug="$(basename "$pdir")"
+    status="$(awk -F': *' '/^status:/{gsub(/["\047]/,"",$2);print $2;exit}' "$pdir/project.md" 2>/dev/null)"
+    issues=""
+    if [ "$status" = "active" ] || [ -z "$status" ]; then
+      recent="$(find "$pdir" -type f -mtime -30 -print -quit 2>/dev/null)"
+      [ -z "$recent" ] && issues="stale (30+ days untouched) — graduate or archive (origination-workflow)"
+    fi
+    if [ -f "$VAULT/wiki/index.md" ] && ! grep -qF "projects/$slug/" "$VAULT/wiki/index.md" 2>/dev/null; then
+      issues="${issues:+$issues; }not in wiki/index.md — register it (see the new-idea skill)"
+    fi
+    if [ -n "$issues" ]; then
+      row "$slug" "$BADM  $issues"
+    else
+      row "$slug" "$OKM${status:+ ($status)}"
+    fi
+  done
+fi
+
 # Required binaries (manifest-driven; includes claude-obsidian runtime deps like flock).
 # Optional binaries are reported by the optional-features section below, not here.
 step "Required binaries"

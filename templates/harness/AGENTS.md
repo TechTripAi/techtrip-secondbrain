@@ -28,6 +28,8 @@ them instead of improvising:
 
 - Ingest a source → `wiki-ingest` (YouTube URLs → `yt-fetch` first;
   multi-source synthesis → `notebooklm-ingest`)
+- Start a greenfield idea (no source — you are the source) → `new-idea`
+  (scaffolds `wiki/projects/<slug>/`; see `wiki/meta/origination-workflow.md`)
 - Answer from the vault → `wiki-query` · health check → `wiki-lint` ·
   log rollup → `wiki-fold` · save a conversation → `save`
 

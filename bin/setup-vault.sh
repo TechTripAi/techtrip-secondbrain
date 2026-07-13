@@ -53,6 +53,20 @@ if [ -f "$STARTER" ]; then
   ok "Starter canvas seeded (wiki/canvases-starter.canvas)"
 fi
 
+# Origination scaffold (for the new-idea skill + Obsidian Templates plugin):
+# workflow page + project templates. Existence-guarded — never clobbers user edits.
+ORIG_ASSETS="$REPO_ROOT/assets/vault/wiki/meta"
+if [ -d "$ORIG_ASSETS" ]; then
+  run "Create wiki/meta + wiki/projects dirs" -- mkdir -p "$VAULT/wiki/meta/templates" "$VAULT/wiki/projects"
+  if [ ! -e "$VAULT/wiki/meta/origination-workflow.md" ]; then
+    run "Seed origination workflow page" -- cp "$ORIG_ASSETS/origination-workflow.md" "$VAULT/wiki/meta/origination-workflow.md"
+  fi
+  if [ ! -d "$VAULT/wiki/meta/templates/origination-project" ]; then
+    run "Seed origination-project templates" -- cp -R "$ORIG_ASSETS/templates/origination-project" "$VAULT/wiki/meta/templates/origination-project"
+  fi
+  ok "Origination scaffold present (wiki/meta/origination-workflow.md + templates) — used by /new-idea"
+fi
+
 step "Vault scaffold complete"
 ok "Vault ready at: $VAULT"
 info "Next: bin/setup-mcp.sh (wire the Obsidian MCP server) then bin/setup-sync.sh."

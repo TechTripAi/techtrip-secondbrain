@@ -3,6 +3,35 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.3] — 2026-07-13
+
+### Added
+- **`/new-idea` — greenfield origination-project scaffolder** (ported from the
+  author's vault, where it proved itself in daily use). The generative
+  *front-half* of the pipeline: where ingest distills an existing source,
+  origination starts from an idea — *you are the source*. The skill stamps
+  `wiki/projects/<slug>/` (project tracker, thesis workbench, open-questions
+  backlog, append-only ADR-style `decisions.md`, spec-as-graduation-gate) from a
+  template, fills `{{title}}`/`{{date}}` (node-based — no new runtime deps),
+  seeds the working claim, and leaves the graph updates (`index.md`/`log.md`
+  registration) to the agent — same single-mutation-path discipline as
+  `yt-fetch`/`wiki-ingest`. Graduation feeds the outputs back through the normal
+  ingest loop, keeping origination inside the LLM-wiki model rather than beside it.
+  - **Vault artifacts ship with the plugin** (`assets/vault/`):
+    `wiki/meta/origination-workflow.md` (the Frame → Mull → Decide → Reconcile →
+    Log → Graduate loop) + the five project templates.
+    `bin/setup-vault.sh` seeds them (`cp -n` — never clobbers user edits), and
+    the skill self-seeds the templates on pre-existing vaults.
+  - **`doctor` gained a report-only "Origination projects" section**: flags an
+    `active` project untouched for 30+ days (*stale — graduate or archive*) and
+    a project folder never registered in `wiki/index.md` (*unindexed*). Advisory
+    only — content decisions are the user's; the `secondbrain-doctor` skill
+    offers help but never auto-mutates. Lives here (not in claude-obsidian's
+    `wiki-lint`) because the fork policy is bug-fixes-only, no feature divergence.
+  - `/brain-dump` gained **Section 6 — Start a new idea (origination)**; former
+    Sections 6–10 renumbered to 7–11 (the optional-features standing reference
+    is now **Section 10**, was §9).
+
 ## [0.2.2] — 2026-07-13
 
 ### Fixed

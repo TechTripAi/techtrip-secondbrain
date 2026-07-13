@@ -50,7 +50,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
   `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
-  `notebooklm-py` install + login, not `uv`. `/brain-dump` §9 is the user-facing
+  `notebooklm-py` install + login, not `uv`. `/brain-dump` §10 is the user-facing
   reference for enabling/disabling features after setup.
 - **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
@@ -65,10 +65,13 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   with `scripts/pin-obsidian-plugins.sh` and review the manifest diff before
   committing.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
-  check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
-  prompts to run, executes nothing; vault-agnostic, re-runnable) + ported `yt-fetch` /
-  `notebooklm-ingest`. Each has a matching
-  `commands/*.md` where relevant.
+ check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
+ prompts to run, executes nothing; vault-agnostic, re-runnable) + `new-idea`
+ (greenfield origination-project scaffolder; vault-side templates +
+ `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;
+ `doctor` reports stale/unindexed projects, advisory only) + ported `yt-fetch` /
+ `notebooklm-ingest`. Each has a matching
+ `commands/*.md` where relevant.
 
 ## Conventions (follow these when editing)
 
