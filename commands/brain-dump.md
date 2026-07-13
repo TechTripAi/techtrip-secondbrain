@@ -1,5 +1,5 @@
 ---
-description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), .raw/, the hot cache, keeping the vault lean, and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), topic research via autoresearch, .raw/, the hot cache, keeping the vault lean, and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
 Read the `brain-dump` skill. Then run it as a teaching guide.
@@ -29,7 +29,10 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
 - **PRO-TIP, offered once:** suggest running the handed-over prompts in a **second,
   side-by-side Claude Code terminal** so wiki work stays out of the walkthrough — not
   required, just nicer; the same session is fine too.
-- **Optional features (Section 8):** brain-dump is the standing reference for turning
+- **Autoresearch takes a topic, not a source (Section 5):** to "research a source,"
+  ingest the source first, then `/autoresearch` the topic or claim it raised — the
+  ingest goes first so the researched pages cross-link to it.
+- **Optional features (Section 9):** brain-dump is the standing reference for turning
   YouTube / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user
   runs themselves. Remind the user once, up front, that this section exists.

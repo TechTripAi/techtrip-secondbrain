@@ -45,7 +45,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
   `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
-  `notebooklm-py` install + login, not `uv`. `/brain-dump` §8 is the user-facing
+  `notebooklm-py` install + login, not `uv`. `/brain-dump` §9 is the user-facing
   reference for enabling/disabling features after setup.
 - **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to

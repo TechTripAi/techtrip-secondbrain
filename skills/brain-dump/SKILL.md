@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -133,19 +133,20 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   2. Ingest a URL              — clean a web page and file it
   3. Ingest a YouTube video    — name it as a video so it routes right
   4. Ingest via NotebookLM     — combine many sources into one page
-  5. What is .raw/?            — the immutable inbox
-  6. hot cache vs index vs log — the three bookkeeping files
-  7. Keep it lean & clean      — lint, fold, archive
-  8. Optional features on/off  — YouTube, NotebookLM
-  9. Where to go next          — the rest of the toolkit
+  5. Research a topic          — autoresearch: Claude finds the sources
+  6. What is .raw/?            — the immutable inbox
+  7. hot cache vs index vs log — the three bookkeeping files
+  8. Keep it lean & clean      — lint, fold, archive
+  9. Optional features on/off  — YouTube, NotebookLM
+ 10. Where to go next          — the rest of the toolkit
 ```
 
 Also mention — once, right here — that this tutorial is the **standing reference for
-turning optional features on or off** (Section 8): it can be re-run any time, so "how
+turning optional features on or off** (Section 9): it can be re-run any time, so "how
 do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
 
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 9 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 10 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -255,7 +256,7 @@ ingest .raw/videos/<the-downloaded-file>.vtt
 **Notes:** auto-captions are imperfect (no speaker labels, occasional mishears — fine
 for meaning, quote carefully); no captions → metadata only. If a prompt errors that
 `yt-dlp` **isn't installed at all**, the YouTube feature was declined at setup —
-**don't work around it**; see **Section 8** to enable it (`/secondbrain` installs it).
+**don't work around it**; see **Section 9** to enable it (`/secondbrain` installs it).
 
 ---
 
@@ -288,12 +289,52 @@ ingest .raw/notebooklm/<slug>-<date>.md
 **Notes:** one-time `notebooklm login` first (interactive OAuth). Generation runs on
 Google's compute — only the final `ingest` spends Claude tokens. If the `notebooklm`
 CLI isn't set up, the NotebookLM feature was declined at setup — **defer**; see
-**Section 8** to enable it (`/secondbrain` installs it, then the one-time login).
+**Section 9** to enable it (`/secondbrain` installs it, then the one-time login).
 brain-dump won't log in or install for you.
 
 ---
 
-## Section 5 — What is `.raw/`?
+## Section 5 — Research a topic (autoresearch)
+
+**Explain:** Everything so far starts from a source *you* provide. **`/autoresearch`
+flips that: it takes a topic, not a source.** Give it a question or subject and it runs
+the research itself — web searches, fetching what it finds, synthesizing — and files
+structured, cross-linked pages straight into `wiki/`. It's the one wiki tool where you
+arrive empty-handed and leave with pages.
+
+**Standalone — Prompt — type into Claude Code** (say the homework is a management
+paper on market disruption):
+```
+/autoresearch why Blockbuster failed while Netflix succeeded
+```
+
+**"Autoresearch this source" is really a two-step pattern.** Because autoresearch wants
+a topic, the way to research *a source you have* is: ingest the source first (so the
+research has your material to anchor and cross-link to), then point autoresearch at the
+topic or claim the source raised. Say the class reading is a saved article on
+subscription business models:
+
+**Prompt 1 — type into Claude Code:**
+```
+ingest .raw/articles/subscription-models-reading.md
+```
+**Prompt 2 — type into Claude Code:**
+```
+/autoresearch how subscription pricing reshaped the home-entertainment industry
+```
+Order matters: the ingest goes first, so the researched pages cross-link to your source
+instead of floating free.
+
+**What to expect:** this runs longer than an ingest — multiple search/fetch/synthesize
+rounds — and produces several new pages under `wiki/` plus `log.md` entries, not just
+one. Two tips: **scope the topic like an essay question** ("why Blockbuster failed…"),
+not a single word ("Netflix"), or the loop wanders; and note this is the exception to
+the Model-choice advice above — real reasoning happens here, so a stronger model
+earns its keep.
+
+---
+
+## Section 6 — What is `.raw/`?
 
 **Explain:** `.raw/` is the **immutable inbox** — where source documents land before
 they become wiki pages.
@@ -314,7 +355,7 @@ from the vault root run `ls -R .raw` in your terminal.
 
 ---
 
-## Section 6 — hot cache vs index vs log
+## Section 7 — hot cache vs index vs log
 
 Three bookkeeping files live in `wiki/`, each with a different job:
 
@@ -327,14 +368,14 @@ Three bookkeeping files live in `wiki/`, each with a different job:
 
 **Why it matters:** a new session reads `hot.md` **first** — the cheap path (~500 tokens
 vs crawling everything). `hot.md` stays tiny on purpose; `log.md` grows forever — which
-is what Section 7 manages.
+is what Section 8 manages.
 
 **See it yourself:** open `wiki/hot.md` and `wiki/log.md` in Obsidian, or `cat wiki/hot.md`
 from the vault root.
 
 ---
 
-## Section 7 — Keep it lean & clean
+## Section 8 — Keep it lean & clean
 
 **Explain:** As the wiki grows, three habits keep it healthy:
 - **`wiki-lint`** — finds orphan pages, dead wikilinks, stale claims, missing
@@ -353,7 +394,7 @@ fold the log, commit k=3    # then write it
 
 ---
 
-## Section 8 — Optional features on/off
+## Section 9 — Optional features on/off
 
 **Explain:** The second brain ships lean. Three features have runtimes that are only
 installed if you said yes during setup — and every one can be turned on or off later.
@@ -391,7 +432,7 @@ re-enable it.
 
 ---
 
-## Section 9 — Where to go next
+## Section 10 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).
@@ -400,6 +441,6 @@ re-enable it.
 - **`/brain-dump`** — re-run this tour any time; every section stands alone.
 
 Close warmly: the wiki grows by *feeding it* — a couple ingests a day compounds fast.
-Remind them once more that `/brain-dump` is always here — including Section 8 whenever
+Remind them once more that `/brain-dump` is always here — including Section 9 whenever
 they want to flip an optional feature on or off. When the user is done, just wrap up
 naturally — no command needed.
