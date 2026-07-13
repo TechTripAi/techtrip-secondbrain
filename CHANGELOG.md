@@ -32,6 +32,69 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
     Sections 6–10 renumbered to 7–11 (the optional-features standing reference
     is now **Section 10**, was §9).
 
+### Fixed (security + robustness hardening — full-repo review)
+- **`repair-mcp.sh`'s re-register repair actually repairs now.** It rebuilt
+  child flags with `${TSB_DRY_RUN:+--dry-run}` — but the var is always set
+  (`"0"`/`"1"`), so `:+` appended `--dry-run` unconditionally and the
+  `setup-mcp.sh` call was a permanent no-op. Flags are exported; the child just
+  inherits them.
+- **Manifest command strings are no longer executed through a shell.**
+  `setup-deps.sh` / `setup-features.sh` ran manifest `install`/`probe`/`login`
+  strings via `bash -c` — an arbitrary-code channel for anyone who could edit
+  `manifest.json`. New `manifest_argv` helper splits them into fixed argv with
+  no shell interpretation, rejects metacharacters, and allowlists the leading
+  tool (`brew`/`uv`/`notebooklm`).
+- **Community-plugin installs are validated end-to-end.**
+  `install-obsidian-plugin.sh` now whitelists the shape of plugin id / repo /
+  tag (they become path + URL segments), downloads into a staging dir and
+  verifies **all** sha256 hashes before anything moves into the live
+  `.obsidian/plugins/` dir (no partial installs, no unverified `main.js` ever
+  loadable), and **hard-fails** a manifest-listed plugin with a missing hash
+  (previously warn-and-install, which silently bypassed the supply-chain
+  guard). `pin-obsidian-plugins.sh` validates the tag it gets from the GitHub
+  API before building download URLs from it.
+- **No-TTY prompts no longer consent on the user's behalf.** `confirm_yes`
+  treated a failed `/dev/tty` read as Enter (= yes), so a headless run could
+  auto-accept installs the consent tiering says need a human. Both `confirm`
+  and `confirm_yes` now decline with a warning when there is no TTY (pass
+  `--yes` to auto-confirm deliberately).
+- **Secrets stay off argv and out of dry-run transcripts.** `run`'s dry-run
+  echo redacts `KEY=`/`TOKEN=`/`SECRET=`/`PASSWORD=` values (previously
+  `setup-mcp.sh --dry-run` printed the real REST key); the doctor/repair curl
+  probes pass the bearer key via `--config` process substitution instead of
+  argv; `setup-mcp.sh` hands the new key to node via env, not argv.
+- **`yt-fetch` hardened against option smuggling and frontmatter injection.**
+  The URL must be http(s) and is passed to `yt-dlp` after `--` (a dash-prefixed
+  "URL" from a prompt-injected page can no longer become `--exec`);
+  `yt_emit.py` validates + JSON-escapes `webpage_url` before emitting YAML
+  (title/author already were).
+- **Sturdier plumbing in `common.sh`:** `parse_common_flags` supports `--`;
+  the documented idiom is now `set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}` (the
+  old `"${TSB_ARGS[@]:-}"` injected a phantom empty positional — all 11 call
+  sites updated); `manifest_get` dies cleanly on unreadable/invalid JSON;
+  `load_vault_path` rejects a corrupted state file (must be one absolute path).
+- **Anchored presence checks.** `claude mcp list` greps anchor to the
+  `name:` column and `claude plugin list` greps are fixed-string; doctor reads
+  `community-plugins.json` membership via node (JSON, not substring grep) and
+  sanitizes the remote version string it prints.
+- **`new-idea.sh`:** the seeded claim is inserted via a function replacement so
+  a claim containing `$&`/`$'` can't corrupt the thesis.
+
+### Changed
+- `hooks/hooks.json` is now the bare schema-valid `{ "hooks": {} }` (the design
+  note moved to `hooks/README.md`, which already carried it).
+- `manifest.json`: `skills` now lists `secondbrain` + `secondbrain-doctor`
+  (completeness); the MCP note documents the process-wide blast radius of
+  `NODE_TLS_REJECT_UNAUTHORIZED=0` and why it's acceptable here
+  (localhost-only server).
+- Docs de-drifted: `yt-fetch` SKILL no longer tells users to edit the cached
+  script (cookies via `YT_FETCH_COOKIES_BROWSER`, correct `--sub-lang` list);
+  skill examples drop hardcoded `.claude/skills/` paths (wrong for marketplace
+  installs); secondbrain references stop listing `yt-dlp` as a required dep
+  (it's the consent-gated youtube feature); `list-to-table` attribution fixed
+  to `kepano/list-to-table`; AGENTS.md's release rule names the real version
+  field (`.claude-plugin/plugin.json`, not `manifest.json`).
+
 ## [0.2.2] — 2026-07-13
 
 ### Fixed

@@ -9,7 +9,7 @@
 # Usage: bash bin/setup-sync.sh [/path/to/vault] [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 require_macos
 
 VAULT="$(default_vault_path "${1:-}")"

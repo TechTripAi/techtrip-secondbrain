@@ -26,11 +26,16 @@ def load_meta(info_path):
         up = f"{up[0:4]}-{up[4:6]}-{up[6:8]}"
     else:
         up = ""
+    # webpage_url is extractor-supplied metadata (untrusted like title/author):
+    # flatten control chars and require a plain http(s) URL, else drop it.
+    url = flat(d.get("webpage_url") or "")
+    if not re.match(r"^https?://\S+$", url):
+        url = ""
     return {
         "title": flat(d.get("title") or ""),
         "author": flat(d.get("uploader") or d.get("channel") or ""),
         "date_published": up,
-        "url": (d.get("webpage_url") or "").strip(),
+        "url": url,
         "duration": d.get("duration_string") or "",
     }
 
@@ -83,10 +88,11 @@ def main():
     # containing quotes or trailing backslashes can't break out of the frontmatter.
     title = json.dumps(meta["title"])
     author = json.dumps(meta["author"])
+    url = json.dumps(meta["url"])
 
     print("---")
-    print(f"source_url: {meta['url']}")
-    print(f"url: {meta['url']}")
+    print(f"source_url: {url}")
+    print(f"url: {url}")
     print("source_type: video")
     print(f"title: {title}")
     print(f"author: {author}")

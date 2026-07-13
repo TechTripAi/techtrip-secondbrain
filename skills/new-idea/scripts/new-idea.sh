@@ -92,8 +92,10 @@ for (const name of fs.readdirSync(dest)) {
   let s = fs.readFileSync(f, "utf8");
   s = s.split("{{title}}").join(title).split("{{date}}").join(date);
   if (claim && name === "thesis.md") {
-    // replace the multi-line placeholder blockquote with the real claim
-    s = s.replace(/> \*\*Working claim:\*\* <[\s\S]*?>\n/, `> **Working claim:** ${claim}\n`);
+    // Replace the multi-line placeholder blockquote with the real claim.
+    // Function replacement: a string 2nd arg treats $&/$'/$` as special
+    // sequences and would corrupt a claim containing them.
+    s = s.replace(/> \*\*Working claim:\*\* <[\s\S]*?>\n/, () => `> **Working claim:** ${claim}\n`);
   }
   fs.writeFileSync(f, s);
 }

@@ -21,7 +21,7 @@
 set -euo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$BIN_DIR/../scripts/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 require_macos
 
 # Split positional args into an optional vault path and an optional feature id.
@@ -50,7 +50,8 @@ feature_youtube() {
   info "It's a passive CLI binary — no daemon, no credentials — so this defaults to yes."
   have_cmd brew || { warn "Homebrew required for '$install'. Run bin/setup-deps.sh first."; return; }
   if confirm_yes "Enable YouTube — run '$install'?"; then
-    run "Installing yt-dlp" -- bash -c "$install"
+    manifest_argv "brew" "$install"
+    run "Installing yt-dlp" -- "${TSB_CMD_ARGV[@]}"
     ok "yt-fetch ready. Try: 'ingest this youtube url <link>'"
   else info "Skipped YouTube. Enable later: bash bin/setup-features.sh youtube"; fi
 }
@@ -74,7 +75,8 @@ feature_notebooklm() {
     info "notebooklm-ingest uses the unofficial notebooklm-py CLI."
     warn "Heads up: $consent"
     if confirm "Install the NotebookLM CLI — run '$install'?"; then
-      run "Installing notebooklm-py" -- bash -c "$install"
+      manifest_argv "uv" "$install"
+      run "Installing notebooklm-py" -- "${TSB_CMD_ARGV[@]}"
     else info "Skipped NotebookLM. Enable later: bash bin/setup-features.sh notebooklm"; return; fi
   else
     ok "notebooklm CLI already installed"
@@ -82,14 +84,16 @@ feature_notebooklm() {
 
   # Auth is a one-time interactive OAuth we can't run unattended.
   if [ "$TSB_DRY_RUN" = "1" ]; then info "[dry-run] would check auth with: $probe"; return; fi
-  if have_cmd notebooklm && $probe >/dev/null 2>&1; then
+  manifest_argv "notebooklm" "$probe"
+  if have_cmd notebooklm && "${TSB_CMD_ARGV[@]}" >/dev/null 2>&1; then
     ok "NotebookLM already authenticated — notebooklm-ingest is ready"
   else
     warn "NotebookLM not authenticated yet."
     info "Run this one-time interactive login (opens a Google OAuth flow):"
     info "  $login"
     if [ "$TSB_ASSUME_YES" != "1" ] && confirm "Run '$login' now (interactive)?"; then
-      $login </dev/tty || warn "Login did not complete. Re-run '$login' when ready."
+      manifest_argv "notebooklm" "$login"
+      "${TSB_CMD_ARGV[@]}" </dev/tty || warn "Login did not complete. Re-run '$login' when ready."
     fi
   fi
 }

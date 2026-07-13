@@ -16,9 +16,11 @@ job**, matching the single-mutation-path discipline that `/yt-fetch` and
 
 ## Usage
 
-**Shell — run from inside the vault:**
+**Shell — run from inside the vault** (resolve the script from the `scripts/`
+dir next to this SKILL.md — installs live in the plugin cache, not
+`.claude/skills/`):
 ```bash
-.claude/skills/new-idea/scripts/new-idea.sh <slug> \
+<skill-dir>/scripts/new-idea.sh <slug> \
   --title "Human Title" \
   --claim "The one-line working claim, in the author's words."
 ```

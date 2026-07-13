@@ -31,7 +31,7 @@ Plugins from `manifest.json.obsidianPlugins`:
 | `calendar` | liamcain/obsidian-calendar-plugin | daily-note calendar |
 | `obsidian-banners` | noatpad/obsidian-banners | header images |
 | `obsidian-memos` | Quorafind/Obsidian-Memos | quick capture |
-| `list-to-table` | coty-jackson/obsidian-list-to-table | list→table |
+| `list-to-table` | kepano/list-to-table | list→table |
 
 `pocket-sync` is intentionally excluded (personal integration). Add/remove plugins by
 editing `manifest.json` — the scaffold loops over whatever is listed.

@@ -9,7 +9,7 @@
 # Usage: bash bin/setup-mcp.sh [/path/to/vault] [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 
 VAULT="$(default_vault_path "${1:-}")"
 RESTDIR="$VAULT/.obsidian/plugins/obsidian-local-rest-api"
@@ -30,12 +30,13 @@ else
     info "[dry-run] would generate key + write $DATA"
   else
     mkdir -p "$RESTDIR"
-    MANIFEST="" node -e '
-      const fs=require("fs"), f=process.argv[1], key=process.argv[2];
+    # Key travels via env, not argv — argv is visible to every local process (ps).
+    MANIFEST="" TSB_NEW_KEY="$KEY" node -e '
+      const fs=require("fs"), f=process.argv[1], key=process.env.TSB_NEW_KEY;
       let d={}; try{d=JSON.parse(fs.readFileSync(f,"utf8"))}catch(e){}
       d.apiKey=key; if(d.enableInsecureServer===undefined) d.enableInsecureServer=false;
       fs.writeFileSync(f, JSON.stringify(d,null,2)+"\n");
-    ' "$DATA" "$KEY"
+    ' "$DATA"
     chmod 600 "$DATA"
     ok "Wrote Local REST API key to data.json, mode 600 (self-signed cert added by Obsidian on first launch)"
   fi
@@ -61,7 +62,8 @@ step "Register MCP server (user scope)"
 have_cmd claude || die "claude CLI not found — install Claude Code first."
 NAME="$(manifest_get 'm.mcpServers[0].name')"
 
-if claude mcp list 2>/dev/null | grep -q "^${NAME}\b\|[[:space:]]${NAME}[[:space:]]"; then
+# Anchored to the "name: command…" column; \b and \| are GNU-grep-isms, so use -E.
+if claude mcp list 2>/dev/null | grep -qE "^${NAME}:"; then
   ok "MCP server '$NAME' already registered (leaving as-is; delete + re-run to rotate key)"
   exit 0
 fi
@@ -78,6 +80,9 @@ CMD="$(manifest_get 'm.mcpServers[0].command')"
 ARGS="$(manifest_get 'm.mcpServers[0].args.join(" ")')"
 
 if confirm "Register MCP server '$NAME' ($CMD $ARGS) at user scope?"; then
+  # The key must ride argv here (claude mcp add has no env-file form); it's
+  # briefly ps-visible, acceptable for a localhost-only key. run's dry-run echo
+  # redacts it.
   # shellcheck disable=SC2086
   run "Registering $NAME MCP server" -- \
     claude mcp add "$NAME" --scope user "${env_args[@]}" -- $CMD $ARGS

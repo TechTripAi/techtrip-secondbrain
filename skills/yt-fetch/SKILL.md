@@ -55,16 +55,20 @@ Verify: `yt-dlp --version`
 
 ## Usage
 
+Run the script from the `scripts/` directory **next to this SKILL.md** (resolve
+the path from wherever you read this file — installs live in the plugin cache /
+harness symlink dirs, not `.claude/skills/`).
+
 ### Fetch to stdout (inspect first)
 ```bash
-.claude/skills/yt-fetch/scripts/yt-fetch.sh "https://www.youtube.com/watch?v=VIDEO_ID"
+<skill-dir>/scripts/yt-fetch.sh "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
 ### Save to .raw/ then ingest (the normal path)
 ```bash
 mkdir -p .raw/videos
 SLUG="video-slug-$(date +%Y-%m-%d)"
-.claude/skills/yt-fetch/scripts/yt-fetch.sh "https://www.youtube.com/watch?v=VIDEO_ID" > ".raw/videos/$SLUG.md"
+<skill-dir>/scripts/yt-fetch.sh "https://www.youtube.com/watch?v=VIDEO_ID" > ".raw/videos/$SLUG.md"
 # then:
 ingest .raw/videos/$SLUG.md
 ```
@@ -77,8 +81,11 @@ header the way you would after a bare `defuddle` run.
 
 ## What it does
 
-1. `yt-dlp --skip-download --write-auto-sub --write-sub --sub-lang "en.*"
-   --sub-format vtt --write-info-json` into a temp dir (all chatter to stderr).
+1. `yt-dlp --skip-download --write-auto-sub --write-sub --sub-lang
+   "en,en-orig,en-US" --sub-format vtt --write-info-json` into a temp dir (all
+   chatter to stderr). The language list is deliberately restricted to original
+   English tracks — an `en.*` wildcard also matches auto-*translated* tracks and
+   trips YouTube's 429 rate limit.
 2. Reads title / channel / upload date / canonical URL from the info JSON.
 3. Cleans the `.vtt`: strips WEBVTT headers, timestamps, and inline word-timing
    tags, and collapses YouTube's rolling-caption repeats into readable prose.
@@ -105,10 +112,14 @@ content in the wiki (talks, interviews, tutorials, conference sessions).
 - Auto-captions are imperfect (no speaker labels, occasional mis-hearings).
   Good enough for the wiki's purpose (meaning, not verbatim quotes). Quote
   carefully.
-- Non-English videos: change `--sub-lang` in `scripts/yt-fetch.sh` or fetch a
-  specific track.
-- Age/region-restricted videos may need cookies: add
-  `--cookies-from-browser chrome` to the `yt-dlp` invocation in the script.
+- Non-English videos: run `yt-dlp` directly with the language you need
+  (`yt-dlp --skip-download --write-auto-sub --sub-lang "de" --sub-format vtt -- <url>`)
+  and drop the result into `.raw/videos/`. **Never edit the shipped script** —
+  for marketplace installs it lives in the plugin cache, which is read-only by
+  convention.
+- Age/region-restricted videos may need cookies: set
+  `YT_FETCH_COOKIES_BROWSER=chrome` (or `safari`, `firefox`) in the environment —
+  the script already honors it. No script edit needed.
 
 ---
 

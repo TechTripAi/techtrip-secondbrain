@@ -14,6 +14,13 @@ if [ -z "$URL" ]; then
   echo "usage: yt-fetch.sh <youtube-url>" >&2
   exit 2
 fi
+# The URL can originate from untrusted content (a prompt-injected page telling
+# the agent to "fetch" something). Require a real http(s) URL so a dash-prefixed
+# argument can't smuggle yt-dlp options (--config-location/--exec = code exec).
+case "$URL" in
+  http://*|https://*) ;;
+  *) echo "error: not an http(s) URL: $URL" >&2; exit 2 ;;
+esac
 if ! command -v yt-dlp >/dev/null 2>&1; then
   echo "yt-dlp not installed. Run: brew install yt-dlp" >&2
   exit 3
@@ -41,7 +48,7 @@ YTDLP_OPTS=(
 # Optional: honor cookies for age/region-restricted videos.
 [ -n "${YT_FETCH_COOKIES_BROWSER:-}" ] && YTDLP_OPTS+=(--cookies-from-browser "$YT_FETCH_COOKIES_BROWSER")
 
-if ! yt-dlp "${YTDLP_OPTS[@]}" "$URL" 1>&2; then
+if ! yt-dlp "${YTDLP_OPTS[@]}" -- "$URL" 1>&2; then
   echo "yt-dlp failed for: $URL" >&2
   echo "If this is HTTP 429 (rate limit), wait a few minutes and retry, or set" >&2
   echo "  YT_FETCH_COOKIES_BROWSER=chrome  to authenticate the requests." >&2

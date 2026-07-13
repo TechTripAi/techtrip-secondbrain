@@ -9,7 +9,7 @@
 set -uo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$(cd "$BIN_DIR/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 
 VAULT="$(default_vault_path "${1:-}")"
 NAME="$(manifest_get 'm.mcpServers[0].name')"
@@ -30,7 +30,9 @@ claude_ok=1
 if have_cmd claude; then row "claude CLI" "$OKM"; else claude_ok=0; row "claude CLI" "$BADM  (install Claude Code)"; fi
 
 registered=0
-if [ "$claude_ok" = 1 ] && claude mcp list 2>/dev/null | grep -q "$NAME"; then
+# Anchor to the server-name column ("name: command…") — a bare substring match
+# would false-positive on any server whose *command* mentions the name.
+if [ "$claude_ok" = 1 ] && claude mcp list 2>/dev/null | grep -qE "^${NAME}:"; then
   registered=1; row "registered in Claude" "$OKM"
 else row "registered in Claude" "$BADM  → bin/setup-mcp.sh"; fi
 
@@ -63,7 +65,8 @@ else row "port $PORT listening" "$BADM  (Obsidian not running / REST API disable
 # 200s with any key — it can't validate the handshake).
 probe_ok=0
 if [ "$port_ok" = 1 ] && [ -n "$vault_key" ]; then
-  if curl -fsk -m 4 -H "Authorization: Bearer $vault_key" "https://$HOST:$PORT/vault/" >/dev/null 2>&1; then
+  # Key rides in a curl config via process substitution, not argv (ps-visible).
+  if curl -fsk -m 4 --config <(printf 'header = "Authorization: Bearer %s"\n' "$vault_key") "https://$HOST:$PORT/vault/" >/dev/null 2>&1; then
     probe_ok=1; row "authenticated probe (/vault/)" "$OKM"
   else row "authenticated probe (/vault/)" "$BADM  (listening but key rejected / TLS failed)"; fi
 else row "authenticated probe (/vault/)" "$WARNM  (skipped: port down or no key)"; fi
@@ -89,7 +92,10 @@ if [ "$registered" = 0 ] || [ "$keymatch_ok" = 0 ]; then
   info "This is the usual cause of 'registered globally but fails to connect' after a key rotation or a fresh vault."
   if confirm "Re-register '$NAME' with the vault's current key (via bin/setup-mcp.sh)?"; then
     if [ "$registered" = 1 ]; then run "Remove stale registration" -- claude mcp remove "$NAME" 2>/dev/null || true; fi
-    run "Re-register with correct key" -- bash "$BIN_DIR/setup-mcp.sh" "$VAULT" ${TSB_ASSUME_YES:+--yes} ${TSB_DRY_RUN:+--dry-run}
+    # TSB_DRY_RUN / TSB_ASSUME_YES are exported — the child inherits them.
+    # (Never rebuild them via ${VAR:+--flag}: the vars are always set to "0"/"1",
+    # so :+ expands the flag unconditionally and forces a permanent dry-run.)
+    run "Re-register with correct key" -- bash "$BIN_DIR/setup-mcp.sh" "$VAULT"
     info "Reload the Claude session afterward so the new registration takes effect."
   fi
 fi

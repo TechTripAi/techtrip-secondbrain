@@ -77,7 +77,8 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
 
 - **Every `bin/`/`scripts/` file sources `common.sh`** and uses its helpers — never
   reimplement logging or confirm. New scripts: `source .../scripts/common.sh`,
-  `parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"`.
+  `parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}`
+  (the `:-` form injects a phantom empty positional when no args remain).
 - **Respect `--dry-run` and `--yes`.** Any mutation must go through `run "<desc>" --
   <cmd>` (honors dry-run) or be guarded by `[ "$TSB_DRY_RUN" = 1 ]`. Flags are
   **exported** so child scripts inherit them — do not break that.

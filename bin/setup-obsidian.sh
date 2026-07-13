@@ -3,7 +3,7 @@
 # Idempotent + interactive. Usage: bash bin/setup-obsidian.sh [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 require_macos
 
 step "Obsidian desktop app"

@@ -56,7 +56,14 @@ while IFS= read -r id; do
   [ -n "$id" ] || continue
   present=0; enabled=0
   [ -f "$VAULT/.obsidian/plugins/$id/main.js" ] && present=1
-  [ -f "$CP" ] && grep -q "\"$id\"" "$CP" && enabled=1
+  # JSON via node (repo convention): an exact array-membership check, not a
+  # substring grep that an id embedded in another string would satisfy.
+  if [ -f "$CP" ]; then
+    MANIFEST="" node -e '
+      try{const a=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
+      process.exit(Array.isArray(a)&&a.includes(process.argv[2])?0:1)}catch(e){process.exit(1)}
+    ' "$CP" "$id" 2>/dev/null && enabled=1
+  fi
   if [ "$present" = 1 ] && [ "$enabled" = 1 ]; then row "$id" "$OKM"
   else row "$id" "$BADM  (files:$present enabled:$enabled)"; fi
 done < <(manifest_get 'm.obsidianPlugins.map(p=>p.id).join("\n")')
@@ -84,7 +91,7 @@ fi
 # claude-obsidian plugin + skills
 step "Claude Code"
 if have_cmd claude; then
-  if claude plugin list 2>/dev/null | grep -q claude-obsidian; then
+  if claude plugin list 2>/dev/null | grep -qF claude-obsidian; then
     cov="$(claude_obsidian_installed_version 2>/dev/null || true)"
     tested="$(manifest_get 'm.claudePlugins[0].testedVersion')"
     if [ -n "$cov" ] && [ -n "$tested" ] && [ "$cov" != "$tested" ]; then
@@ -117,7 +124,8 @@ if have_cmd claude; then
       fi
     fi
   else row "claude-obsidian plugin" "$BADM  → bin/setup-claude-obsidian.sh"; fi
-  claude mcp list 2>/dev/null | grep -q obsidian \
+  # Anchored to the server-name column ("obsidian: …"), not a substring match.
+  claude mcp list 2>/dev/null | grep -qE '^obsidian:' \
     && row "obsidian MCP server" "$OKM" || row "obsidian MCP server" "$BADM  → bin/setup-mcp.sh"
 else
   row "claude CLI" "$BADM  (install Claude Code)"
@@ -129,8 +137,11 @@ fi
 # version dir in the plugin cache.
 step "Plugin updates"
 remote_plugin_version() {  # <owner/repo> → version on main, or empty
+  # The version string comes from the network and gets printed to the terminal —
+  # sanitize it to version-ish characters so a compromised repo can't emit
+  # escape sequences into the report.
   curl -fsS -m 3 "https://raw.githubusercontent.com/$1/main/.claude-plugin/plugin.json" 2>/dev/null \
-    | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).version||"")}catch(e){}})' 2>/dev/null
+    | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const v=String(JSON.parse(s).version||"");process.stdout.write(/^[0-9A-Za-z.-]{1,32}$/.test(v)?v:"")}catch(e){}})' 2>/dev/null
 }
 update_row() {  # <label> <installed> <owner/repo> <how-to-update hint>
   local label="$1" inst="$2" repo="$3" hint="$4" latest
@@ -212,7 +223,8 @@ if [ -f "$DATA" ]; then
   KEY="$(node -e 'try{process.stdout.write(require(process.argv[1]).apiKey||"")}catch(e){}' "$DATA" 2>/dev/null)"
   # Probe an AUTHENTICATED endpoint (/vault/) — the root / is unauthenticated and
   # 200s with any/no key, so it can't validate the handshake.
-  if [ -n "$KEY" ] && curl -fsk -m 3 -H "Authorization: Bearer $KEY" https://127.0.0.1:27124/vault/ >/dev/null 2>&1; then
+  # Key rides in a curl config via process substitution, not argv (ps-visible).
+  if [ -n "$KEY" ] && curl -fsk -m 3 --config <(printf 'header = "Authorization: Bearer %s"\n' "$KEY") https://127.0.0.1:27124/vault/ >/dev/null 2>&1; then
     row "https://127.0.0.1:27124/vault/" "$OKM (authenticated — key valid)"
   else
     row "https://127.0.0.1:27124/vault/" "$BADM  (no auth: Obsidian closed, plugin off, or key mismatch)"

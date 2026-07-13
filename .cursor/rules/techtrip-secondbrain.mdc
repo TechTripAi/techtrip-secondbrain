@@ -19,7 +19,7 @@ Installs [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (A
 
 ## Conventions
 
-- **Source `common.sh`** in every `bin/`/`scripts/` file. New scripts: `source .../scripts/common.sh` then `parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"`.
+- **Source `common.sh`** in every `bin/`/`scripts/` file. New scripts: `source .../scripts/common.sh` then `parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}`.
 - **Respect `--dry-run` / `--yes`**: mutations go through `run "<desc>" -- <cmd>` or are guarded by `[ "$TSB_DRY_RUN" = 1 ]`. Flags are exported to child scripts.
 - **Idempotent**: detect already-present state and skip. A second run must mutate nothing and report green.
 - **`TSB_` env-var prefix** — never reintroduce `CSB_`.

@@ -42,7 +42,9 @@ if have_cmd claude; then
   plugins_out="$(claude plugin list 2>/dev/null || true)"
   while IFS=$'\t' read -r id slug tested; do
     [ -n "$id" ] || continue
-    if printf '%s' "$plugins_out" | grep -q "$id"; then
+    # -F: the id is a literal, not a regex; word-ish anchor avoids substring
+    # false-positives (an id appearing inside another plugin's description).
+    if printf '%s' "$plugins_out" | grep -qF "$id"; then
       # claude-obsidian (AgriciDaniel) can't be version-pinned via the CLI, so
       # testedVersion is advisory: report drift as a note, never a failure.
       have=""; [ -n "$tested" ] && have="$(claude_obsidian_installed_version 2>/dev/null || true)"
@@ -63,7 +65,9 @@ if have_cmd claude; then
   mcp_out="$(claude mcp list 2>/dev/null || true)"
   while IFS= read -r name; do
     [ -n "$name" ] || continue
-    if printf '%s' "$mcp_out" | grep -q "$name"; then row "$name" "$PRESENT_MARK"
+    # Anchor to the "name: command…" column — a substring match would
+    # false-positive on a different server whose command mentions the name.
+    if printf '%s' "$mcp_out" | grep -qE "^${name}:"; then row "$name" "$PRESENT_MARK"
     else row "$name" "$MISSING_MARK  → bin/setup-mcp.sh"; missing=$((missing+1)); fi
   done < <(manifest_get 'm.mcpServers.map(s=>s.name).join("\n")')
 else

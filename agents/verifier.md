@@ -79,7 +79,7 @@ of truth for what gets installed) and `scripts/common.sh` (the shared helpers).
    use temp+rename. Unguarded `cp … && edit`, or bare `>` to a state file →
    **HIGH**.
 6. **common.sh contract.** New `bin/`/`scripts/` files must source `common.sh`
-   then `parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"`. Env prefix is
+   then `parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}`. Env prefix is
    `TSB_` — any reintroduced `CSB_` → **HIGH**. JSON via `node`, not `jq`/`sed`
    → **HIGH**.
 7. **Auth probe correctness.** REST probes hit `/vault/` (authenticated), never

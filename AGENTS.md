@@ -38,7 +38,8 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
 ## Conventions
 
 - **Source `common.sh`** in every `bin/`/`scripts/` file. New scripts must begin with
-  `source .../scripts/common.sh` then `parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"`.
+  `source .../scripts/common.sh` then `parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}`
+  (the `:-` form injects a phantom empty positional when no args remain).
 - **Respect `--dry-run` and `--yes`**: any mutation must go through `run "<desc>" -- <cmd>`
   (honors dry-run) or be guarded by `[ "$TSB_DRY_RUN" = 1 ]`. Flags are exported so
   child scripts inherit them — do not break that.
@@ -62,8 +63,10 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   the fork does the opposite — one consistent, versioned source everyone installs.
   Detecting and *reporting* a defect (e.g. in `doctor.sh`) is fine; mutating the
   installed files is not.
-- **Every release that changes shipped files must bump `manifest.json`'s `version`.**
-  `claude plugin update` compares manifest versions, not file contents: an unbumped
+- **Every release that changes shipped files must bump the plugin `version`**
+  (in `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` — NOT the
+  repo's `manifest.json`, which has no version field).
+  `claude plugin update` compares plugin-manifest versions, not file contents: an unbumped
   release makes `marketplace update` pull the new scripts into the marketplace clone
   while `plugin update` reports "already current" and leaves the registry pin
   (`installed_plugins.json`) — and therefore every installed machine — on the old

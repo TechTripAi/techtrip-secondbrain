@@ -57,11 +57,15 @@ Two modes. Both end with a file in `.raw/notebooklm/` carrying full frontmatter
 (`source_type: research-report`, `title`, `fetched`, `notebook_id`, and the
 `sources:` list) — no hand-editing — then you `ingest` it.
 
+Run the scripts from the `scripts/` directory **next to this SKILL.md**
+(resolve the path from wherever you read this file — installs live in the
+plugin cache / harness symlink dirs, not `.claude/skills/`).
+
 ### Mode A — CREATE a new notebook from URLs
 Use when you have a fresh set of links to synthesize.
 
 ```bash
-.claude/skills/notebooklm-ingest/scripts/nlm-ingest.sh \
+<skill-dir>/scripts/nlm-ingest.sh \
   "AI agent frameworks in 2026" \
   "https://www.youtube.com/watch?v=AAA" \
   "https://www.youtube.com/watch?v=BBB" \
@@ -74,9 +78,9 @@ Use when you've already curated a notebook in the NotebookLM UI and just want
 
 ```bash
 notebooklm list                       # see your notebooks + ids
-.claude/skills/notebooklm-ingest/scripts/nlm-pull.sh "AI agent frameworks"
+<skill-dir>/scripts/nlm-pull.sh "AI agent frameworks"
 # reuse the latest existing report by default; regenerate with:
-.claude/skills/notebooklm-ingest/scripts/nlm-pull.sh "AI agent frameworks" --fresh
+<skill-dir>/scripts/nlm-pull.sh "AI agent frameworks" --fresh
 ```
 
 `nlm-pull` reads the notebook's real title and source list from

@@ -6,7 +6,9 @@ anytime.
 
 It checks four groups:
 
-- **binaries** — `brew`, `git`, `node`, `uvx`, `yt-dlp`
+- **binaries** — `brew`, `git`, `node`, `uvx`, `flock`, `python3` (required);
+  `yt-dlp` is reported as `optional (off)`, never `missing` — setup-features
+  installs it on consent
 - **apps** — Obsidian (`/Applications/Obsidian.app`)
 - **claudePlugins** — `claude-obsidian` (via `claude plugin list`)
 - **mcpServers** — `obsidian` (via `claude mcp list`)

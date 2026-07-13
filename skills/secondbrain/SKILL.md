@@ -41,7 +41,9 @@ if you need detail; summarize it for the user rather than dumping it.
 
 1. **Precheck** — `bash bin/precheck.sh`. Report what's PRESENT / MISSING. See
    `references/precheck.md`.
-2. **Dependencies** — `bash bin/setup-deps.sh` (Homebrew + uv, yt-dlp, node).
+2. **Dependencies** — `bash bin/setup-deps.sh` (Homebrew + git, node, uv, flock,
+   python3 — required binaries only; optional ones like `yt-dlp` are handled by
+   step 8's feature prompts).
 3. **Obsidian** — `bash bin/setup-obsidian.sh` (installs the app). See
    `references/obsidian.md`.
 4. **claude-obsidian plugin** — `bash bin/setup-claude-obsidian.sh` (marketplace add

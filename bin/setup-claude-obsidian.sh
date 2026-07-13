@@ -12,7 +12,7 @@
 # Idempotent + interactive. Usage: bash bin/setup-claude-obsidian.sh [--yes] [--dry-run]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 
 step "claude-obsidian plugin — by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian)"
 have_cmd claude || die "Claude Code CLI not found. Install Claude Code first (prerequisite)."

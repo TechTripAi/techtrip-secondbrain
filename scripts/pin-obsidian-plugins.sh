@@ -8,7 +8,7 @@
 # Usage: bash scripts/pin-obsidian-plugins.sh [--dry-run] [--yes]
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
-parse_common_flags "$@"; set -- "${TSB_ARGS[@]:-}"
+parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 
 have_cmd curl || die "curl is required."
 have_cmd shasum || die "shasum is required."
@@ -27,6 +27,11 @@ while IFS=$'\t' read -r id repo; do
   tag="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
     | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).tag_name||""))')"
   [ -n "$tag" ] || { warn "$id: could not resolve latest release for $repo — skipping"; continue; }
+  # The tag comes from the network and goes back into a download URL — whitelist
+  # its shape before trusting it.
+  case "$tag" in
+    *[!A-Za-z0-9._-]*) warn "$id: suspicious tag '$tag' from $repo — skipping"; continue ;;
+  esac
   info "$id → $repo@$tag"
   for asset in manifest.json main.js styles.css; do
     f="$TMP/$id-$asset"
