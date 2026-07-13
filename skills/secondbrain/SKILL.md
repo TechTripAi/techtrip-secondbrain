@@ -106,6 +106,11 @@ steps can be run without re-passing it — but passing it explicitly is always f
   are on. Anything declined can be enabled later — re-run `/secondbrain`, run
   `bash bin/setup-features.sh <path> <feature>`, or ask `/brain-dump`, which has a
   section walking through turning any feature on or off.
+- **Plant the periodic-doctor habit.** Mention once: `/secondbrain-doctor` is
+  read-only and safe to run any time — a periodic check (monthly is plenty, or
+  whenever something feels off) catches drift early. Updates end with it
+  automatically, so it's never *required* after updating — this is just a habit,
+  not homework.
 - **Offer the guided tour.** Once doctor is green, tell the user they can run
   **`/brain-dump`** any time for a guided walkthrough of how to use the wiki (every
   ingestion type, `.raw/`, the hot cache, keeping it lean) — including how to enable or

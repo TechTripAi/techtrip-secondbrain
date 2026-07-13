@@ -377,19 +377,25 @@ from the vault root.
 
 ## Section 8 — Keep it lean & clean
 
-**Explain:** As the wiki grows, three habits keep it healthy:
+**Explain:** As the wiki grows, four habits keep it healthy:
 - **`wiki-lint`** — finds orphan pages, dead wikilinks, stale claims, missing
   cross-refs. Run every ~10–15 ingests. Shows a report and asks before fixing.
 - **`wiki-fold`** — rolls up old `log.md` entries into a summary under `wiki/folds/` so
   the log stays skimmable. Dry-run first, then commit.
 - **Archive** — move cold sources out of `.raw/` (e.g. to `.archive/`) to keep the
   inbox clean.
+- **`/secondbrain-doctor`** — health-checks the *stack* (lint checks the *content*):
+  MCP key handshake, community plugins, harness links, the works. Read-only, takes
+  seconds, safe any time — run it periodically (monthly is plenty) or whenever
+  something feels off. Updates run it for you automatically at the end, so you never
+  need it right after updating.
 
 **Prompt — type into Claude Code** (the `#` notes aren't shell — these are prompts):
 ```
 lint the wiki               # or: find orphans / health check
 fold the log, dry-run k=3   # preview a rollup of the last 8 entries
 fold the log, commit k=3    # then write it
+/secondbrain-doctor         # periodic stack health check
 ```
 
 ---

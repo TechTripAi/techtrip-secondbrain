@@ -319,7 +319,13 @@ manifest tags (each asset re-verified against its `sha256`), the cross-harness
 skill links (Cursor/Codex) are re-pointed at the new plugin version, and it
 finishes with a health check — without touching your notes, git history, MCP key,
 or optional-feature choices. (Skip the `/secondbrain` re-run and those harness
-links silently keep serving the *old* skills — `doctor` flags this as stale.) **Do not run `claude plugin update claude-obsidian`
+links silently keep serving the *old* skills — `doctor` flags this as stale.)
+
+The re-run **ends with the doctor health check automatically** — you don't have to
+run it separately after an update. That said, `/secondbrain-doctor` is read-only,
+takes seconds, and is safe to run **any time**: a periodic check (say, monthly, or
+whenever something feels off) catches drift early — stale harness links, a key
+mismatch, a disabled community plugin — before it costs you a debugging session. **Do not run `claude plugin update claude-obsidian`
 yourself** — the orchestrator owns that plugin's lifecycle: a bare plugin update
 can't migrate an upstream install to the fork, only the orchestrator can.
 
