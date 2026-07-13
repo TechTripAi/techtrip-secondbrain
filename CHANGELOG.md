@@ -3,7 +3,7 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.2.1] — 2026-07-13
+## [0.2.2] — 2026-07-13
 
 ### Fixed
 - **Marketplace installs never got cross-harness links created or re-pointed.**
@@ -26,6 +26,12 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   skills, and doctor's output footer all route marketplace installs to the skills
   (`/secondbrain`, `/secondbrain-doctor`) instead of bash commands — a marketplace
   install has no repo to run `bin/` from, so the skills are its only interface.
+- **README explains the two-step marketplace update** (`marketplace update`
+  refreshes only the catalog clone; `claude plugin update` is what copies the new
+  version into the cache and re-points the registry pin) and notes the updater
+  compares manifest versions, not file contents. AGENTS.md gained the matching
+  convention: every release that changes shipped files must bump the plugin
+  manifest's `version`, or installed machines stay on the old cached snapshot.
 
 ### Added
 - **`doctor` now reports update availability** for both plugins: the installed
@@ -35,6 +41,10 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   instead of having to think to check. The `secondbrain-doctor` skill routes the
   update by install path (marketplace → `claude plugin update` + `/secondbrain`
   re-run; clone → `git pull` + `bin/update.sh`).
+
+## [0.2.1] — 2026-07-13
+
+### Added
 - `/brain-dump` gained **Section 5 — Research a topic (autoresearch)**: teaches
   that `/autoresearch` takes a *topic, not a source*, shows a standalone research
   prompt, and the two-step "research a source" pattern (ingest the source first,

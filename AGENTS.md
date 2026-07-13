@@ -59,6 +59,12 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   the fork does the opposite — one consistent, versioned source everyone installs.
   Detecting and *reporting* a defect (e.g. in `doctor.sh`) is fine; mutating the
   installed files is not.
+- **Every release that changes shipped files must bump `manifest.json`'s `version`.**
+  `claude plugin update` compares manifest versions, not file contents: an unbumped
+  release makes `marketplace update` pull the new scripts into the marketplace clone
+  while `plugin update` reports "already current" and leaves the registry pin
+  (`installed_plugins.json`) — and therefore every installed machine — on the old
+  cached snapshot.
 - **MCP is machine-global**: user scope in `~/.claude.json`, one server, port 27124,
   one key. Design assumes one vault per machine.
 - **Two-machine model:** plain git — the second machine is a `git clone` of the

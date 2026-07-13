@@ -5,9 +5,10 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.1 (2026-07-13) — `/brain-dump` gains Section 5: researching
-> topics with `/autoresearch`** (doc-only; sections renumbered, optional-features
-> reference is now §9). **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
+> **New release: v0.2.2 (2026-07-13) — cross-harness skill links now work for
+> marketplace installs** (the `/secondbrain` flow gains a harnesses step; `doctor`
+> flags stale links and reports when plugin updates are available).
+> **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
 > [via the plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
@@ -313,8 +314,20 @@ claude plugin marketplace update                                  # refresh list
 claude plugin update techtrip-secondbrain@techtrip-secondbrain    # the orchestrator
 ```
 
+**Both steps are required — they update two different things.** `marketplace update`
+only git-pulls the marketplace *catalog* (a clone under
+`~/.claude/plugins/marketplaces/`); you'll see new files arrive there, but Claude
+Code doesn't run from that clone. Installed plugins run from a **versioned snapshot**
+under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, pinned by the
+registry (`~/.claude/plugins/installed_plugins.json`). Only `claude plugin update`
+copies the new version into the cache and re-points that pin — skip it and the
+marketplace has fresh scripts while you keep running the old ones.
+
 (The full `name@marketplace` spec is required — a bare
-`claude plugin update techtrip-secondbrain` fails with "Plugin not found".)
+`claude plugin update techtrip-secondbrain` fails with "Plugin not found". Also
+note the updater goes by the manifest's `version` field: if a release changed
+scripts without bumping the version, `plugin update` reports "already current"
+and the pin doesn't move.)
 
 Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
 version loads, and run:
