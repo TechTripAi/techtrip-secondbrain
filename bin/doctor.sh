@@ -97,6 +97,38 @@ else
   row "claude CLI" "$BADM  (install Claude Code)"
 fi
 
+# Update availability (informational — one short network probe per plugin; being
+# offline skips the check, never fails it). Latest = the version field of
+# .claude-plugin/plugin.json on each repo's main branch; installed = the newest
+# version dir in the plugin cache.
+step "Plugin updates"
+remote_plugin_version() {  # <owner/repo> → version on main, or empty
+  curl -fsS -m 3 "https://raw.githubusercontent.com/$1/main/.claude-plugin/plugin.json" 2>/dev/null \
+    | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).version||"")}catch(e){}})' 2>/dev/null
+}
+update_row() {  # <label> <installed> <owner/repo> <how-to-update hint>
+  local label="$1" inst="$2" repo="$3" hint="$4" latest
+  if [ -z "$inst" ]; then
+    row "$label" "${_C_DIM}not installed${_C_RESET}"
+    return 0
+  fi
+  latest="$(remote_plugin_version "$repo")"
+  if [ -z "$latest" ]; then
+    row "$label" "v$inst (update check skipped — offline?)"
+  elif [ "$(printf '%s\n%s\n' "$latest" "$inst" | sort -V | tail -1)" = "$inst" ]; then
+    row "$label" "$OKM v$inst (latest)"
+  else
+    row "$label" "$BADM  v$inst → v$latest available → $hint"
+  fi
+}
+TSB_INST="$(ls -1d "$HOME"/.claude/plugins/cache/*/techtrip-secondbrain/*/ 2>/dev/null | sort -V | tail -1)"
+TSB_INST="${TSB_INST:+$(basename "$TSB_INST")}"
+TSB_REPO="$(node -e 'try{process.stdout.write((require(process.argv[1]).repository||"").replace(/^https:\/\/github\.com\//,""))}catch(e){}' "$REPO_ROOT/.claude-plugin/plugin.json" 2>/dev/null)"
+[ -n "$TSB_REPO" ] && update_row "techtrip-secondbrain" "$TSB_INST" "$TSB_REPO" "see 'Updating' in the README"
+CO_INST="$(claude_obsidian_installed_version 2>/dev/null || true)"
+CO_REPO="$(manifest_get 'm.claudePlugins[0].marketplace')"
+[ -n "$CO_REPO" ] && update_row "claude-obsidian (fork)" "$CO_INST" "$CO_REPO" "/secondbrain updates it (never 'claude plugin update' it directly)"
+
 # Optional features (informational — never a failure; enable via setup-features.sh)
 step "Optional features (off by default)"
 ONM="${_C_GRN}on${_C_RESET}"; OFFM="${_C_DIM}off${_C_RESET}"

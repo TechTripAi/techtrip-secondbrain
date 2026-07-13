@@ -28,6 +28,13 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   install has no repo to run `bin/` from, so the skills are its only interface.
 
 ### Added
+- **`doctor` now reports update availability** for both plugins: the installed
+  cache version vs the `version` in `.claude-plugin/plugin.json` on each repo's
+  `main` (one short `curl` per plugin; offline skips the check, never fails it).
+  Combined with the periodic-doctor habit, users now *hear about* new releases
+  instead of having to think to check. The `secondbrain-doctor` skill routes the
+  update by install path (marketplace → `claude plugin update` + `/secondbrain`
+  re-run; clone → `git pull` + `bin/update.sh`).
 - `/brain-dump` gained **Section 5 — Research a topic (autoresearch)**: teaches
   that `/autoresearch` takes a *topic, not a source*, shows a standalone research
   prompt, and the two-step "research a source" pattern (ingest the source first,

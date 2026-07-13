@@ -385,9 +385,9 @@ from the vault root.
 - **Archive** — move cold sources out of `.raw/` (e.g. to `.archive/`) to keep the
   inbox clean.
 - **`/secondbrain-doctor`** — health-checks the *stack* (lint checks the *content*):
-  MCP key handshake, community plugins, harness links, the works. Read-only, takes
-  seconds, safe any time — run it periodically (monthly is plenty) or whenever
-  something feels off. Updates run it for you automatically at the end, so you never
+  MCP key handshake, community plugins, harness links, the works — and tells you
+  when a plugin update is available. Read-only, takes seconds, safe any time — run
+  it periodically (monthly is plenty) or whenever something feels off. Updates run it for you automatically at the end, so you never
   need it right after updating.
 
 **Prompt — type into Claude Code** (the `#` notes aren't shell — these are prompts):
