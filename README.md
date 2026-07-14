@@ -5,11 +5,13 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.4 (2026-07-13) — DragonScale disarm + permission-rule pruning**:
-> `doctor` now reports whether claude-obsidian's silently self-arming DragonScale
-> addressing is live in your vault, and the update offers to disarm it (default-no,
-> backed up) — plus `bin/prune-permissions.sh` cleans up `settings.local.json` rules
-> stranded by plugin updates.
+> **New release: v0.2.5 (2026-07-14) — the maintenance release**: the wiki now has a
+> full upkeep story. `/brain-dump` §9 teaches it (freshness, retracting bad sources,
+> `.raw/` inbox hygiene, safe page deletion, archiving — including a passive archive
+> vault), `doctor` gains read-only content checks (orphaned `.raw` provenance,
+> never-ingested inbox files, aging pages, archive tiers), and the claude-obsidian
+> fork (v1.9.3) ships the mutating flows: `wiki-delete`, `wiki-archive`, source
+> retraction, and two new lint checks.
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):

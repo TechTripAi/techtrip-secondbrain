@@ -1,5 +1,5 @@
 ---
-description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, keeping the vault lean, and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
 Read the `brain-dump` skill. Then run it as a teaching guide.
@@ -36,6 +36,11 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
   greenfield project (thesis → decisions → spec) when there's no source because the
   user *is* the source. Teach the hygiene rule: graduate or archive — don't hoard
   open projects (`/secondbrain-doctor` reports stale ones).
+- **Maintenance is a topic menu (Section 9):** freshness (lint's aging + stale-claims
+  reports), retracting bad sources, `.raw/` inbox hygiene (never hand-delete — archive,
+  so provenance pointers follow the file), safe page deletion (blast radius shown
+  first), and archiving — warm in-vault tiers plus a **passive** cold vault that must
+  never get the Local REST API plugin (the live vault's MCP owns port 27124).
 - **Optional features (Section 10):** brain-dump is the standing reference for turning
   YouTube / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user

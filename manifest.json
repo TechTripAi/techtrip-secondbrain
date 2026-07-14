@@ -28,8 +28,8 @@
       "marketplace": "TechTripAi/claude-obsidian",
       "slug": "claude-obsidian@techtripai-claude-obsidian",
       "license": "MIT",
-      "testedVersion": "1.9.2",
-      "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's patched fork (TechTripAi/claude-obsidian) because upstream is backlogged — the fork carries fixes only (e.g. the invalid SessionStart prompt hook, upstream issue #116), no feature divergence, and tracks upstream via git remote for periodic sync. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
+      "testedVersion": "1.9.3",
+      "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's patched fork (TechTripAi/claude-obsidian) because upstream is backlogged — the fork carries fixes plus maintenance additions filed upstream as candidate PRs (e.g. the invalid SessionStart prompt hook, upstream issue #116; the 1.9.3 maintenance suite), and tracks upstream via git remote for periodic sync. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
     }
   ],
   "obsidianPluginsNote": "Each plugin is PINNED to a release tag, and every downloaded asset is verified against its sha256 before install (supply-chain guard: a hijacked upstream release fails loudly instead of installing silently). Refresh pins + hashes with: bash scripts/pin-obsidian-plugins.sh",

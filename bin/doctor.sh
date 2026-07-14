@@ -40,6 +40,82 @@ if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2
   done
 fi
 
+# Wiki content maintenance (report-only; every remedy is a content decision the
+# user makes through the fork's skills — wiki-lint, wiki-delete, wiki-archive —
+# or a deliberate edit, so there is no auto-repair here). Four signals:
+# - orphaned provenance: a source page's raw_file:/sources: pointer targets a
+#   .raw/ file that was deleted or moved by hand (silent rot; nothing else
+#   surfaces it between lint runs)
+# - .raw pile-up: inbox files never recorded in .raw/.manifest.json — pending
+#   work, not clutter; ingest or deliberately archive them
+# - aging pages: updated: older than 90 days (evergreen/archived/retracted and
+#   meta/fold/archive paths exempt) — YYYY-MM-DD compares correctly as strings
+# - archive tiers: informational presence of the two warm archive folders
+if [ -d "$VAULT/wiki" ]; then
+  step "Wiki maintenance (content, report-only)"
+  cutoff="$(date -v-90d +%F 2>/dev/null || true)"
+  orphaned=0; aging=0
+  while IFS= read -r -d '' page; do
+    case "$page" in
+      */wiki/folds/*|*/wiki/meta/*|*/wiki/archives/*) continue ;;
+    esac
+    case "$(basename "$page")" in
+      index.md|_index.md|log.md|hot.md|overview.md|dashboard.md) continue ;;
+    esac
+    # Frontmatter block only (between the first pair of --- fences).
+    fm="$(awk '/^---$/{n++;next} n==1{print} n>=2{exit}' "$page" 2>/dev/null)"
+    [ -n "$fm" ] || continue
+    # Provenance pointers: raw_file: scalar plus any "[[.raw/...]]" sources entry.
+    while IFS= read -r raw; do
+      [ -n "$raw" ] || continue
+      if [ ! -e "$VAULT/$raw" ]; then
+        orphaned=$((orphaned+1))
+        [ "$orphaned" -le 3 ] && row "  $(basename "$page" .md)" "$BADM  $raw missing (deleted? archived without repointing?)"
+      fi
+    done < <(printf '%s\n' "$fm" | awk -F': *' '/^raw_file:/{gsub(/["\047]/,"",$2);print $2}
+                                                /\[\[\.raw\//{sub(/.*\[\[/,"");sub(/\]\].*/,"");print}')
+    # Aging: updated: past the cutoff, unless the status opts the page out.
+    if [ -n "$cutoff" ]; then
+      status="$(printf '%s\n' "$fm" | awk -F': *' '/^status:/{gsub(/["\047]/,"",$2);print $2;exit}')"
+      updated="$(printf '%s\n' "$fm" | awk -F': *' '/^updated:/{gsub(/["\047]/,"",$2);print $2;exit}')"
+      case "$status" in evergreen|archived|retracted) ;; *)
+        [ -n "$updated" ] && [ "$updated" \< "$cutoff" ] && aging=$((aging+1)) ;;
+      esac
+    fi
+  done < <(find "$VAULT/wiki" -type f -name '*.md' -print0 2>/dev/null)
+  if [ "$orphaned" = 0 ]; then row "orphaned provenance" "$OKM"
+  else row "orphaned provenance" "$BADM  $orphaned pointer(s) → 'lint the wiki' lists them all"; fi
+  if [ "$aging" = 0 ]; then row "aging pages (90+ days)" "$OKM"
+  else row "aging pages (90+ days)" "$BADM  $aging page(s) untouched → 'lint the wiki' groups them by status"; fi
+
+  # .raw pile-up: manifest keys once via node, then a pure-bash membership check.
+  if [ -d "$VAULT/.raw" ]; then
+    ingested="$(node -e '
+      try{const m=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));
+      process.stdout.write(Object.keys(m.sources||{}).join("\n"))}catch(e){}
+    ' "$VAULT/.raw/.manifest.json" 2>/dev/null)"
+    pending=0; examples=""
+    while IFS= read -r -d '' f; do
+      rel="${f#"$VAULT"/}"
+      printf '%s\n' "$ingested" | grep -qxF "$rel" && continue
+      pending=$((pending+1))
+      [ "$pending" -le 3 ] && examples="${examples:+$examples, }${rel#.raw/}"
+    done < <(find "$VAULT/.raw" -type f ! -name '.*' -print0 2>/dev/null)
+    if [ "$pending" = 0 ]; then row ".raw/ inbox" "$OKM (everything ingested)"
+    else row ".raw/ inbox" "$BADM  $pending file(s) never ingested: $examples${pending:+ }— ingest or archive deliberately"; fi
+  fi
+
+  # Archive tiers (informational, never a failure).
+  for tier in ".archive" "wiki/archives"; do
+    if [ -d "$VAULT/$tier" ]; then
+      n="$(find "$VAULT/$tier" -type f ! -name '.*' 2>/dev/null | wc -l | tr -d ' ')"
+      row "$tier/" "${_C_DIM}present ($n file(s))${_C_RESET}"
+    else
+      row "$tier/" "${_C_DIM}not created yet (made on first archive)${_C_RESET}"
+    fi
+  done
+fi
+
 # DragonScale addressing (report-only). claude-obsidian's opt-in Mechanism 2 is
 # feature-detected from vault files: an executable scripts/allocate-address.sh
 # plus a .vault-meta/ dir (which WE create for mode/transport state) arms it,

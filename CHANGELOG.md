@@ -3,6 +3,42 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.5] — 2026-07-14
+
+The maintenance release. Split by the repo's own seam — read-only reporting
+here, reconciling mutations in the claude-obsidian fork (v1.9.3, pinned via
+`manifest.json testedVersion`).
+
+### Added
+- **`doctor` — "Wiki maintenance" section** (report-only, like every doctor
+  row): **orphaned provenance** (source pages whose `raw_file:`/`sources:`
+  pointer names a deleted or moved `.raw/` file — silent rot nothing else
+  surfaces between lint runs), **`.raw/` pile-up** (inbox files never
+  recorded in `.raw/.manifest.json` — pending work, not clutter), **aging
+  pages** (`updated:` past 90 days; `evergreen`/`archived`/`retracted` and
+  meta/fold/archive paths exempt), and **archive tiers** (informational
+  presence of `.archive/` and `wiki/archives/`). Every remedy routes to the
+  fork's content skills or `/brain-dump` §9 — doctor never mutates content.
+- **`/brain-dump` §9 rebuilt as a maintenance topic menu** (numbering
+  unchanged; §10 stays the feature-toggle reference): 9a freshness (lint's
+  Staleness Aging + stale claims, four refresh paths), 9b bad sources
+  (contradiction model + the retraction flow), 9c `.raw/` inbox (never
+  hand-delete — archive so provenance follows the file), 9d safe page
+  deletion (blast radius first; `log.md` history never scrubbed), 9e
+  archiving (warm in-vault tiers + the **passive archive vault** rule:
+  never install Local REST API there — the live vault's MCP owns port
+  27124), 9f the once-over cadence (lint / fold / doctor).
+- **`secondbrain-doctor` skill** — workflow step for the new maintenance
+  rows: content decisions have no auto-repair; route to `lint the wiki`,
+  ingest/archive prompts, or `/brain-dump` §9.
+
+### Changed
+- `manifest.json` claude-obsidian pin: `testedVersion` 1.9.2 → **1.9.3**
+  (the fork's maintenance suite: `wiki-delete`, `wiki-archive`, source
+  retraction, lint checks for orphaned provenance + staleness aging).
+  Fork-posture note updated: fixes **plus maintenance additions proposed
+  upstream as candidate PRs** — no silent divergence.
+
 ## [0.2.4] — 2026-07-13
 
 ### Added

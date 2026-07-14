@@ -10,8 +10,9 @@ out-of-the-box LLM Wiki "second brain" on a fresh **macOS** machine. It is an
 [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) by AgriciDaniel
 (MIT), which this project **installs at setup time from a lightly-patched fork it
 maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian))
-— bug fixes only (upstream is backlogged; fixes are filed upstream too, e.g. issue #116),
-no feature divergence, tracking upstream via git remote for periodic sync. Nothing of his
+— bug fixes plus maintenance additions proposed upstream as candidate PRs (upstream is
+backlogged; e.g. issue #116, the 1.9.3 maintenance suite), tracking upstream via git
+remote for periodic sync. Nothing of his
 is vendored or copied into this repo. `techtrip-secondbrain` only fills the gaps that
 plugin leaves manual: installing Obsidian + community plugins, wiring/repairing the
 Obsidian MCP server, git sync + backup, and the ported source skills.

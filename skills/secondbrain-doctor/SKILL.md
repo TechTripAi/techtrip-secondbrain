@@ -22,6 +22,8 @@ Three scripts back this skill:
 
 - **`bin/doctor.sh <vault>`** — read-only health table: `wiki/` tree, **origination
   projects** (stale/unindexed rows under `wiki/projects/` — advisory, see below),
+  **wiki maintenance** (orphaned `.raw` provenance, never-ingested inbox files,
+  aging pages, archive tiers — advisory, see below),
   each community plugin (files present + enabled), the REST-API-key ↔ MCP-env-key
   match, the `claude-obsidian` plugin, the `obsidian` MCP registration, **update
   availability** for both plugins (installed cache version vs the repo's `main`;
@@ -85,7 +87,25 @@ so the fix is upstream, not here.
    means the post-scaffold registration step was skipped: offer to add the
    `## Active projects` bullet per the `new-idea` skill. Never mutate the vault
    without the user's go-ahead.
-9. If the "SessionStart hooks valid" row is red (or the user reports a
+9. If a **"Wiki maintenance"** row is flagged, there is likewise **no auto-repair** —
+   these are content signals, and the tools that act on them are claude-obsidian's
+   skills, not doctor's scripts. Route by row:
+   - **orphaned provenance** — a source page's `raw_file:`/`sources:` pointer names
+     a `.raw/` file that was deleted or moved by hand. Offer `lint the wiki` for the
+     full list; the fix is restoring the file, repointing the path (if it was moved
+     to `.archive/`), or accepting the provenance loss knowingly.
+   - **.raw/ inbox** — files that landed in `.raw/` but were never ingested. That's
+     pending work, not clutter: offer `ingest <file>`, or a deliberate archive via
+     the wiki-archive skill. Never suggest deleting raw files.
+   - **aging pages** — pages untouched past the staleness threshold. Offer
+     `lint the wiki` (its Staleness Aging section groups them by status) and the
+     refresh paths: re-ingest a newer source, edit + bump `updated:`, promote to
+     `evergreen`, or archive.
+   - **archive tiers** — purely informational (present / not created yet); nothing
+     to do.
+   `/brain-dump` Section 9 is the standing tutorial for all of these — point the
+   user there if they want the full maintenance walkthrough.
+10. If the "SessionStart hooks valid" row is red (or the user reports a
    `SessionStart::startup hook` error at launch), explain it is an upstream
    claude-obsidian bug (≤1.9.2 ships a `type:"prompt"` hook under SessionStart,
    which supports only `command`/`mcp_tool`). secondbrain does **not** patch

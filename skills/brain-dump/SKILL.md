@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean, and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, enable youtube, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean (maintenance: refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe page deletion, archiving — including the passive archive vault), and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, how do I delete from the wiki, how do I archive, wiki maintenance tutorial, stale pages, clean up my wiki, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -137,7 +137,7 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   6. Start a new idea          — origination: you are the source
   7. What is .raw/?            — the immutable inbox
   8. hot cache vs index vs log — the three bookkeeping files
-  9. Keep it lean & clean      — lint, fold, archive
+  9. Keep it lean & clean      — freshness, bad sources, delete, archive
  10. Optional features on/off  — YouTube, NotebookLM
  11. Where to go next          — the rest of the toolkit
 ```
@@ -413,25 +413,142 @@ from the vault root.
 
 ## Section 9 — Keep it lean & clean
 
-**Explain:** As the wiki grows, four habits keep it healthy:
-- **`wiki-lint`** — finds orphan pages, dead wikilinks, stale claims, missing
-  cross-refs. Run every ~10–15 ingests. Shows a report and asks before fixing.
-- **`wiki-fold`** — rolls up old `log.md` entries into a summary under `wiki/folds/` so
-  the log stays skimmable. Dry-run first, then commit.
-- **Archive** — move cold sources out of `.raw/` (e.g. to `.archive/`) to keep the
-  inbox clean.
-- **`/secondbrain-doctor`** — health-checks the *stack* (lint checks the *content*):
-  MCP key handshake, community plugins, harness links, the works — and tells you
-  when a plugin update is available. Read-only, takes seconds, safe any time — run
-  it periodically (monthly is plenty) or whenever something feels off. Updates run it for you automatically at the end, so you never
-  need it right after updating.
+**Explain first, then offer the topic menu.** As the wiki grows, entropy shows up in
+predictable places: pages go quiet, a source turns out to be junk, `.raw/` fills up,
+and finished material stops belonging in the live graph. Each has a tool and a habit.
+Show this mini-menu (same rules as the main menu — pick a letter or just say it;
+nothing here is a mode):
+
+```
+Pick a maintenance topic:
+  Content health   a. Freshness       — find & refresh stale pages
+                   b. Bad sources     — flag, contradict, retract
+  Cleanup          c. .raw/ inbox     — what's safe to move, what breaks
+                   d. Deleting pages  — the safe-delete flow
+  Cold storage     e. Archiving       — warm folders & the passive archive vault
+  Habits           f. The once-overs  — lint, fold, doctor cadence
+```
+
+### 9a — Freshness
+
+**Explain:** pages don't announce their own rot, so the wiki gives you two signals.
+*Judgment*: lint's stale-claims check notices when newer sources contradict an older
+page. *Mechanical*: lint's Staleness Aging section lists pages whose `updated:` date
+is past the threshold (90 days by default), grouped by status — `evergreen` pages are
+exempt because "unlikely to need updates" is their contract. `/secondbrain-doctor`
+shows the aging *count* between lint runs.
+
+**Prompt — type into Claude Code:**
+```
+lint the wiki
+```
+**What to expect:** the report's "Aging Pages" and "Stale Claims" sections. Four
+refresh paths, per page: re-ingest a newer source on the topic (updates the page and
+bumps `updated:`), edit it yourself and bump `updated:`, promote a genuinely finished
+page to `status: evergreen` so it leaves the report, or archive/delete a dead one
+(topics d and e). For a single suspect claim, a `> [!stale]` callout on the spot beats
+rewriting the page.
+
+### 9b — Bad sources
+
+**Explain:** the wiki never silently overwrites old claims — when a new source
+conflicts with an existing page, ingest adds `[!contradiction]` callouts on **both**
+pages and leaves the call to you. When you've made the call — a source is discredited,
+superseded, or plain wrong — **retraction** revokes its authority without destroying
+the record: the source page and its raw file stay (that's your audit trail), but its
+claims stop being citable.
+
+**Prompt — type into Claude Code:**
+```
+retract the source [[Some Source Page]] — superseded by better data
+```
+**What to expect:** the source page gets `status: retracted`, a dated banner callout
+with your reason, and a log entry; you're then walked through the pages that cited it,
+choosing per page whether to flag dependent claims with `[!stale]`. Wiki queries stop
+citing retracted sources from then on.
+
+### 9c — The `.raw/` inbox
+
+**Explain:** once a file is ingested, the knowledge lives in `wiki/` — but the raw
+file is the **provenance**: each source page points back at it (`raw_file:`). So the
+risk in "cleaning up" `.raw/` isn't losing knowledge, it's silently breaking that
+audit trail — a hand-deleted raw file strands the pointer, and nothing complains until
+a lint run. Two rules: **never hand-delete from `.raw/`** — archive instead, which
+moves the file to `.archive/` *with* its pointer updated; and **an un-ingested file
+isn't clutter, it's pending work** — ingest it or decide against it deliberately
+(`/secondbrain-doctor` counts these so they don't pile up unseen).
+
+**Prompt — type into Claude Code:**
+```
+archive .raw/articles/old-article.md
+```
+**What to expect:** a move plan first (nothing happens until you confirm), then the
+file lands in `.archive/`, the source page's `raw_file:` follows it, and the inbox
+stays a clean list of live material.
+
+### 9d — Deleting pages
+
+**Explain:** "`wiki/` is yours — delete freely" is permission, not procedure. A bare
+delete strands backlinks, the index entry and page counter, and internal records. The
+safe-delete flow shows the **blast radius first**: every inbound link, every
+bookkeeping entry, what stays untouched. Two things it never does: touch `.raw/` (raw
+files outlive their pages), and scrub history (`log.md` is append-only — deletions are
+logged *forward* as their own entry).
+
+**Prompt — type into Claude Code:**
+```
+delete the page [[Some Page]]
+```
+**What to expect:** an impact report, then a per-reference choice for each page that
+links in — rewrite the link to a replacement page, remove it, or leave it for lint to
+flag — and only after your explicit yes does anything change. Fold pages have their
+own reversal flow (wiki-fold handles those), and the spine files (`index.md`,
+`log.md`, `hot.md`) are refused outright.
+
+### 9e — Archiving
+
+**Explain:** archiving is for material that earned its keep but no longer belongs in
+the live graph. Three tiers, in order of reach:
+- **Warm, pages** — `archive the page [[X]]` moves it to `wiki/archives/<year>/`,
+  marks it `status: archived`, and relocates its index entry. Wikilinks keep working
+  (Obsidian links by filename, not path), so nothing breaks — the page is parked, not
+  exiled.
+- **Warm, raw sources** — topic c above: cold inbox files to `.archive/`.
+- **Cold — a passive second vault.** For truly-dead material: a separate Obsidian
+  vault (its own git repo) you move things into by hand. **The one rule: never
+  install the Local REST API plugin there.** The live vault's MCP owns port 27124;
+  the archive vault stays passive — browsable via Obsidian's vault switcher, readable
+  by Claude if you point it at the folder, but outside the wiki's MCP, queries, and
+  lint. Moving there is a Finder/`git mv` job, and it's a one-way door as far as the
+  live graph is concerned — run the delete flow (topic d) first if pages link to what
+  you're moving.
+
+**Prompt — type into Claude Code:**
+```
+archive the page [[Finished Project Page]]
+```
+**What to expect:** same shape as every mutating flow — plan first, confirm, then the
+move with all bookkeeping reconciled and a log entry.
+
+### 9f — The once-overs (habits & cadence)
+
+**Explain:** three habits, three cadences:
+- **`lint the wiki`** — every ~10–15 ingests. Content health: orphans, dead links,
+  stale claims, aging pages, orphaned provenance. Reports first, asks before fixing.
+- **`fold the log`** — when `log.md` gets long. Rolls old entries into a summary under
+  `wiki/folds/`; dry-run first, then commit.
+- **`/secondbrain-doctor`** — monthly, or when something feels off. Health-checks the
+  *stack* (MCP handshake, plugins, harness links, update availability) plus quick
+  content counts (orphaned provenance, inbox pile-up, aging pages). Read-only, takes
+  seconds. Updates run it for you automatically at the end, so you never need it
+  right after updating.
 
 **Prompt — type into Claude Code** (the `#` notes aren't shell — these are prompts):
 ```
 lint the wiki               # or: find orphans / health check
 fold the log, dry-run k=3   # preview a rollup of the last 8 entries
 fold the log, commit k=3    # then write it
-/secondbrain-doctor         # periodic stack health check
+/secondbrain-doctor         # periodic stack + content-count check
 ```
 
 ---
