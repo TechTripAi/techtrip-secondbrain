@@ -40,6 +40,28 @@ if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2
   done
 fi
 
+# DragonScale addressing (report-only). claude-obsidian's opt-in Mechanism 2 is
+# feature-detected from vault files: an executable scripts/allocate-address.sh
+# plus a .vault-meta/ dir (which WE create for mode/transport state) arms it,
+# and every ingest then assigns address: fields from a flock-guarded counter —
+# machine-local locking, so the two-machine git model can mint duplicate
+# addresses and the counter file becomes merge-conflict bait. Out of scope for
+# this project (see README); disarm-dragonscale.sh removes the arming files
+# (consent-gated, backed up). Counter/state files without the allocator script
+# are inert residue — reported dimmer, same remedy.
+step "DragonScale addressing (opt-in claude-obsidian extension)"
+ds_residue=""
+for f in ".vault-meta/address-counter.txt" ".vault-meta/tiling-thresholds.json" ".vault-meta/legacy-pages.txt"; do
+  [ -e "$VAULT/$f" ] && ds_residue=1
+done
+if [ -x "$VAULT/scripts/allocate-address.sh" ]; then
+  row "addressing (Mechanism 2)" "$BADM  ARMED — ingest will assign addresses → bin/disarm-dragonscale.sh"
+elif [ -n "$ds_residue" ]; then
+  row "addressing (Mechanism 2)" "$BADM  off, but stale state files remain → bin/disarm-dragonscale.sh"
+else
+  row "addressing (Mechanism 2)" "$OKM not armed"
+fi
+
 # Required binaries (manifest-driven; includes claude-obsidian runtime deps like flock).
 # Optional binaries are reported by the optional-features section below, not here.
 step "Required binaries"

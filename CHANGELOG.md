@@ -6,6 +6,26 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
+- **`bin/disarm-dragonscale.sh` — turns off claude-obsidian's silently
+  self-arming DragonScale addressing.** DragonScale Mechanism 2 is
+  feature-detected from files *inside the vault*: an executable
+  `scripts/allocate-address.sh` plus a `.vault-meta/` dir (which
+  techtrip-secondbrain creates for its own mode/transport state) arms it, and
+  every ingest then assigns `address:` frontmatter from a monotonic counter in
+  `.vault-meta/address-counter.txt`. That counter is guarded by machine-local
+  `flock` only — duplicate-address and merge-conflict bait under this
+  project's two-machine git model, and DragonScale is out of scope here (see
+  README). The disarmer removes only the arming files (allocator script,
+  counter, `tiling-thresholds.json`, `legacy-pages.txt`) behind a
+  **default-no** confirm with a backup to
+  `~/.config/techtrip-secondbrain/dragonscale-backups/`; existing `address:`
+  fields, the tiling/boundary diagnostic scripts, `.raw/.manifest.json`, and
+  the plugin cache are never touched. Vaults that want DragonScale just
+  answer no; re-arm any time via claude-obsidian's `setup-dragonscale.sh`.
+  - `doctor` gained a report-only **"DragonScale addressing"** section with
+    three states: armed / off-but-stale-state-files / not armed.
+  - `bin/update.sh` runs the disarm check right after the permission prune
+    (new step 6; later steps renumbered) — it no-ops green on unarmed vaults.
 - **`bin/prune-permissions.sh` — cleans up permission rules stranded by plugin
   updates.** Claude Code saves approved rules into `settings.local.json` with
   the versioned plugin-cache path baked in

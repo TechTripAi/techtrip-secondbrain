@@ -218,6 +218,7 @@ re-run for marketplace installs).
 | Optional features | `bin/setup-features.sh <path>` | YouTube (default-yes freebie) / NotebookLM (explicit opt-in); asked inline during setup, re-runnable any time |
 | Verify | `bin/doctor.sh <path>` | health check |
 | Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
+| DragonScale disarm | `bin/disarm-dragonscale.sh <path>` | turn off claude-obsidian's opt-in DragonScale addressing in the vault (default-no confirm, backed up); doctor and update surface it |
 
 Everything is driven by **`manifest.json`** — the single source of truth for the
 binaries, apps, plugins, community plugins, MCP server, and skills. Edit it to change
@@ -549,6 +550,13 @@ or reach out directly: **terry.trippany@techtrip.ai**.
 Windows/Linux; cloning personal content (`wiki/`, `.raw/`, Pocket); `pocket-sync`;
 `claude-obsidian`'s optional DragonScale / hybrid-retrieval extensions (run those from
 `claude-obsidian` after setup); auto-installing Claude Code or Homebrew.
+
+DragonScale gets one extra courtesy because it is *silently self-arming*: its
+addressing (Mechanism 2) feature-detects from vault files, and its allocator
+counter uses machine-local locking — duplicate-address and merge-conflict bait
+under the two-machine git model. `doctor` reports whether a vault is armed, and
+`update` / `bin/disarm-dragonscale.sh` offer to disarm it (default-no confirm,
+backed up, notes untouched). Vaults that want DragonScale just answer no.
 
 ## Credits
 

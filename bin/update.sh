@@ -11,10 +11,14 @@
 #   5. Offer to prune permission rules in settings.local.json stranded by the
 #      plugin updates (they embed versioned plugin-cache paths; see
 #      prune-permissions.sh — confirm-gated, backs up first).
-#   6. Warn if the vault still has a legacy .stignore (Syncthing support was
+#   6. Check the vault for armed DragonScale addressing (claude-obsidian's
+#      opt-in Mechanism 2 — feature-detected from vault files, hazardous under
+#      the two-machine git model) and offer to disarm it (default-no, backed
+#      up; see disarm-dragonscale.sh).
+#   7. Warn if the vault still has a legacy .stignore (Syncthing support was
 #      removed in 0.2.0) and point at setup-sync.sh to clean it up. We never
 #      touch the Syncthing install itself — it's external software.
-#   7. Doctor the result.
+#   8. Doctor the result.
 #
 # Does NOT touch your notes, git history, MCP key, or optional-feature choices.
 # Community-plugin downloads stay pinned + hash-verified (see scripts/
@@ -105,7 +109,20 @@ run "Checking settings.local.json for rules stranded by the update" -- \
   bash "$BIN_DIR/prune-permissions.sh" "$VAULT" || \
   warn "prune-permissions.sh reported an issue (continuing)."
 
-# ── 6. Legacy Syncthing (removed in 0.2.0) ────────────────────────────────────
+# ── 6. DragonScale addressing armed in the vault? ─────────────────────────────
+# claude-obsidian's opt-in Mechanism 2 is feature-detected from vault files, so
+# a vault that ever got the upstream scripts copied in silently assigns
+# address: fields from a machine-locally-locked counter — duplicate-address and
+# merge-conflict bait under this project's two-machine git model, and out of
+# scope here (see README). disarm-dragonscale.sh is confirm-gated (default-no,
+# someone may want DragonScale), backs up first, and no-ops when nothing is
+# armed.
+step "DragonScale addressing check"
+run "Checking the vault for armed DragonScale addressing" -- \
+  bash "$BIN_DIR/disarm-dragonscale.sh" "$VAULT" || \
+  warn "disarm-dragonscale.sh reported an issue (continuing)."
+
+# ── 7. Legacy Syncthing (removed in 0.2.0) ────────────────────────────────────
 # Syncthing support was dropped. Only flag the vault-side leftover we created
 # (.stignore); the Syncthing install itself is external software the user may
 # use for other purposes — never stop or uninstall it.
@@ -116,7 +133,7 @@ if [ -f "$VAULT/.stignore" ]; then
   info "  bash bin/setup-sync.sh $VAULT"
 fi
 
-# ── 7. Doctor ────────────────────────────────────────────────────────────────
+# ── 8. Doctor ────────────────────────────────────────────────────────────────
 step "Post-update health check"
 run "Running doctor" -- bash "$BIN_DIR/doctor.sh" "$VAULT" || true
 
