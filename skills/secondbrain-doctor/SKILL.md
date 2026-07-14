@@ -101,9 +101,14 @@ so the fix is upstream, not here.
      `lint the wiki` (its Staleness Aging section groups them by status) and the
      refresh paths: re-ingest a newer source, edit + bump `updated:`, promote to
      `evergreen`, or archive.
+   - **audio in .raw/ (anti-pattern)** — audio files living under `.raw/`, even
+     already-transcribed ones. `.raw/` is git-committed + synced and git never
+     forgets a blob; the transcript is the raw source of record. Route to the
+     voice-fetch cleanup flow: transcribe if not yet done, then offer to move the
+     original out of the vault or delete it (confirm-gated, user's call).
    - **archive tiers** — purely informational (present / not created yet); nothing
      to do.
-   `/brain-dump` Section 9 is the standing tutorial for all of these — point the
+   `/brain-dump` Section 10 is the standing tutorial for all of these — point the
    user there if they want the full maintenance walkthrough.
 10. If the "SessionStart hooks valid" row is red (or the user reports a
    `SessionStart::startup hook` error at launch), explain it is an upstream

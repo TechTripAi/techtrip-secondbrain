@@ -105,6 +105,21 @@ if [ -d "$VAULT/wiki" ]; then
     else row ".raw/ inbox" "$BADM  $pending file(s) never ingested: $examples${pending:+ }— ingest or archive deliberately"; fi
   fi
 
+  # Audio living under .raw/ (anti-pattern, even when already transcribed):
+  # .raw/ is git-committed + synced, and git never forgets a committed blob —
+  # the transcript is the raw source of record, the audio original is not.
+  if [ -d "$VAULT/.raw" ]; then
+    audio_n=0; audio_ex=""
+    while IFS= read -r -d '' f; do
+      audio_n=$((audio_n+1))
+      [ "$audio_n" -le 3 ] && audio_ex="${audio_ex:+$audio_ex, }$(basename "$f")"
+    done < <(find "$VAULT/.raw" -type f \( -iname '*.m4a' -o -iname '*.mp3' -o -iname '*.wav' \
+             -o -iname '*.aiff' -o -iname '*.aif' -o -iname '*.flac' -o -iname '*.caf' \
+             -o -iname '*.ogg' -o -iname '*.opus' \) -print0 2>/dev/null)
+    if [ "$audio_n" = 0 ]; then row "audio in .raw/ (anti-pattern)" "$OKM none"
+    else row "audio in .raw/ (anti-pattern)" "$BADM  $audio_n file(s): $audio_ex — transcribe + clean up (voice-fetch offers the move/delete)"; fi
+  fi
+
   # Archive tiers (informational, never a failure).
   for tier in ".archive" "wiki/archives"; do
     if [ -d "$VAULT/$tier" ]; then

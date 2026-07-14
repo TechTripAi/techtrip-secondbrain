@@ -12,7 +12,10 @@
       "note": "Runtime dependency of claude-obsidian's setup-retrieve.sh and setup-mode.sh. Usually present via Xcode CLT; declared so precheck/doctor verify it on fresh machines." },
     { "cmd": "yt-dlp", "label": "yt-dlp",    "install": "brew install yt-dlp", "optional": true,
       "feature": "youtube",
-      "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." }
+      "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." },
+    { "cmd": "whisperkit-cli", "label": "WhisperKit", "install": "brew install whisperkit-cli", "optional": true,
+      "feature": "voice",
+      "note": "Only needed by the voice-fetch skill (on-device audio transcription, CoreML/Neural Engine). Not installed by setup-deps; bin/setup-features.sh installs it. First transcription downloads a CoreML model once (network + disk); transcription itself is fully local." }
   ],
   "binariesNote": "optional:true binaries are NOT installed by setup-deps.sh (they power an optional skill/feature); precheck reports them as 'optional' not 'missing', and bin/setup-features.sh installs them on demand.",
   "apps": [
@@ -116,6 +119,7 @@
     { "id": "secondbrain",       "runtime": [], "note": "Setup orchestrator: drives the bin/ steps end-to-end (precheck → … → doctor)." },
     { "id": "secondbrain-doctor","runtime": [], "note": "Integrity check + MCP repair; wraps bin/doctor.sh and bin/repair-mcp.sh." },
     { "id": "yt-fetch",          "runtime": ["yt-dlp"], "feature": "youtube" },
+    { "id": "voice-fetch",       "runtime": ["whisperkit-cli"], "feature": "voice" },
     { "id": "notebooklm-ingest", "runtime": ["uv"], "feature": "notebooklm", "manual": "one-time `notebooklm login` (interactive OAuth)" },
     { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." },
     { "id": "new-idea",          "runtime": [], "note": "Greenfield origination-project scaffolder: stamps wiki/projects/<slug>/ from the origination template (node-based, no extra deps). Vault-side templates + origination-workflow.md are seeded by setup-vault.sh from assets/vault/; the script self-seeds the templates on pre-existing vaults." }
@@ -126,6 +130,10 @@
       "skill": "yt-fetch", "binary": "yt-dlp", "install": "brew install yt-dlp",
       "defaultEnabled": true,
       "desc": "Fetch a YouTube video's transcript + metadata into .raw/videos/ for ingestion. Low-risk freebie: a passive CLI binary — no daemon, no network listener, no credentials — so setup enables it by default (Enter accepts; 'n' skips)." },
+    { "id": "voice",      "label": "Voice memos / audio transcription (voice-fetch)",
+      "skill": "voice-fetch", "binary": "whisperkit-cli", "install": "brew install whisperkit-cli",
+      "defaultEnabled": true,
+      "desc": "Transcribe local audio (Voice Memos .m4a, mp3, wav, …) into .raw/audio/ for ingestion. Fully on-device (WhisperKit, CoreML/Neural Engine) — no cloud, no credentials, no daemon — so setup enables it by default. Heads-up worth saying at the prompt: the first transcription downloads a CoreML model once (can be GBs; local-only after that)." },
     { "id": "notebooklm", "label": "NotebookLM synthesis (notebooklm-ingest)",
       "skill": "notebooklm-ingest", "requires": "uv", "binary": "notebooklm",
       "install": "uv tool install notebooklm-py",

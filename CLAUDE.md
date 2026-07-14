@@ -44,10 +44,12 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   **idempotent** and **interactive**.
 - **Optional features are asked inline during setup; consent is tiered.** Their skills
   always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;
-  `setup-features.sh <vault> youtube|notebooklm` targets one), which the
+  `setup-features.sh <vault> youtube|voice|notebooklm` targets one), which the
   `secondbrain` skill drives per-answer during setup instead of deferring. Driven by
-  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** carries
-  `defaultEnabled: true` (harmless freebie — `confirm_yes`, Enter installs) while
+  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** and
+  **Voice/`whisperkit-cli`** (on-device audio transcription; first run downloads a
+  CoreML model once) carry
+  `defaultEnabled: true` (harmless freebies — `confirm_yes`, Enter installs) while
   **NotebookLM** (data egress to Google + interactive `notebooklm login`) carries a
   `consentNote` printed before a default-no confirm — never enable it unprompted.
   (Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a
@@ -55,7 +57,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
   `optional` by `precheck`, and reported on/off (never failed) by `doctor`. `uv` stays
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
-  `notebooklm-py` install + login, not `uv`. `/brain-dump` §10 is the user-facing
+  `notebooklm-py` install + login, not `uv`. `/brain-dump` §11 is the user-facing
   reference for enabling/disabling features after setup.
 - **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
@@ -75,7 +77,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
  (greenfield origination-project scaffolder; vault-side templates +
  `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;
  `doctor` reports stale/unindexed projects, advisory only) + ported `yt-fetch` /
- `notebooklm-ingest`. Each has a matching
+ `voice-fetch` / `notebooklm-ingest`. Each has a matching
  `commands/*.md` where relevant.
 
 ## Conventions (follow these when editing)

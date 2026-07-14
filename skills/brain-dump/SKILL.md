@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean (maintenance: refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe page deletion, archiving — including the passive archive vault), and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, how do I delete from the wiki, how do I archive, wiki maintenance tutorial, stale pages, clean up my wiki, second machine, sync my vault, use the wiki on two machines, enable youtube, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, voice memos/audio, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean (maintenance: refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe page deletion, archiving — including the passive archive vault), and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, how do I delete from the wiki, how do I archive, wiki maintenance tutorial, stale pages, clean up my wiki, second machine, sync my vault, use the wiki on two machines, ingest a voice memo, transcribe audio into the wiki, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -71,8 +71,9 @@ Two things to drive home because they unlock everything else:
    file in `.raw/` yourself — via Finder, a browser "Save As", or a terminal command —
    and then `ingest` it. Same destination either way.
 
-The "ingestion types" below (file, URL, YouTube, NotebookLM) are just *different ways to
-land something in `.raw/`* — after that it's always the same `ingest` step.
+The "ingestion types" below (file, URL, YouTube, voice memo, NotebookLM) are just
+*different ways to land something in `.raw/`* — after that it's always the same
+`ingest` step.
 
 ## When `ingest` can't fetch it — the terminal fallback (teach this early)
 
@@ -132,23 +133,24 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   1. Ingest a flat file        — drop a doc in, get wiki pages
   2. Ingest a URL              — clean a web page and file it
   3. Ingest a YouTube video    — name it as a video so it routes right
-  4. Ingest via NotebookLM     — combine many sources into one page
-  5. Research a topic          — autoresearch: Claude finds the sources
-  6. Start a new idea          — origination: you are the source
-  7. What is .raw/?            — the immutable inbox
-  8. hot cache vs index vs log — the three bookkeeping files
-  9. Keep it lean & clean      — freshness, bad sources, delete, archive
- 10. Optional features on/off  — YouTube, NotebookLM
- 11. Second machine & sync     — clone it, keep it synced for free
- 12. Where to go next          — the rest of the toolkit
+  4. Ingest a voice memo       — on-device transcription, zero cloud
+  5. Ingest via NotebookLM     — combine many sources into one page
+  6. Research a topic          — autoresearch: Claude finds the sources
+  7. Start a new idea          — origination: you are the source
+  8. What is .raw/?            — the immutable inbox
+  9. hot cache vs index vs log — the three bookkeeping files
+ 10. Keep it lean & clean      — freshness, bad sources, delete, archive
+ 11. Optional features on/off  — YouTube, Voice, NotebookLM
+ 12. Second machine & sync     — clone it, keep it synced for free
+ 13. Where to go next          — the rest of the toolkit
 ```
 
 Also mention — once, right here — that this tutorial is the **standing reference for
-turning optional features on or off** (Section 10): it can be re-run any time, so "how
+turning optional features on or off** (Section 11): it can be re-run any time, so "how
 do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
 
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 12 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 13 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -258,16 +260,83 @@ ingest .raw/videos/<the-downloaded-file>.vtt
 **Notes:** auto-captions are imperfect (no speaker labels, occasional mishears — fine
 for meaning, quote carefully); no captions → metadata only. If a prompt errors that
 `yt-dlp` **isn't installed at all**, the YouTube feature was declined at setup —
-**don't work around it**; see **Section 10** to enable it (`/secondbrain` installs it).
+**don't work around it**; see **Section 11** to enable it (`/secondbrain` installs it).
 
 ---
 
-## Section 4 — Ingest via NotebookLM
+## Section 4 — Ingest a voice memo (audio)
+
+**Explain:** an audio file holds no text — `ingest` can't read speech, so a bare
+`ingest memo.m4a` would file bytes, not words. `voice-fetch` is the front door: it
+transcribes the file **on-device** via WhisperKit (Apple's Neural Engine — no cloud,
+no account, and **zero AI spend until the ingest itself**), lands the transcript in
+`.raw/audio/`, and hands off to `ingest` as usual. Perfect for Mac Voice Memos:
+think out loud on a walk, feed the wiki when you're back.
+
+**Get the audio out of Voice Memos first:** drag the memo out of the app into a
+folder (it lands as a `.m4a` file), or share sheet → "Save to Files".
+
+**Prompt — type into Claude Code:**
+```
+add this voice memo to my wiki: ~/Downloads/idea-memo.m4a
+```
+
+**What to avoid** — handing the audio path straight to ingest:
+```
+ingest ~/Downloads/idea-memo.m4a   ⚠️ audio has no text; route it through voice-fetch
+```
+
+**Zero-install alternative (macOS Sequoia+):** Voice Memos has its own on-device
+transcript — open the memo, copy the transcript text, save it into
+`.raw/audio/<name>.md` (Finder or a terminal redirect), then ingest that file. Same
+destination, no tooling at all.
+
+**Terminal fallback** if the prompt path errors *while installed*:
+**Shell — run in your terminal, from the vault root:**
+```
+whisperkit-cli transcribe --audio-path ~/Downloads/idea-memo.m4a > .raw/audio/idea-memo-<date>.md
+```
+**Then, Prompt — type into Claude Code:**
+```
+ingest .raw/audio/idea-memo-<date>.md
+```
+(The skill's script adds proper frontmatter; the bare fallback above is transcript-only —
+still ingests fine.)
+
+**Dropped it straight into `.raw/`? Supported once — then clean it up.** A prompt of
+`transcribe .raw/audio/<file>.m4a` works fine, but the audio file itself is an
+**anti-pattern inside the vault**: `.raw/` is git-committed and synced, and git never
+forgets a committed blob — the *transcript* is the raw source of record, not the
+recording. After ingesting, voice-fetch always offers to move the original back out
+(you name where) or delete it — your copy, your call. `/secondbrain-doctor` flags any
+audio living under `.raw/` until it's gone.
+
+**Privacy scope (state this plainly — it's why the feature exists):** transcription
+is **locally scoped**. Your audio never leaves the Mac — the model runs on Apple's
+Neural Engine, there's no account, no vendor, and no data egress; the only network
+use in the feature's lifetime is the one-time model download (inbound public files,
+like a brew install). Under a "no cloud AI processing" policy, this is the compliant
+kind. What you *record* is your own call — the tool just guarantees it goes nowhere.
+
+**Notes:** the **first** transcription downloads a CoreML model once (can be GBs;
+everything after is fully local and offline) — setup offers to pre-download it as a
+warm-up right after install, so if you said yes there, it's already cached. Machine transcripts have no speaker
+labels and occasional mishears — fine for meaning, quote carefully. Rambly memos
+transcribe as rambly text; that's what ingest's synthesis is for. If a prompt errors
+that `whisperkit-cli` **isn't installed at all**, the Voice feature was declined at
+setup — **don't work around it**; see **Section 11** to enable it (`/secondbrain`
+installs it).
+
+---
+
+## Section 5 — Ingest via NotebookLM
 
 **Explain:** Reach for this when you want **many sources combined into one entry**.
 `notebooklm-ingest` offloads the synthesis to Google's NotebookLM, lands a report in
 `.raw/notebooklm/`, and you `ingest` that. For a *single* article use `defuddle`; for a
-*single* video use `yt-fetch` — NotebookLM is for the batch case.
+*single* video use `yt-fetch`; for a *single* recording use `voice-fetch` — NotebookLM
+is for the batch case. (It also sends your sources to Google — the local fetchers
+never do.)
 
 **Prompt — type into Claude Code** (the `#` lines are just notes, not shell):
 ```
@@ -291,12 +360,12 @@ ingest .raw/notebooklm/<slug>-<date>.md
 **Notes:** one-time `notebooklm login` first (interactive OAuth). Generation runs on
 Google's compute — only the final `ingest` spends Claude tokens. If the `notebooklm`
 CLI isn't set up, the NotebookLM feature was declined at setup — **defer**; see
-**Section 10** to enable it (`/secondbrain` installs it, then the one-time login).
+**Section 11** to enable it (`/secondbrain` installs it, then the one-time login).
 brain-dump won't log in or install for you.
 
 ---
 
-## Section 5 — Research a topic (autoresearch)
+## Section 6 — Research a topic (autoresearch)
 
 **Explain:** Everything so far starts from a source *you* provide. **`/autoresearch`
 flips that: it takes a topic, not a source.** Give it a question or subject and it runs
@@ -336,7 +405,7 @@ earns its keep.
 
 ---
 
-## Section 6 — Start a new idea (origination)
+## Section 7 — Start a new idea (origination)
 
 **Explain:** Everything above is *convergent* — you have a source (or a topic) and
 distill it into the graph. **`/new-idea` is the divergent direction: no source exists
@@ -371,7 +440,7 @@ source, then archive the folder.
 
 ---
 
-## Section 7 — What is `.raw/`?
+## Section 8 — What is `.raw/`?
 
 **Explain:** `.raw/` is the **immutable inbox** — where source documents land before
 they become wiki pages.
@@ -392,7 +461,7 @@ from the vault root run `ls -R .raw` in your terminal.
 
 ---
 
-## Section 8 — hot cache vs index vs log
+## Section 9 — hot cache vs index vs log
 
 Three bookkeeping files live in `wiki/`, each with a different job:
 
@@ -405,14 +474,14 @@ Three bookkeeping files live in `wiki/`, each with a different job:
 
 **Why it matters:** a new session reads `hot.md` **first** — the cheap path (~500 tokens
 vs crawling everything). `hot.md` stays tiny on purpose; `log.md` grows forever — which
-is what Section 9 manages.
+is what Section 10 manages.
 
 **See it yourself:** open `wiki/hot.md` and `wiki/log.md` in Obsidian, or `cat wiki/hot.md`
 from the vault root.
 
 ---
 
-## Section 9 — Keep it lean & clean
+## Section 10 — Keep it lean & clean
 
 **Explain first, then offer the topic menu.** As the wiki grows, entropy shows up in
 predictable places: pages go quiet, a source turns out to be junk, `.raw/` fills up,
@@ -430,7 +499,7 @@ Pick a maintenance topic:
   Habits           f. The once-overs  — lint, fold, doctor cadence
 ```
 
-### 9a — Freshness
+### 10a — Freshness
 
 **Explain:** pages don't announce their own rot, so the wiki gives you two signals.
 *Judgment*: lint's stale-claims check notices when newer sources contradict an older
@@ -450,7 +519,7 @@ page to `status: evergreen` so it leaves the report, or archive/delete a dead on
 (topics d and e). For a single suspect claim, a `> [!stale]` callout on the spot beats
 rewriting the page.
 
-### 9b — Bad sources
+### 10b — Bad sources
 
 **Explain:** the wiki never silently overwrites old claims — when a new source
 conflicts with an existing page, ingest adds `[!contradiction]` callouts on **both**
@@ -468,7 +537,7 @@ with your reason, and a log entry; you're then walked through the pages that cit
 choosing per page whether to flag dependent claims with `[!stale]`. Wiki queries stop
 citing retracted sources from then on.
 
-### 9c — The `.raw/` inbox
+### 10c — The `.raw/` inbox
 
 **Explain:** once a file is ingested, the knowledge lives in `wiki/` — but the raw
 file is the **provenance**: each source page points back at it (`raw_file:`). So the
@@ -487,7 +556,7 @@ archive .raw/articles/old-article.md
 file lands in `.archive/`, the source page's `raw_file:` follows it, and the inbox
 stays a clean list of live material.
 
-### 9d — Deleting pages
+### 10d — Deleting pages
 
 **Explain:** "`wiki/` is yours — delete freely" is permission, not procedure. A bare
 delete strands backlinks, the index entry and page counter, and internal records. The
@@ -506,7 +575,7 @@ flag — and only after your explicit yes does anything change. Fold pages have 
 own reversal flow (wiki-fold handles those), and the spine files (`index.md`,
 `log.md`, `hot.md`) are refused outright.
 
-### 9e — Archiving
+### 10e — Archiving
 
 **Explain:** archiving is for material that earned its keep but no longer belongs in
 the live graph. Three tiers, in order of reach:
@@ -531,7 +600,7 @@ archive the page [[Finished Project Page]]
 **What to expect:** same shape as every mutating flow — plan first, confirm, then the
 move with all bookkeeping reconciled and a log entry.
 
-### 9f — The once-overs (habits & cadence)
+### 10f — The once-overs (habits & cadence)
 
 **Explain:** three habits, three cadences:
 - **`lint the wiki`** — every ~10–15 ingests. Content health: orphans, dead links,
@@ -554,7 +623,7 @@ fold the log, commit k=3    # then write it
 
 ---
 
-## Section 10 — Optional features on/off
+## Section 11 — Optional features on/off
 
 **Explain:** The second brain ships lean. Three features have runtimes that are only
 installed if you said yes during setup — and every one can be turned on or off later.
@@ -563,6 +632,7 @@ This section is the standing reference for that; nothing here is permanent.
 | Feature | Skill | Runtime | Why it's optional |
 |---------|-------|---------|-------------------|
 | **YouTube** | `yt-fetch` | `yt-dlp` (Homebrew) | harmless freebie — setup recommends yes |
+| **Voice / audio** | `voice-fetch` | `whisperkit-cli` (Homebrew) | harmless freebie (fully on-device) — setup recommends yes; first run downloads a model once |
 | **NotebookLM** | `notebooklm-ingest` | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | sends your sources to Google — explicit opt-in |
 
 **Check what's on right now — Prompt — type into Claude Code:**
@@ -577,13 +647,14 @@ Its health table reports each feature as on/off (never as a failure).
 ```
 It's idempotent — everything already installed reports green and is skipped, and it
 asks about each optional feature. (Cloned the git repo instead? The direct door is
-**Shell:** `bash bin/setup-features.sh <your-vault> youtube|notebooklm`.)
+**Shell:** `bash bin/setup-features.sh <your-vault> youtube|voice|notebooklm`.)
 Remember brain-dump itself never installs anything — enabling always goes through
 `/secondbrain`.
 
 **Turn a feature OFF — Shell — run in your terminal:**
 ```
 brew uninstall yt-dlp                                  # YouTube
+brew uninstall whisperkit-cli                          # Voice / audio
 uv tool uninstall notebooklm-py                        # NotebookLM (CLI + its auth)
 ```
 Notes: uninstalling a runtime never touches the vault — `.raw/` files, wiki pages,
@@ -592,7 +663,7 @@ re-enable it.
 
 ---
 
-## Section 11 — Second machine & sync
+## Section 12 — Second machine & sync
 
 **Explain:** the vault syncs between Macs with **plain git** — no Syncthing, no cloud
 folder sync (both fight the vault's git history and per-machine plugin state; that's
@@ -648,23 +719,23 @@ self-corrects on the next ingest).
 - **Batch your ingests**: "ingest these three files: …" is one conversation, three
   files — cheaper than three sessions.
 
-**Archive vault note:** if you use the passive cold vault (Section 9e), it's a
+**Archive vault note:** if you use the passive cold vault (Section 10e), it's a
 separate repo — clone it on the second machine only if you actually need the cold
 material there. It's outside MCP/query/lint anyway, so a single-machine archive is
 perfectly fine.
 
 ---
 
-## Section 12 — Where to go next
+## Section 13 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).
-- **`/new-idea`** — start an origination project (Section 6) whenever an idea needs a home.
+- **`/new-idea`** — start an origination project (Section 7) whenever an idea needs a home.
 - **`/save`** — capture the current chat or an insight into the vault.
 - **`/secondbrain-doctor`** — health-check the whole stack (Obsidian, MCP, sync).
 - **`/brain-dump`** — re-run this tour any time; every section stands alone.
 
 Close warmly: the wiki grows by *feeding it* — a couple ingests a day compounds fast.
-Remind them once more that `/brain-dump` is always here — including Section 10 whenever
+Remind them once more that `/brain-dump` is always here — including Section 11 whenever
 they want to flip an optional feature on or off. When the user is done, just wrap up
 naturally — no command needed.

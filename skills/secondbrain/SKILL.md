@@ -4,8 +4,8 @@ description: >
   Bootstrap a generic, out-of-the-box LLM Wiki "second brain" on a fresh Mac.
   Installs Obsidian + community plugins, pulls the claude-obsidian plugin from its
   own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the
-  yt-fetch + notebooklm-ingest source skills and the new-idea origination
-  scaffolder, and sets up git sync + backup.
+  yt-fetch + voice-fetch + notebooklm-ingest source skills and the new-idea
+  origination scaffolder, and sets up git sync + backup.
   Interactive and idempotent. Triggers on: "set up my second brain",
   "/secondbrain", "bootstrap the wiki", "install the llm wiki on this machine",
   "clone my obsidian setup", "new machine setup".
@@ -65,6 +65,14 @@ if you need detail; summarize it for the user rather than dumping it.
    - **YouTube (yt-fetch)** — the freebie. `yt-dlp` is a passive CLI binary (no
      daemon, no credentials, no data egress), so **recommend yes**; the script's
      prompt defaults to yes. Ask: "Want to ingest YouTube videos?"
+   - **Voice / audio (voice-fetch)** — the other freebie. `whisperkit-cli`
+     transcribes fully on-device (CoreML/Neural Engine — no cloud, no
+     credentials), so **recommend yes**; the script's prompt defaults to yes.
+     After the install, the script also **offers a one-time model warm-up**
+     (default yes): it transcribes a 1-second generated clip, which downloads
+     the CoreML model now (~a minute) and proves the pipeline — declining just
+     defers the same download to the first real transcription. Ask: "Want to
+     ingest voice memos and audio files?"
    - **NotebookLM (notebooklm-ingest)** — **explicit opt-in.** It sends the user's
      sources to Google for synthesis and needs a one-time interactive
      `notebooklm login` (OAuth) — say both *before* asking. Never enable it
@@ -73,7 +81,7 @@ if you need detail; summarize it for the user rather than dumping it.
    A "no" costs nothing: the skills still ship, and any feature can be enabled later
    by re-running `/secondbrain` (the answer for marketplace installs — only
    git-clone users can also run `bash bin/setup-features.sh <path>
-   youtube|notebooklm` directly). `/brain-dump` has a section teaching users how to
+   youtube|voice|notebooklm` directly). `/brain-dump` has a section teaching users how to
    turn any feature on or off after the fact.
 9. **Cross-harness links** — `bash bin/setup-harnesses.sh <path>`. Symlinks the
    installed skills into `~/.agents/skills` (and `~/.codex/skills` when Codex is
@@ -106,8 +114,8 @@ steps can be run without re-passing it — but passing it explicitly is always f
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
   from a one-sentence description of what the vault is for.
-- Recap the optional-feature answers from step 8: which of YouTube / NotebookLM
-  are on. Anything declined can be enabled later — re-run `/secondbrain`, or ask
+- Recap the optional-feature answers from step 8: which of YouTube / Voice /
+  NotebookLM are on. Anything declined can be enabled later — re-run `/secondbrain`, or ask
   `/brain-dump`, which has a section walking through turning any feature on or off.
   (Only mention `bash bin/setup-features.sh <path> <feature>` to users who cloned
   the git repo — marketplace installs have no repo to run it from; the skills are

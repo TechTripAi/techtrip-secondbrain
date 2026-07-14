@@ -23,7 +23,7 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   claude-obsidian entry, MCP server, skills). `precheck` audits against it; every
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — idempotent setup steps run in order:
-  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `prune-permissions`, `update`). `prune-permissions.sh` removes `settings.local.json` permission rules stranded by plugin updates (they embed versioned plugin-cache paths; `doctor` counts them report-only, `update.sh` offers the prune, and only provably dead rules are removed after a backup). Optional features are consent-tiered: YouTube/`yt-dlp` is a default-yes freebie; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a legacy vault `.stignore` — it never stops or uninstalls Syncthing itself (external software the user may need).
+  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `prune-permissions`, `update`). `prune-permissions.sh` removes `settings.local.json` permission rules stranded by plugin updates (they embed versioned plugin-cache paths; `doctor` counts them report-only, `update.sh` offers the prune, and only provably dead rules are removed after a backup). Optional features are consent-tiered: YouTube/`yt-dlp` and Voice/`whisperkit-cli` (on-device transcription) are default-yes freebies; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a legacy vault `.stignore` — it never stops or uninstalls Syncthing itself (external software the user may need).
 - **`scripts/common.sh`** — sourced by every script: logging, `confirm()`, `run()`,
   dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
@@ -34,7 +34,7 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   (greenfield origination-project scaffolder; its vault-side templates +
   `origination-workflow.md` live in `assets/vault/` and are seeded by
   `setup-vault.sh`; `doctor` reports stale/unindexed projects, advisory only) +
-  ported `yt-fetch` / `notebooklm-ingest`.
+  ported `yt-fetch` / `voice-fetch` / `notebooklm-ingest`.
 
 ## Conventions
 

@@ -1,5 +1,5 @@
 ---
-description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, voice memos/audio, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
 Read the `brain-dump` skill. Then run it as a teaching guide.
@@ -29,23 +29,26 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
 - **PRO-TIP, offered once:** suggest running the handed-over prompts in a **second,
   side-by-side Claude Code terminal** so wiki work stays out of the walkthrough — not
   required, just nicer; the same session is fine too.
-- **Autoresearch takes a topic, not a source (Section 5):** to "research a source,"
+- **Voice memos are audio, not text (Section 4):** route them through `voice-fetch`
+  (on-device WhisperKit — no cloud, zero AI spend until the ingest); never hand an
+  audio path straight to ingest. First transcription downloads a model once.
+- **Autoresearch takes a topic, not a source (Section 6):** to "research a source,"
   ingest the source first, then `/autoresearch` the topic or claim it raised — the
   ingest goes first so the researched pages cross-link to it.
-- **Origination is the divergent direction (Section 6):** `/new-idea` scaffolds a
+- **Origination is the divergent direction (Section 7):** `/new-idea` scaffolds a
   greenfield project (thesis → decisions → spec) when there's no source because the
   user *is* the source. Teach the hygiene rule: graduate or archive — don't hoard
   open projects (`/secondbrain-doctor` reports stale ones).
-- **Maintenance is a topic menu (Section 9):** freshness (lint's aging + stale-claims
+- **Maintenance is a topic menu (Section 10):** freshness (lint's aging + stale-claims
   reports), retracting bad sources, `.raw/` inbox hygiene (never hand-delete — archive,
   so provenance pointers follow the file), safe page deletion (blast radius shown
   first), and archiving — warm in-vault tiers plus a **passive** cold vault that must
   never get the Local REST API plugin (the live vault's MCP owns port 27124).
-- **Optional features (Section 10):** brain-dump is the standing reference for turning
-  YouTube / NotebookLM on or off after setup — enabling routes through
+- **Optional features (Section 11):** brain-dump is the standing reference for turning
+  YouTube / Voice / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user
   runs themselves. Remind the user once, up front, that this section exists.
-- **Second machine & sync (Section 11):** plain git — clone the vault remote, run
+- **Second machine & sync (Section 12):** plain git — clone the vault remote, run
   `/secondbrain` (idempotent; mints a per-machine REST key), then the recurring sync
   is Shell-only (`git pull` before, `git push` after; single-writer rule). Stress the
   thrift point: sync costs **zero AI tokens** — never spend a prompt on a `git pull`.

@@ -3,6 +3,50 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.6] — 2026-07-14
+
+Voice memos become a source type. Exactly the yt-fetch shape: skill +
+script front door, optional feature, consent-tiered install, brain-dump
+section, doctor row.
+
+### Added
+- **`voice-fetch` skill** — transcribes local audio (Mac Voice Memos
+  `.m4a`, mp3, wav, …) **fully on-device** via WhisperKit
+  (`whisperkit-cli`, CoreML/Neural Engine): no cloud, no credentials, no
+  data egress, zero AI spend until the ingest itself. Lands
+  `source_type: transcript` docs in `.raw/audio/`, then hands off to
+  `ingest` — `.raw/`-only writer, like every fetcher. Script hardened the
+  same way as yt-fetch (rejects option-looking args, requires a real file
+  with a known audio extension); `VOICE_FETCH_MODEL` env pins a model
+  without script edits.
+- **`voice` optional feature** (`manifest.json`, `setup-features.sh`) —
+  the second default-yes freebie alongside YouTube; the honest heads-up
+  (first transcription downloads a CoreML model once, can be GBs, local
+  thereafter) is printed before the prompt. `precheck`/`doctor` report it
+  optional/on-off automatically; off-switch is `brew uninstall
+  whisperkit-cli`.
+- **`/brain-dump` Section 4 — Ingest a voice memo**: the prompt path, the
+  "don't hand audio straight to ingest" warning, the zero-install
+  Sequoia+ Voice Memos transcript alternative, and the `whisperkit-cli`
+  terminal fallback. Later sections renumber (+1 from old §4 onward:
+  maintenance §9→§10, features §10→§11, second machine §11→§12,
+  where-to-go §12→§13); all in-repo references swept.
+- **Short forms are first-class**: `transcribe <path>`, `ingest <path>.m4a`,
+  and the new **`/voice-fetch` command** all route to the skill — no long
+  sentence required.
+- **Audio inside `.raw/` is an anti-pattern, with cleanup**: the transcript
+  is the raw source of record (the defuddle precedent); `.raw/` is
+  git-committed + synced and git never forgets a blob. Drop-in audio is
+  supported once — transcribe, ingest — then voice-fetch **always offers**
+  to move the original out of the vault or delete it (confirm-gated,
+  user's call). `doctor` gains an "audio in .raw/ (anti-pattern)" row that
+  flags any audio living under `.raw/` until it's gone.
+- **Offered model warm-up in setup** (`feature_voice`): after the binary
+  installs, a default-yes confirm transcribes a 1-second generated clip —
+  downloading the CoreML model now (~a minute) and proving the pipeline
+  end-to-end. Skipped or offline? warn-not-fail; the first real
+  transcription downloads instead. Idempotent (cached model → skip).
+
 ## [0.2.5] — 2026-07-14
 
 The maintenance release. Split by the repo's own seam — read-only reporting

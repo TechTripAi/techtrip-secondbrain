@@ -5,13 +5,14 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.5 (2026-07-14) — the maintenance release**: the wiki now has a
-> full upkeep story. `/brain-dump` §9 teaches it (freshness, retracting bad sources,
-> `.raw/` inbox hygiene, safe page deletion, archiving — including a passive archive
-> vault), `doctor` gains read-only content checks (orphaned `.raw` provenance,
-> never-ingested inbox files, aging pages, archive tiers), and the claude-obsidian
-> fork (v1.9.3) ships the mutating flows: `wiki-delete`, `wiki-archive`, source
-> retraction, and two new lint checks.
+> **New release: v0.2.6 (2026-07-14) — voice memos + the maintenance story**: new
+> `voice-fetch` optional feature transcribes Mac Voice Memos and any local audio
+> **fully on-device** (WhisperKit/Neural Engine — no cloud, no credentials) into
+> `.raw/audio/` for ingestion. Rides on 0.2.5's maintenance release: `/brain-dump`
+> teaches upkeep (§10) and two-machine sync (§12), `doctor` gains read-only content
+> checks (orphaned `.raw` provenance, inbox pile-up, aging pages), and the
+> claude-obsidian fork (v1.9.3) ships `wiki-delete`, `wiki-archive`, and source
+> retraction.
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
@@ -38,9 +39,9 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
-bug-fixes-only, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch` and
-`notebooklm-ingest` source skills plus the `new-idea` origination scaffolder, and
-sets up git sync + backup — all interactive and idempotent.
+bug-fixes-plus-proposed-PRs, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
+`voice-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
+scaffolder, and sets up git sync + backup — all interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
@@ -61,8 +62,9 @@ install and use, with some added functionality:
    (Obsidian, community plugins, dependencies, MCP wiring, sync).
 2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
    `doctor`/`repair-mcp` diagnose and fix anything broken after.
-3. **Adds two ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
-   transcripts) and `notebooklm-ingest` (NotebookLM synthesis).
+3. **Adds three ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts), `voice-fetch` (on-device audio transcription), and
+   `notebooklm-ingest` (NotebookLM synthesis).
 4. **Adds origination** — `/new-idea` scaffolds a greenfield project
    (thesis → decisions → spec) for the ideas *you* originate, the generative
    front-half that graduates back into the ingest pipeline.
@@ -112,11 +114,12 @@ is the LLM that maintains them behind the scenes.
 `techtrip-secondbrain` closes that gap:
 
 - **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
-  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`) via Homebrew, all idempotent.
+  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
 - **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
-- **Source-ingestion skills** — ships `yt-fetch` (YouTube) and `notebooklm-ingest`
+- **Source-ingestion skills** — ships `yt-fetch` (YouTube), `voice-fetch` (voice
+  memos / local audio, transcribed on-device), and `notebooklm-ingest`
   (NotebookLM) as first-class skills for pulling material into the vault.
 - **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
   (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
@@ -180,7 +183,7 @@ Read the skills under
 and
 ~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
-wiki-query, wiki-lint, yt-fetch, notebooklm-ingest, and new-idea as first-class
+wiki-query, wiki-lint, yt-fetch, voice-fetch, notebooklm-ingest, and new-idea as first-class
 workflows, the same way Claude Code would.
 ```
 
@@ -284,6 +287,7 @@ they don't carry the same risk:
 | Feature | Skill | What it adds | Runtime installed | Setup default |
 |---------|-------|--------------|-------------------|---------------|
 | **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
+| **Voice / audio** | `voice-fetch` | transcribe voice memos & local audio into `.raw/audio/`, fully on-device (WhisperKit / Neural Engine) | `whisperkit-cli` (Homebrew) | **yes** — no cloud, no credentials; first transcription downloads a CoreML model once |
 | **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | **no — explicit opt-in**: it sends your sources to Google, and the login is an interactive OAuth |
 
 Their *skills* always ship with the plugin; the questions only govern the runtime
@@ -292,8 +296,9 @@ each needs. Declining costs nothing — enable any feature later by re-running
 whole answer for marketplace installs; git-clone users can also go in directly:
 
 ```bash
-bash bin/setup-features.sh ~/LLM-Wiki                 # walk both (git clone only)
+bash bin/setup-features.sh ~/LLM-Wiki                 # walk all three (git clone only)
 bash bin/setup-features.sh ~/LLM-Wiki youtube         # just one
+bash bin/setup-features.sh ~/LLM-Wiki voice
 bash bin/setup-features.sh ~/LLM-Wiki notebooklm
 ```
 
@@ -302,6 +307,7 @@ are untouched:
 
 ```bash
 brew uninstall yt-dlp                                      # YouTube
+brew uninstall whisperkit-cli                              # Voice / audio
 uv tool uninstall notebooklm-py                            # NotebookLM
 ```
 
