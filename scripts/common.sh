@@ -105,6 +105,59 @@ claude_obsidian_installed_version() {
   [ -n "$dir" ] && basename "$dir" || return 1
 }
 
+# ── Dead plugin-cache permission rules (report-only detector) ─────────────────
+# Claude Code saves approved permission rules into settings.local.json with the
+# versioned plugin-cache path baked in (…/plugins/cache/<mp>/<plugin>/<ver>/…).
+# Every plugin update moves that root, stranding the old rules: they can never
+# match a command again, the user gets re-prompted, and Claude's built-in
+# /doctor flags them as invalid. A rule is dead when its glob-free cache path's
+# version dir is missing OR superseded by a newer installed version (old dirs
+# can linger in the cache after an update). Glob rules (…/cache/**) and rules
+# whose version is still the newest are left alone.
+# Echoes one "<list>\t<rule>" line per dead rule (list = allow|deny|ask).
+stale_permission_rules() {  # <settings.local.json>
+  local f="$1"
+  [ -f "$f" ] || return 0
+  have_cmd node || return 0
+  node -e '
+    const fs=require("fs");
+    let j;try{j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"))}catch(e){process.exit(0)}
+    const p=(j&&j.permissions)||{};
+    const marker=".claude/plugins/cache/";
+    // Path chars stop at whitespace, parens, or any quote (0022/0027/0060 =
+    // double quote / single quote / backtick — escaped so this survives the
+    // bash single-quoted heredoc-style embedding).
+    const stop="\\u0022\\u0027\\u0060\\s()";
+    const re=new RegExp("/[^"+stop+"]*\\.claude/plugins/cache/[^"+stop+"]+","g");
+    const newest=(dir)=>{ // newest version-dir name under <cache>/<mp>/<plugin>, or ""
+      try{
+        const v=fs.readdirSync(dir,{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>d.name);
+        return v.sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).pop()||"";
+      }catch(e){return ""}
+    };
+    for(const list of ["allow","deny","ask"]){
+      const rules=Array.isArray(p[list])?p[list]:[];
+      const seen=new Set();
+      for(const rule of rules){
+        if(typeof rule!=="string"||seen.has(rule))continue;
+        seen.add(rule);
+        let dead=false;
+        for(const m of rule.match(re)||[]){
+          const base=m.slice(0,m.indexOf(marker)+marker.length);
+          const segs=m.slice(base.length).split("/");
+          if(segs.length<3)continue;                    // no version segment
+          const [mp,plug,ver]=segs;
+          if([mp,plug,ver].some(s=>s.includes("*")))continue; // glob — leave alone
+          if(!fs.existsSync(base+[mp,plug,ver].join("/"))){dead=true;break}
+          const top=newest(base+mp+"/"+plug);
+          if(top&&top!==ver){dead=true;break}           // superseded version
+        }
+        if(dead)console.log(list+"\t"+rule);
+      }
+    }
+  ' "$f" 2>/dev/null
+}
+
 # ── Action wrapper: honors --dry-run, prints intent ──────────────────────────
 # Usage: run <human description> -- <command...>
 # The dry-run echo redacts values of KEY=/TOKEN=/SECRET=/PASSWORD= args so a
@@ -147,7 +200,9 @@ confirm() {
 }
 
 # Default-YES variant: Enter accepts, only an explicit n/no declines. Reserve for
-# low-risk "freebie" installs (no daemon, no credentials, no data egress) — anything
+# (a) low-risk "freebie" installs (no daemon, no credentials, no data egress) and
+# (b) provably-safe cleanups whose worst case is a re-prompt or re-run (e.g.
+# prune-permissions.sh removing dead rules, backed up first) — anything
 # needing real consent keeps the default-no confirm above.
 confirm_yes() {
   local prompt="$1"

@@ -3,6 +3,32 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+- **`bin/prune-permissions.sh` — cleans up permission rules stranded by plugin
+  updates.** Claude Code saves approved rules into `settings.local.json` with
+  the versioned plugin-cache path baked in
+  (`…/plugins/cache/<marketplace>/<plugin>/<version>/…`); every plugin update
+  moves that root, leaving dead rules that can never match again — the user
+  gets re-prompted and Claude's built-in `/doctor` flags them as invalid
+  (found via exactly that report on a second machine). The pruner removes
+  **only** provably dead rules — the version dir is missing or superseded by a
+  newer installed version — so a removal can only ever cause a one-time
+  re-prompt, never grant anything. It covers `~/.claude/settings.local.json`
+  and `<vault>/.claude/settings.local.json`, backs each file up to
+  `~/.config/techtrip-secondbrain/permission-backups/` before editing
+  (atomic tmp+rename write), and is confirm-gated, idempotent, and
+  `--dry-run`/`--yes` aware. Glob rules (`…/cache/**`) are never touched.
+  - `doctor` gained a report-only **"Permission rules (settings.local.json)"**
+    section: a dead-rule count per file with the pruner as the remediation
+    arrow. Detection lives in `scripts/common.sh` (`stale_permission_rules`)
+    so doctor and pruner can never disagree.
+  - `bin/update.sh` offers the prune right after the plugin updates that cause
+    the staleness (new step 5; later steps renumbered).
+  - The `secondbrain-doctor` skill routes the repair (runs the pruner
+    in-session for marketplace installs and explains the re-approval story).
+
 ## [0.2.3] — 2026-07-13
 
 ### Added

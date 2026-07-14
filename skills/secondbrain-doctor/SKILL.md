@@ -18,7 +18,7 @@ You verify a techtrip-secondbrain vault end-to-end and repair the most common
 breakage — a registered-but-unreachable Obsidian MCP server. Runnable **anytime**,
 not just at install. The `secondbrain` setup skill calls you for its final checkout.
 
-Two scripts back this skill:
+Three scripts back this skill:
 
 - **`bin/doctor.sh <vault>`** — read-only health table: `wiki/` tree, **origination
   projects** (stale/unindexed rows under `wiki/projects/` — advisory, see below),
@@ -26,12 +26,20 @@ Two scripts back this skill:
   match, the `claude-obsidian` plugin, the `obsidian` MCP registration, **update
   availability** for both plugins (installed cache version vs the repo's `main`;
   offline skips the check), the cross-harness skill links (Cursor/Codex — stale
-  after a plugin update if `setup-harnesses.sh` wasn't re-run), and a live REST
-  probe.
+  after a plugin update if `setup-harnesses.sh` wasn't re-run), **permission
+  rules** (dead plugin-cache rules in `settings.local.json` — see below), and a
+  live REST probe.
 - **`bin/repair-mcp.sh <vault>`** — deeper MCP diagnosis + **interactive repair**:
   uvx present, registered, key match, port 27124 listening, authenticated probe;
   then offers fixes (install uv, re-register with the correct key, open Obsidian +
   enable Local REST API, or advise a Claude reload / TLS-flag check).
+- **`bin/prune-permissions.sh <vault>`** — confirm-gated cleanup of
+  `~/.claude/settings.local.json` and `<vault>/.claude/settings.local.json`:
+  removes permission rules that embed a plugin-cache version path that is gone
+  or superseded (every plugin update strands them; Claude's built-in `/doctor`
+  reports them as invalid). Backs each file up to
+  `~/.config/techtrip-secondbrain/permission-backups/` first and removes
+  **only** provably dead rules — never anything that can still match.
 `doctor.sh` also reports a **"SessionStart hooks valid"** row: claude-obsidian ≤1.9.2
 ships a `type:"prompt"` hook under `SessionStart`, which Claude Code supports only for
 `command`/`mcp_tool` — a harmless startup validation warning on stricter clients. This
@@ -61,7 +69,13 @@ so the fix is upstream, not here.
    followed by a `/secondbrain` re-run — say so, no alarm needed. An `off` row
    just means cross-harness links were never set up (Claude Code doesn't need
    them); offer the same script, don't push it.
-7. If an **"Origination projects"** row is flagged, there is **no auto-repair** —
+7. If a **"Permission rules (settings.local.json)"** row is flagged, run
+   `bash bin/prune-permissions.sh <vault>` and walk its confirm. Explain what
+   happened: those rules were approved against an older plugin version's cache
+   path, so they can never match again — removing them only stops the noise
+   (the user re-approves current commands once, and a fresh rule is saved
+   against the new version). A backup is kept; never edit the JSON by hand.
+8. If an **"Origination projects"** row is flagged, there is **no auto-repair** —
    these are content decisions, not stack breakage. **stale** means the project is
    `status: active` but nothing in its folder was touched in 30+ days: remind the
    user of the rule from the origination workflow — *graduate or archive, don't
@@ -71,7 +85,7 @@ so the fix is upstream, not here.
    means the post-scaffold registration step was skipped: offer to add the
    `## Active projects` bullet per the `new-idea` skill. Never mutate the vault
    without the user's go-ahead.
-8. If the "SessionStart hooks valid" row is red (or the user reports a
+9. If the "SessionStart hooks valid" row is red (or the user reports a
    `SessionStart::startup hook` error at launch), explain it is an upstream
    claude-obsidian bug (≤1.9.2 ships a `type:"prompt"` hook under SessionStart,
    which supports only `command`/`mcp_tool`). secondbrain does **not** patch
@@ -104,8 +118,8 @@ See `../secondbrain/references/mcp.md` for the key-handshake details.
   executing from the plugin root) or route the user to `/secondbrain` /
   `/secondbrain-doctor`. Only a user who cloned the repo gets a bash command.
 
-- Report-only `doctor.sh` never mutates; `repair-mcp.sh` is confirm-gated and supports
-  `--dry-run`.
+- Report-only `doctor.sh` never mutates; `repair-mcp.sh` and
+  `prune-permissions.sh` are confirm-gated and support `--dry-run`.
 - **Runs entirely in-session.** `doctor.sh` is read-only and safe to auto-run (including
   automatically when the setup skill hits an error), and `repair-mcp.sh`'s confirm
   prompts can be walked inline — the user never needs to exit and re-enter Claude Code to

@@ -31,11 +31,15 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
 - **`bin/*.sh`** — the setup workflow, run in order: `precheck` → `setup-deps` →
   `setup-obsidian` → `setup-claude-obsidian` → `setup-vault` → `setup-mcp` →
   `setup-sync` → `setup-features` → `setup-harnesses` → `doctor` (+ `repair-mcp`,
-  `update`). `setup-harnesses` symlinks the installed plugin skills into the
+  `prune-permissions`, `update`). `setup-harnesses` symlinks the installed plugin
+  skills into the
   cross-vendor dirs (`~/.agents/skills`, `~/.codex/skills`) and stamps vault parity
   artifacts — it must re-run after every plugin update or the links go stale
   (`bin/update.sh` and the `/secondbrain` re-run both do; `doctor` flags stale
-  links). Each is
+  links). `prune-permissions` removes `settings.local.json` permission rules
+  stranded by plugin updates (they embed versioned plugin-cache paths; `doctor`
+  counts them, `update.sh` offers the prune, backups land in
+  `~/.config/techtrip-secondbrain/permission-backups/`). Each is
   **idempotent** and **interactive**.
 - **Optional features are asked inline during setup; consent is tiered.** Their skills
   always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;

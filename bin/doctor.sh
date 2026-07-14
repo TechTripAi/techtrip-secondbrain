@@ -217,6 +217,30 @@ if [ -d "$HOME/.codex" ] || have_cmd codex; then
   check_harness_links "$HOME/.codex/skills"
 fi
 
+# Dead plugin-cache permission rules (report-only). Claude Code saves approved
+# rules into settings.local.json with the versioned plugin-cache path baked in;
+# every plugin update strands them — same root cause as stale harness links
+# above. Harmless but noisy: the rules never match again, the user gets
+# re-prompted, and Claude's built-in /doctor flags them as invalid.
+step "Permission rules (settings.local.json)"
+check_permission_rules() {
+  local pf="$1" n
+  if [ ! -f "$pf" ]; then
+    row "${pf/#$HOME/~}" "${_C_DIM}not present${_C_RESET}"
+    return 0
+  fi
+  n="$(stale_permission_rules "$pf" | grep -c . || true)"
+  if [ "${n:-0}" = 0 ]; then
+    row "${pf/#$HOME/~}" "$OKM"
+  else
+    row "${pf/#$HOME/~}" "$BADM  $n dead rule(s) (stranded by plugin updates) → bin/prune-permissions.sh"
+  fi
+}
+check_permission_rules "$HOME/.claude/settings.local.json"
+if [ "$VAULT/.claude/settings.local.json" != "$HOME/.claude/settings.local.json" ]; then
+  check_permission_rules "$VAULT/.claude/settings.local.json"
+fi
+
 # Live REST API probe (only meaningful if Obsidian is running)
 step "Live REST API probe (optional)"
 if [ -f "$DATA" ]; then
