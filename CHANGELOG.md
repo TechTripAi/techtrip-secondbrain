@@ -3,7 +3,7 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.2.4] — 2026-07-13
 
 ### Added
 - **`bin/disarm-dragonscale.sh` — turns off claude-obsidian's silently

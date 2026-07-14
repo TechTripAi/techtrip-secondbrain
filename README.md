@@ -5,10 +5,11 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.3 (2026-07-13) — `/new-idea`, the origination scaffolder**:
-> start a greenfield project (thesis → decisions → spec) when *you* are the source;
-> `setup-vault` seeds the templates + workflow page, `doctor` nudges stale projects,
-> and `/brain-dump` teaches it in the new Section 6.
+> **New release: v0.2.4 (2026-07-13) — DragonScale disarm + permission-rule pruning**:
+> `doctor` now reports whether claude-obsidian's silently self-arming DragonScale
+> addressing is live in your vault, and the update offers to disarm it (default-no,
+> backed up) — plus `bin/prune-permissions.sh` cleans up `settings.local.json` rules
+> stranded by plugin updates.
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
