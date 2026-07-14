@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean (maintenance: refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe page deletion, archiving — including the passive archive vault), and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, how do I delete from the wiki, how do I archive, wiki maintenance tutorial, stale pages, clean up my wiki, enable youtube, turn on notebooklm, turn off a feature."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, NotebookLM), how to research a topic with autoresearch, how to start a greenfield idea with new-idea (origination), what .raw/ and the hot cache are, how to keep the vault lean and clean (maintenance: refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe page deletion, archiving — including the passive archive vault), and how to enable or disable the optional features (YouTube, NotebookLM) — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, how do I use my wiki, wiki tutorial, teach me the wiki, how to ingest, walk me through the wiki, second brain tutorial, wiki walkthrough, show me how the wiki works, how do I delete from the wiki, how do I archive, wiki maintenance tutorial, stale pages, clean up my wiki, second machine, sync my vault, use the wiki on two machines, enable youtube, turn on notebooklm, turn off a feature."
 allowed-tools: Read
 ---
 
@@ -139,7 +139,8 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   8. hot cache vs index vs log — the three bookkeeping files
   9. Keep it lean & clean      — freshness, bad sources, delete, archive
  10. Optional features on/off  — YouTube, NotebookLM
- 11. Where to go next          — the rest of the toolkit
+ 11. Second machine & sync     — clone it, keep it synced for free
+ 12. Where to go next          — the rest of the toolkit
 ```
 
 Also mention — once, right here — that this tutorial is the **standing reference for
@@ -147,7 +148,7 @@ turning optional features on or off** (Section 10): it can be re-run any time, s
 do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
 
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 11 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 12 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -591,7 +592,70 @@ re-enable it.
 
 ---
 
-## Section 11 — Where to go next
+## Section 11 — Second machine & sync
+
+**Explain:** the vault syncs between Macs with **plain git** — no Syncthing, no cloud
+folder sync (both fight the vault's git history and per-machine plugin state; that's
+why Syncthing support was removed). The model is simple: the vault is a git repo with
+a private remote; the second machine is a **clone** of it. Everything that matters
+travels — `wiki/`, `.raw/` (your provenance), the ingest manifest, `.archive/` —
+while machine-local state (REST API keys, locks, transport) stays out of git by
+design.
+
+**Lead with the money fact: syncing costs zero AI.** Every recurring step on this
+page is a **Shell** command — plain git, no Claude messages, no tokens. Claude is
+only involved in the one-time machine setup. If you're watching usage (you should
+be), this is the cheapest habit in the whole wiki.
+
+**One-time, on the new machine:**
+
+**Shell — run in your terminal:**
+```
+git clone <your-vault-remote> ~/LLM-Wiki
+```
+**Then, Prompt — type into Claude Code** (after installing the plugin from the
+marketplace):
+```
+/secondbrain
+```
+It's idempotent: it sees the cloned vault and skips the scaffold, installs Obsidian +
+community plugins, wires the MCP, and **mints this machine its own REST API key** —
+keys are per-machine and never travel in git. Finish with `/secondbrain-doctor` to
+confirm green.
+
+**Every session, on either machine — Shell only, no prompts:**
+```
+cd <your-vault> && git pull      # before you start working
+git push                         # when you're done
+```
+That's the whole sync. During the session, every ingest/edit is auto-committed by the
+wiki's own hook, so there's usually nothing to commit by hand — pull before, push
+after.
+
+**The one rule: single writer.** Work the wiki from one machine at a time and sync
+between. If both machines write between syncs, the conflicts land in the two
+bookkeeping files — and both are easy: `log.md` (keep **both** entries at the top —
+it's append-only history) and `hot.md` (take **either** side — it's a cache and
+self-corrects on the next ingest).
+
+**Token-thrift habits worth restating here** (they compound across two machines):
+- Sync in the **shell**, never as a prompt — asking Claude to "pull my vault" spends
+  a message on a `git pull`.
+- Wiki work runs fine on a **fast, cheap model** (see Model choice, top of this
+  tour) — save the heavyweight models for coding and autoresearch.
+- `hot.md` exists precisely so a new session starts for ~500 tokens instead of
+  crawling the vault — that benefit lands on *both* machines for free once synced.
+- **Batch your ingests**: "ingest these three files: …" is one conversation, three
+  files — cheaper than three sessions.
+
+**Archive vault note:** if you use the passive cold vault (Section 9e), it's a
+separate repo — clone it on the second machine only if you actually need the cold
+material there. It's outside MCP/query/lint anyway, so a single-machine archive is
+perfectly fine.
+
+---
+
+## Section 12 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).

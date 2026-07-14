@@ -45,6 +45,10 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
   YouTube / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user
   runs themselves. Remind the user once, up front, that this section exists.
+- **Second machine & sync (Section 11):** plain git — clone the vault remote, run
+  `/secondbrain` (idempotent; mints a per-machine REST key), then the recurring sync
+  is Shell-only (`git pull` before, `git push` after; single-writer rule). Stress the
+  thrift point: sync costs **zero AI tokens** — never spend a prompt on a `git pull`.
 - Show the menu, explain the chosen section, then invite the next one.
 
 This tour is re-runnable any time — it is not a one-and-done. Say so, and mention it

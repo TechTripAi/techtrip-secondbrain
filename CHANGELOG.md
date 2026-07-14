@@ -31,6 +31,13 @@ here, reconciling mutations in the claude-obsidian fork (v1.9.3, pinned via
 - **`secondbrain-doctor` skill** — workflow step for the new maintenance
   rows: content decisions have no auto-repair; route to `lint the wiki`,
   ingest/archive prompts, or `/brain-dump` §9.
+- **`/brain-dump` §11 — Second machine & sync** ("Where to go next" moves
+  to §12; §10 doesn't move): clone the vault remote, idempotent
+  `/secondbrain` with a per-machine REST key, then Shell-only
+  pull-before/push-after under the single-writer rule — with the token
+  economics called out explicitly (sync costs zero AI; batch ingests;
+  cheap models for wiki work; `hot.md`'s ~500-token session start pays on
+  both machines).
 
 ### Changed
 - `manifest.json` claude-obsidian pin: `testedVersion` 1.9.2 → **1.9.3**
