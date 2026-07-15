@@ -64,7 +64,9 @@ so the fix is upstream, not here.
 5. If a **"Plugin updates"** row shows a newer version available, tell the user and
    offer the right path for their install: **marketplace** —
    `claude plugin marketplace update` + `claude plugin update
-   techtrip-secondbrain@techtrip-secondbrain`, restart/reload Claude Code, then
+   techtrip-secondbrain` (older CLIs — e.g. 2.1.x — instead require the full
+   `techtrip-secondbrain@techtrip-secondbrain` spec; if one form errors "not
+   found", use the other), restart/reload Claude Code, then
    re-run `/secondbrain`; **git clone** — `git pull` + `bash bin/update.sh <vault>`.
    Never update `claude-obsidian` directly — the orchestrator owns its lifecycle.
    An "offline?" row just means the check couldn't reach GitHub — not an error.

@@ -69,7 +69,7 @@ if [ "$INSTALLED_SLUG" = "$SLUG" ]; then
   # Already on the fork — offer an in-place update so bin/update.sh (which
   # delegates here) actually refreshes claude-obsidian instead of no-opping.
   if confirm "Check for a newer $SLUG and update in place?"; then
-    run "Updating $SLUG" -- claude plugin update "$SLUG" || \
+    run "Updating $SLUG" -- plugin_update "$SLUG" || \
       warn "Update for $SLUG reported an issue (continuing)."
   fi
   cleanup_upstream_marketplace

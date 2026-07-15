@@ -337,7 +337,7 @@ itself:
 
 ```
 claude plugin marketplace update                                  # refresh listings
-claude plugin update techtrip-secondbrain@techtrip-secondbrain    # the orchestrator
+claude plugin update techtrip-secondbrain                         # the orchestrator
 ```
 
 **Both steps are required — they update two different things.** `marketplace update`
@@ -349,11 +349,14 @@ registry (`~/.claude/plugins/installed_plugins.json`). Only `claude plugin updat
 copies the new version into the cache and re-points that pin — skip it and the
 marketplace has fresh scripts while you keep running the old ones.
 
-(The full `name@marketplace` spec is required — a bare
-`claude plugin update techtrip-secondbrain` fails with "Plugin not found". Also
-note the updater goes by the manifest's `version` field: if a release changed
-scripts without bumping the version, `plugin update` reports "already current"
-and the pin doesn't move.)
+(Which spec `plugin update` accepts depends on your Claude Code version: newer
+CLIs take the bare plugin name shown above and reject
+`techtrip-secondbrain@techtrip-secondbrain` ("marketplace not found"), while
+older CLIs — e.g. 2.1.x — are the exact opposite ("Plugin not found" on the
+bare name). If one form errors, use the other; `bin/update.sh` tries both.
+Also note the updater goes by the manifest's `version` field: if a release
+changed scripts without bumping the version, `plugin update` reports "already
+current" and the pin doesn't move.)
 
 Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
 version loads, and run:

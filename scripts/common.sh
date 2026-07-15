@@ -181,6 +181,16 @@ run() {
   "$@"
 }
 
+# Update an installed Claude Code plugin, tolerating both CLI syntaxes: older
+# CLIs (≤2.1.x) require the full name@marketplace spec and fail a bare name
+# with "Plugin not found"; newer CLIs take the bare name and reject the @ form
+# ("marketplace not found"). Try the given spec first, then the other form.
+plugin_update() {
+  local spec="$1" bare="${1%%@*}"
+  if claude plugin update "$spec"; then return 0; fi
+  [ "$bare" != "$spec" ] && claude plugin update "$bare"
+}
+
 # ── Interactive confirm gate ─────────────────────────────────────────────────
 # Usage: confirm "Install Obsidian?" && do_it
 # Returns 0 (yes) / 1 (no). Auto-yes under --yes; auto-yes-preview under --dry-run.

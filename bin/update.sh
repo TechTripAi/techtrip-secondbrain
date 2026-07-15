@@ -56,12 +56,13 @@ fi
 # setup-claude-obsidian.sh has that migrate-or-install logic, so delegate to it.
 step "Update Claude Code plugins"
 plist="$(claude plugin list 2>/dev/null || true)"
-# `claude plugin update` requires the full `name@marketplace` spec — a bare
-# plugin name fails with "Plugin not found". Read the exact spec off the list.
+# Which `claude plugin update` spec works depends on the CLI version (older
+# needs `name@marketplace`, newer needs the bare name) — plugin_update tries
+# both. Read the exact spec off the list.
 SELF_SLUG="$(printf '%s' "$plist" | grep -oE 'techtrip-secondbrain@[A-Za-z0-9._-]+' | head -1 || true)"
 if [ -n "$SELF_SLUG" ]; then
   if confirm "Update $SELF_SLUG (this plugin) to the latest version?"; then
-    run "Updating $SELF_SLUG (this plugin)" -- claude plugin update "$SELF_SLUG" || \
+    run "Updating $SELF_SLUG (this plugin)" -- plugin_update "$SELF_SLUG" || \
       warn "Update for $SELF_SLUG (this plugin) reported an issue (continuing)."
   else info "Skipped techtrip-secondbrain (this plugin)."; fi
 else

@@ -3,6 +3,25 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.8] — 2026-07-15
+
+`claude plugin update` syntax changed between Claude Code versions: older
+CLIs (e.g. 2.1.x) require the full `name@marketplace` spec and fail a bare
+name with "Plugin not found"; newer CLIs are the exact opposite (the `@`
+form fails with "marketplace not found"). The repo was pinned to the old
+syntax, which broke the documented update path on newer CLIs.
+
+### Fixed
+- **`plugin_update()` helper in `scripts/common.sh`** — tries the given
+  `name@marketplace` spec, then falls back to the bare plugin name.
+  `bin/update.sh` (self-update) and `bin/setup-claude-obsidian.sh`
+  (fork in-place update) now go through it, so both scripts work on
+  either CLI generation.
+- **README + `secondbrain-doctor` skill** — the marketplace update
+  instructions now lead with the bare-name form and explain the
+  CLI-version split ("if one form errors, use the other") instead of
+  asserting the `@` spec is required.
+
 ## [0.2.7] — 2026-07-15
 
 GitHub Copilot CLI harness parity. Running Copilot in the vault surfaced
