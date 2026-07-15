@@ -190,13 +190,21 @@ confirm() {
     printf '%s  ?%s %s %s[auto-yes]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$_C_RESET"
     return 0
   fi
+  # Only y/yes, n/no, or Enter (= the N default) are accepted; anything else
+  # re-prompts. A stray keypress must never silently answer a consent question.
   local reply
-  printf '%s  ?%s %s [y/N] ' "$_C_BLU" "$_C_RESET" "$prompt"
-  if ! read -r reply </dev/tty; then
-    warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
-    return 1
-  fi
-  case "$reply" in [yY]|[yY][eE][sS]) return 0 ;; *) return 1 ;; esac
+  while :; do
+    printf '%s  ?%s %s [y/N] ' "$_C_BLU" "$_C_RESET" "$prompt"
+    if ! read -r reply </dev/tty; then
+      warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
+      return 1
+    fi
+    case "$reply" in
+      [yY]|[yY][eE][sS]) return 0 ;;
+      ""|[nN]|[nN][oO])  return 1 ;;
+      *) info "Please answer y or n." ;;
+    esac
+  done
 }
 
 # Default-YES variant: Enter accepts, only an explicit n/no declines. Reserve for
@@ -210,15 +218,22 @@ confirm_yes() {
     printf '%s  ?%s %s %s[auto-yes]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$_C_RESET"
     return 0
   fi
+  # Only y/yes, n/no, or Enter (= the Y default) are accepted; anything else
+  # re-prompts. Default-yes applies only to a real Enter keypress. A failed
+  # read (no TTY: cron/CI/headless agent) must NOT consent on the user's behalf.
   local reply
-  printf '%s  ?%s %s [Y/n] ' "$_C_BLU" "$_C_RESET" "$prompt"
-  # Default-yes applies only to a real Enter keypress. A failed read (no TTY:
-  # cron/CI/headless agent) must NOT consent on the user's behalf.
-  if ! read -r reply </dev/tty; then
-    warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
-    return 1
-  fi
-  case "$reply" in [nN]|[nN][oO]) return 1 ;; *) return 0 ;; esac
+  while :; do
+    printf '%s  ?%s %s [Y/n] ' "$_C_BLU" "$_C_RESET" "$prompt"
+    if ! read -r reply </dev/tty; then
+      warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
+      return 1
+    fi
+    case "$reply" in
+      ""|[yY]|[yY][eE][sS]) return 0 ;;
+      [nN]|[nN][oO])        return 1 ;;
+      *) info "Please answer y or n." ;;
+    esac
+  done
 }
 
 # ── Manifest command strings → argv (never `bash -c`) ────────────────────────
