@@ -333,30 +333,36 @@ pick your path.
 The orchestrator handles everything downstream — including updating
 `claude-obsidian` (installed from TechTrip's maintained fork) and re-pinning
 the community plugins. The only thing you update by hand is the orchestrator
-itself:
+itself. **Recommended route** — refresh the catalog in the terminal, then
+update from inside Claude Code:
 
 ```
-claude plugin marketplace update                                  # refresh listings
-claude plugin update techtrip-secondbrain                         # the orchestrator
+claude plugin marketplace update          # terminal: refresh the catalog
 ```
+
+then in Claude Code: **`/plugin` → Manage plugins → update
+`techtrip-secondbrain`**. The in-app manager resolves the installed plugin
+from Claude Code's own registry, so it works the same on every Claude Code
+version — unlike the CLI form below.
 
 **Both steps are required — they update two different things.** `marketplace update`
 only git-pulls the marketplace *catalog* (a clone under
 `~/.claude/plugins/marketplaces/`); you'll see new files arrive there, but Claude
 Code doesn't run from that clone. Installed plugins run from a **versioned snapshot**
 under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, pinned by the
-registry (`~/.claude/plugins/installed_plugins.json`). Only `claude plugin update`
+registry (`~/.claude/plugins/installed_plugins.json`). Only the plugin update
 copies the new version into the cache and re-points that pin — skip it and the
 marketplace has fresh scripts while you keep running the old ones.
 
-(Which spec `plugin update` accepts depends on your Claude Code version: newer
-CLIs take the bare plugin name shown above and reject
-`techtrip-secondbrain@techtrip-secondbrain` ("marketplace not found"), while
-older CLIs — e.g. 2.1.x — are the exact opposite ("Plugin not found" on the
-bare name). If one form errors, use the other; `bin/update.sh` tries both.
-Also note the updater goes by the manifest's `version` field: if a release
-changed scripts without bumping the version, `plugin update` reports "already
-current" and the pin doesn't move.)
+The CLI alternative is `claude plugin update techtrip-secondbrain` — but which
+spec it accepts depends on your Claude Code version: newer CLIs take the bare
+plugin name and reject `techtrip-secondbrain@techtrip-secondbrain`
+("marketplace not found"), while older CLIs — e.g. 2.1.x — are the exact
+opposite ("Plugin not found" on the bare name). If one form errors, use the
+other (`bin/update.sh` tries both), or just use the in-app route above. Also
+note the updater goes by the manifest's `version` field: if a release changed
+scripts without bumping the version, the update reports "already current" and
+the pin doesn't move.
 
 Then **restart Claude Code** (or `/reload-plugins` + `/reload-skills`) so the new
 version loads, and run:

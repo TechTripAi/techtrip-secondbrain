@@ -3,6 +3,18 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.9] — 2026-07-15
+
+### Changed
+- **In-app plugin update is now the documented route** (README +
+  `secondbrain-doctor`): `claude plugin marketplace update` in the
+  terminal, then `/plugin` → Manage plugins → update inside Claude Code.
+  Field-tested as the path that works on every Claude Code version — the
+  in-app manager resolves the plugin from Claude Code's own registry,
+  sidestepping the CLI's version-dependent `name` vs `name@marketplace`
+  spec split (see 0.2.8). The CLI forms remain documented as the
+  scripted/fallback option.
+
 ## [0.2.8] — 2026-07-15
 
 `claude plugin update` syntax changed between Claude Code versions: older

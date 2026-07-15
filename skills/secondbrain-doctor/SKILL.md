@@ -63,10 +63,14 @@ so the fix is upstream, not here.
 4. Re-run `bin/repair-mcp.sh <vault>` after repairs to confirm it goes green.
 5. If a **"Plugin updates"** row shows a newer version available, tell the user and
    offer the right path for their install: **marketplace** —
-   `claude plugin marketplace update` + `claude plugin update
-   techtrip-secondbrain` (older CLIs — e.g. 2.1.x — instead require the full
-   `techtrip-secondbrain@techtrip-secondbrain` spec; if one form errors "not
-   found", use the other), restart/reload Claude Code, then
+   `claude plugin marketplace update` in the terminal, then update the plugin
+   **from inside Claude Code** (`/plugin` → Manage plugins → update
+   `techtrip-secondbrain`) — the in-app manager works on every Claude Code
+   version, whereas the CLI's `claude plugin update` wants the bare name
+   (`techtrip-secondbrain`) on newer CLIs but the full
+   `techtrip-secondbrain@techtrip-secondbrain` spec on older ones (e.g.
+   2.1.x); if one CLI form errors "not found", use the other or the in-app
+   route. Restart/reload Claude Code, then
    re-run `/secondbrain`; **git clone** — `git pull` + `bash bin/update.sh <vault>`.
    Never update `claude-obsidian` directly — the orchestrator owns its lifecycle.
    An "offline?" row just means the check couldn't reach GitHub — not an error.
