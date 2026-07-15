@@ -113,7 +113,7 @@
   "harnesses": {
     "skillLinkDirs": ["~/.agents/skills", "~/.codex/skills"],
     "templates": "templates/harness/",
-    "note": "bin/setup-harnesses.sh makes the vault harness-agnostic: symlinks installed plugin skills into the cross-vendor skill dirs (Cursor/Codex discovery) and stamps AGENTS.md + Cursor hook/rule parity artifacts into the vault (never overwrites existing files). Re-run after bin/update.sh so links re-point at the new plugin version."
+    "note": "bin/setup-harnesses.sh makes the vault harness-agnostic: symlinks installed plugin skills into the cross-vendor skill dirs (Cursor/Codex discovery) and stamps AGENTS.md + Cursor (.cursor/) and Copilot CLI (.github/hooks/) hook parity artifacts into the vault (never overwrites existing files). Re-run after bin/update.sh so links re-point at the new plugin version."
   },
   "skills": [
     { "id": "secondbrain",       "runtime": [], "note": "Setup orchestrator: drives the bin/ steps end-to-end (precheck → … → doctor)." },

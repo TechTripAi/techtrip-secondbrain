@@ -14,7 +14,9 @@
 #      harness-parity artifacts from templates/harness/ into the vault —
 #      AGENTS.md (the agent operating contract, all harnesses read it),
 #      .cursor/hooks.json + .cursor/hooks/*.sh (Cursor ports of the
-#      claude-obsidian hooks), and .cursor/rules/wiki-vault.mdc.
+#      claude-obsidian hooks), .cursor/rules/wiki-vault.mdc, and
+#      .github/hooks/wiki-vault.json + .github/hooks/*.sh (Copilot CLI ports
+#      of the same hooks — hot-cache injection, auto-commit, stop reminder).
 #      Existing files are never overwritten; drift is reported instead.
 #
 # Usage:
@@ -98,7 +100,7 @@ stamp() {
     if cmp -s "$src" "$dst"; then
       ok "$(basename "$dst") already current."
     else
-      warn "$dst exists and differs from the template — left untouched (diff manually if curious)."
+      warn "$dst exists and differs from the template — left untouched. If you never customized it: rm it and re-run to adopt the new template; if you did: port wanted changes manually (diff against $src)."
     fi
     return 0
   fi
@@ -120,11 +122,40 @@ else
     stamp "$TEMPLATES/cursor/hooks/wiki-stop-reminder.sh"   "$VAULT/.cursor/hooks/wiki-stop-reminder.sh"
     stamp "$TEMPLATES/cursor/hooks/wiki-session-start.sh"   "$VAULT/.cursor/hooks/wiki-session-start.sh"
     stamp "$TEMPLATES/cursor/rules/wiki-vault.mdc"          "$VAULT/.cursor/rules/wiki-vault.mdc"
+    stamp "$TEMPLATES/copilot/hooks/wiki-vault.json"        "$VAULT/.github/hooks/wiki-vault.json"
+    stamp "$TEMPLATES/copilot/hooks/wiki-autocommit.sh"     "$VAULT/.github/hooks/wiki-autocommit.sh"
+    stamp "$TEMPLATES/copilot/hooks/wiki-stop-reminder.sh"  "$VAULT/.github/hooks/wiki-stop-reminder.sh"
+    stamp "$TEMPLATES/copilot/hooks/wiki-session-start.sh"  "$VAULT/.github/hooks/wiki-session-start.sh"
     if [ -d "$VAULT/.cursor/hooks" ]; then
       run "make Cursor hooks executable" -- chmod +x \
         "$VAULT/.cursor/hooks/wiki-autocommit.sh" \
         "$VAULT/.cursor/hooks/wiki-stop-reminder.sh" \
         "$VAULT/.cursor/hooks/wiki-session-start.sh"
+    fi
+    if [ -d "$VAULT/.github/hooks" ]; then
+      run "make Copilot hooks executable" -- chmod +x \
+        "$VAULT/.github/hooks/wiki-autocommit.sh" \
+        "$VAULT/.github/hooks/wiki-stop-reminder.sh" \
+        "$VAULT/.github/hooks/wiki-session-start.sh"
+    fi
+
+    # Record which plugin version stamped the vault, so the session-start hook
+    # ports and doctor.sh can flag stale parity artifacts (stamp() never
+    # overwrites, so staleness is otherwise invisible). Only rewritten when the
+    # version changed — an idempotent re-run must not dirty the vault.
+    PLUGIN_VERSION="$(node -e 'process.stdout.write(String(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).version||""))' "$REPO_ROOT/.claude-plugin/plugin.json" 2>/dev/null)"
+    PARITY_MARKER="$VAULT/.vault-meta/harness-parity.json"
+    if [ -n "$PLUGIN_VERSION" ]; then
+      STAMPED_BY="$(node -e 'try{process.stdout.write(String(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).stampedBy||""))}catch{}' "$PARITY_MARKER" 2>/dev/null)"
+      if [ "$STAMPED_BY" = "$PLUGIN_VERSION" ]; then
+        ok "harness-parity.json already current (stampedBy $PLUGIN_VERSION)."
+      elif [ "$TSB_DRY_RUN" = 1 ]; then
+        info "[dry-run] write $PARITY_MARKER (stampedBy: $PLUGIN_VERSION)"
+      else
+        mkdir -p "$VAULT/.vault-meta"
+        node -e 'require("fs").writeFileSync(process.argv[1], JSON.stringify({ stampedBy: process.argv[2] }, null, 2) + "\n")' "$PARITY_MARKER" "$PLUGIN_VERSION"
+        ok "harness-parity.json → stampedBy $PLUGIN_VERSION"
+      fi
     fi
     save_vault_path "$VAULT"
     info "Restart Cursor after first install so the hooks load."
@@ -132,4 +163,4 @@ else
 fi
 
 step "Done"
-ok "Harness setup complete. Claude Code needs nothing; Cursor picks up .cursor/; Codex reads AGENTS.md + ~/.agents/skills (or ~/.codex/skills)."
+ok "Harness setup complete. Claude Code needs nothing; Cursor picks up .cursor/; Copilot CLI picks up .github/hooks/; Codex reads AGENTS.md + ~/.agents/skills (or ~/.codex/skills)."

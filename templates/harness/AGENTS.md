@@ -10,6 +10,13 @@ is just the interface. Deep reference: `WIKI.md` (if present).
    Re-read it after any context compaction. Do this silently.
 2. Query path is hot → `wiki/index.md` → individual pages. Read 3–5 pages per
    query, not 10+.
+3. Self-check — reactive only, no per-session probing: if your harness has
+   hook automation per the table below but `wiki/hot.md` was NOT injected
+   into your context at session start, the hooks aren't wired. Verify your
+   row's files exist and tell the owner to re-run `/secondbrain` (git
+   clones: `bash bin/setup-harnesses.sh <vault>`). Exception: Cursor hooks
+   never inject context, so absent hot.md is normal there — Cursor relies
+   on `doctor` for this check.
 
 ## Layout
 
@@ -49,7 +56,8 @@ both pages — never silently overwrite a claim.
 
 - Auto-commit of `wiki/`, `.raw/`, `.vault-meta/` after edits is sanctioned
   automation (Claude Code: plugin PostToolUse hook; Cursor:
-  `.cursor/hooks/wiki-autocommit.sh`). Kill switch:
+  `.cursor/hooks/wiki-autocommit.sh`; Copilot CLI:
+  `.github/hooks/wiki-autocommit.sh`). Kill switch:
   `touch .vault-meta/auto-commit.disabled`.
 - Never push from an agent session unless the owner explicitly asks.
 
@@ -59,6 +67,7 @@ both pages — never silently overwrite a claim.
 |---|---|---|
 | Claude Code | plugin hooks: hot-cache injection, auto-commit, hot-cache nudge | nothing |
 | Cursor | `.cursor/hooks/` ports of the same + `.cursor/rules/wiki-vault.mdc` | nothing |
+| Copilot CLI | `.github/hooks/` ports of the same: hot-cache injection at sessionStart, auto-commit on postToolUse, hot-cache reminder on agentStop | nothing |
 | Codex / other | none | follow this file: read `hot.md` at start, refresh it at end; skills discoverable via `~/.agents/skills/` |
 
 The vault is harness-agnostic by design: plain Markdown, filesystem access is

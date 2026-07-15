@@ -5,14 +5,16 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.6 (2026-07-14) — voice memos + the maintenance story**: new
-> `voice-fetch` optional feature transcribes Mac Voice Memos and any local audio
-> **fully on-device** (WhisperKit/Neural Engine — no cloud, no credentials) into
-> `.raw/audio/` for ingestion. Rides on 0.2.5's maintenance release: `/brain-dump`
-> teaches upkeep (§10) and two-machine sync (§12), `doctor` gains read-only content
-> checks (orphaned `.raw` provenance, inbox pile-up, aging pages), and the
-> claude-obsidian fork (v1.9.3) ships `wiki-delete`, `wiki-archive`, and source
-> retraction.
+> **New release: v0.2.7 (2026-07-15) — GitHub Copilot CLI harness parity**: the
+> vault now stamps `.github/hooks/` ports of the claude-obsidian hooks, so
+> Copilot CLI gets the same invisible automation as Claude Code — `wiki/hot.md`
+> injected at session start, auto-commit after edits, and a hot-cache refresh
+> reminder at stop. Re-run `/secondbrain` (or `bash bin/setup-harnesses.sh
+> <vault>` for git clones) to stamp them into an existing vault.
+> Rides on 0.2.6's voice memos (`voice-fetch`, fully on-device WhisperKit
+> transcription) and 0.2.5's maintenance release (`/brain-dump` upkeep §10,
+> two-machine sync §12, `doctor` content checks, fork v1.9.3 `wiki-delete` /
+> `wiki-archive` / source retraction).
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
@@ -165,13 +167,14 @@ Then, in Claude Code:
 
 …and follow the interactive workflow. Or run the scripts directly (see below).
 
-## Not Claude-only — use with Cursor and other harnesses
+## Not Claude-only — use with Cursor, Copilot CLI, and other harnesses
 
 Claude Code is the **install vehicle** (the plugin marketplace is how
 `claude-obsidian` and this orchestrator land on disk). That is **not** a runtime
 lock-in. The wiki is plain Markdown in a vault folder, and every skill is an
 ordinary `SKILL.md` under the Claude plugin cache. Any agent harness that can
-read those files and edit the vault — Cursor, Codex, and others — can drive the
+read those files and edit the vault — Cursor, GitHub Copilot CLI, Codex, and
+others — can drive the
 same ingest / query / lint workflow. Using multiple harnesses against one vault
 is expected, not a workaround.
 
@@ -203,9 +206,12 @@ bash bin/setup-harnesses.sh ~/LLM-Wiki
 It symlinks the installed skills into the cross-vendor discovery dirs
 (`~/.agents/skills/`, and `~/.codex/skills/` when Codex is present) and stamps
 harness-parity artifacts into the vault: a root `AGENTS.md` (the operating
-contract every agent reads), plus `.cursor/hooks.json` + hook scripts that port
-the claude-obsidian hooks (auto-commit, stale-lock cleanup, hot-cache refresh
-nudge) to Cursor. Idempotent; never overwrites files you've customized. It must
+contract every agent reads), plus hook ports of the claude-obsidian hooks
+(auto-commit, stale-lock cleanup, hot-cache injection/refresh nudge) for
+**Cursor** (`.cursor/hooks.json` + scripts) and **GitHub Copilot CLI**
+(`.github/hooks/wiki-vault.json` + scripts — Copilot even gets `wiki/hot.md`
+injected at session start, same as Claude Code). Idempotent; never overwrites
+files you've customized. It must
 re-run after every plugin update so the skill links re-point at the new version —
 both update paths do this for you (`bin/update.sh` for clones, the `/secondbrain`
 re-run for marketplace installs).

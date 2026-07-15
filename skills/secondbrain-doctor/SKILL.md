@@ -27,8 +27,12 @@ Three scripts back this skill:
   each community plugin (files present + enabled), the REST-API-key ↔ MCP-env-key
   match, the `claude-obsidian` plugin, the `obsidian` MCP registration, **update
   availability** for both plugins (installed cache version vs the repo's `main`;
-  offline skips the check), the cross-harness skill links (Cursor/Codex — stale
-  after a plugin update if `setup-harnesses.sh` wasn't re-run), **permission
+  offline skips the check), the cross-harness skill links (Cursor/Copilot/Codex —
+  stale after a plugin update if `setup-harnesses.sh` wasn't re-run) plus the
+  vault parity artifacts (`AGENTS.md`, `.cursor/`, `.github/hooks/` — missing on
+  vaults set up before a template existed, or stale when
+  `.vault-meta/harness-parity.json` records an older stamping version than the
+  installed plugin), **permission
   rules** (dead plugin-cache rules in `settings.local.json` — see below), and a
   live REST probe.
 - **`bin/repair-mcp.sh <vault>`** — deeper MCP diagnosis + **interactive repair**:
@@ -70,7 +74,11 @@ so the fix is upstream, not here.
    confirm. This is the expected state after a `claude plugin update` that wasn't
    followed by a `/secondbrain` re-run — say so, no alarm needed. An `off` row
    just means cross-harness links were never set up (Claude Code doesn't need
-   them); offer the same script, don't push it.
+   them); offer the same script, don't push it. Same for a **"vault parity
+   artifacts"** row reporting missing files — `setup-harnesses.sh` stamps any
+   that don't exist (it never overwrites ones that do), so older vaults pick up
+   newly added harness ports (e.g. the Copilot CLI `.github/hooks/`) by
+   re-running it.
 7. If a **"Permission rules (settings.local.json)"** row is flagged, run
    `bash bin/prune-permissions.sh <vault>` and walk its confirm. Explain what
    happened: those rules were approved against an older plugin version's cache

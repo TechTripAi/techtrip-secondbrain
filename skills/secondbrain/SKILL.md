@@ -85,8 +85,9 @@ if you need detail; summarize it for the user rather than dumping it.
    turn any feature on or off after the fact.
 9. **Cross-harness links** — `bash bin/setup-harnesses.sh <path>`. Symlinks the
    installed skills into `~/.agents/skills` (and `~/.codex/skills` when Codex is
-   present) and stamps `AGENTS.md` + Cursor hook/rule parity artifacts into the
-   vault so Cursor and Codex discover the same skills Claude Code uses. Claude Code
+   present) and stamps `AGENTS.md` + Cursor (`.cursor/`) and Copilot CLI
+   (`.github/hooks/`) hook parity artifacts into the vault so Cursor, Copilot,
+   and Codex get the same skills and hook automation Claude Code uses. Claude Code
    itself needs none of this, but run the step by default — it's idempotent, its
    `ln -sfn` re-points stale links, and **on a `/secondbrain` re-run after a plugin
    update this step is what moves the links to the new version** (marketplace users

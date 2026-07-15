@@ -3,6 +3,64 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.7] — 2026-07-15
+
+GitHub Copilot CLI harness parity. Running Copilot in the vault surfaced
+the gap: it had to read `wiki/hot.md`, refresh it, and commit by hand —
+everything the claude-obsidian plugin hooks automate for Claude Code (and
+the `.cursor/` ports automate for Cursor). Copilot CLI supports repo-level
+hooks (`.github/hooks/*.json`), so it now gets a full executable port,
+not just the `AGENTS.md` prose contract.
+
+### Added
+- **Copilot CLI hook port** (`templates/harness/copilot/hooks/`, stamped
+  into the vault at `.github/hooks/` by `setup-harnesses.sh`):
+  - `wiki-session-start.sh` (sessionStart) — clears stale wiki locks and
+    **injects `wiki/hot.md` as `additionalContext`** — Copilot gets the
+    hot cache pushed at session start, same as Claude Code (Cursor can't;
+    its hooks don't inject context).
+  - `wiki-autocommit.sh` (postToolUse) — same auto-commit of `wiki/`,
+    `.raw/`, `.vault-meta/` with the same guards (kill switch
+    `.vault-meta/auto-commit.disabled`, lock-defer).
+  - `wiki-stop-reminder.sh` (agentStop) — blocks the stop once with the
+    hot-cache-refresh prompt when `wiki/` changed. Copilot has no
+    `loop_limit`, so a per-session `$TMPDIR` sentinel (keyed on the hook's
+    `sessionId`) caps it at one reminder per session, and `wiki/hot.md`
+    itself is excluded from the changed-file check — no block loop when
+    auto-commit is disabled.
+- **`doctor` "vault parity artifacts" row** — reports missing stamped
+  artifacts (`AGENTS.md`, `.cursor/hooks.json`,
+  `.github/hooks/wiki-vault.json`). Vaults set up before a harness port
+  existed pick it up by re-running `setup-harnesses.sh` (stamps only what's
+  missing; never overwrites).
+- **Load-time parity check.** `stamp()` never overwrites, so absent a
+  signal, a vault stamped by an older plugin silently misses newer hook
+  ports (exactly how the Copilot gap went unnoticed). Now:
+  - `setup-harnesses.sh` records `.vault-meta/harness-parity.json`
+    (`stampedBy: <version>`); rewritten only when the version changes, so
+    idempotent re-runs stay clean.
+  - The Copilot `wiki-session-start.sh` compares it against the newest
+    installed plugin version (one `ls | sort -V`, folded into the existing
+    node call — no extra process, a few ms) and prefixes a one-line
+    "re-run /secondbrain" note to the injected context when stale. Any
+    failure degrades to "no warning"; startup is never blocked.
+  - `doctor`'s parity row now distinguishes missing artifacts / no stamp /
+    stale stamp (`stamped by X, Y installed`) / current.
+  - `AGENTS.md` gains a **reactive** self-check: if a harness with hook
+    automation didn't get `wiki/hot.md` injected at session start, its
+    hooks aren't wired — check the files, tell the owner the re-run
+    command. Reactive by design: zero tool calls and zero token cost in
+    the healthy path (Cursor exempted — its hooks never inject context).
+
+### Changed
+- `templates/harness/AGENTS.md` per-harness table gains the Copilot CLI
+  row ("nothing manual"); the Git section lists the Copilot auto-commit
+  hook as sanctioned automation. Existing vaults keep their stamped
+  AGENTS.md (drift is reported, never overwritten) — delete it and re-run
+  `setup-harnesses.sh` to adopt the new one if it was never customized.
+- `manifest.json → harnesses.note`, README, and the `secondbrain` /
+  `secondbrain-doctor` skills mention the Copilot port.
+
 ## [0.2.6] — 2026-07-14
 
 Voice memos become a source type. Exactly the yt-fetch shape: skill +

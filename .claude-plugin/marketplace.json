@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "techtrip-secondbrain: a one-command bootstrapper that stands up a generic, out-of-the-box LLM Wiki second brain (Obsidian + Claude Code + claude-obsidian) on a fresh Mac, then keeps it in sync across machines.",
-    "version": "0.2.6"
+    "version": "0.2.7"
   },
   "plugins": [
     {
       "name": "techtrip-secondbrain",
       "source": "./",
       "description": "Bootstraps a generic LLM Wiki second brain: installs Obsidian + community plugins, pulls the claude-obsidian plugin (AgriciDaniel, MIT) from TechTrip's maintained bug-fix fork, scaffolds a clean vault, wires the Obsidian MCP server, ships the yt-fetch, voice-fetch, and notebooklm-ingest source skills plus the new-idea origination scaffolder, and configures git sync + backup. macOS MVP. Interactive and idempotent.",
-      "version": "0.2.6",
+      "version": "0.2.7",
       "author": {
         "name": "Terry Trippany (Try AI Solutions)",
         "email": "terry.trippany@techtrip.ai",

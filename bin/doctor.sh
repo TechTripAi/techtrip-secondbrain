@@ -330,6 +330,27 @@ if [ -d "$HOME/.codex" ] || have_cmd codex; then
   check_harness_links "$HOME/.codex/skills"
 fi
 
+# Vault parity artifacts (informational). setup-harnesses.sh stamps these but
+# never overwrites; .vault-meta/harness-parity.json records which plugin
+# version last stamped, so staleness is detectable, not just absence.
+missing_artifacts=0
+for f in AGENTS.md .cursor/hooks.json .github/hooks/wiki-vault.json; do
+  [ -e "$VAULT/$f" ] || missing_artifacts=$((missing_artifacts+1))
+done
+newest_tsb="$(ls -1d "$HOME"/.claude/plugins/cache/*/techtrip-secondbrain/*/ 2>/dev/null | sort -V | tail -1)"
+newest_tsb="$(basename "${newest_tsb%/}" 2>/dev/null)"
+stamped_by="$(node -e 'try{process.stdout.write(String(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).stampedBy||""))}catch{}' "$VAULT/.vault-meta/harness-parity.json" 2>/dev/null)"
+if [ "$missing_artifacts" != 0 ]; then
+  row "vault parity artifacts" "$OFFM  $missing_artifacts missing → bin/setup-harnesses.sh"
+elif [ -z "$stamped_by" ]; then
+  row "vault parity artifacts" "$OFFM  no parity stamp (.vault-meta/harness-parity.json) → bin/setup-harnesses.sh"
+elif [ -n "$newest_tsb" ] && [ "$stamped_by" != "$newest_tsb" ] && \
+     [ "$(printf '%s\n%s\n' "$stamped_by" "$newest_tsb" | sort -V | tail -1)" = "$newest_tsb" ]; then
+  row "vault parity artifacts" "$BADM  stamped by $stamped_by, $newest_tsb installed → bin/setup-harnesses.sh"
+else
+  row "vault parity artifacts" "$OKM (stamped by $stamped_by)"
+fi
+
 # Dead plugin-cache permission rules (report-only). Claude Code saves approved
 # rules into settings.local.json with the versioned plugin-cache path baked in;
 # every plugin update strands them — same root cause as stale harness links
