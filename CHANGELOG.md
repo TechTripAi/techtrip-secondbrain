@@ -3,6 +3,25 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.10] — 2026-07-15
+
+Copilot CLI silently skips any skill whose SKILL.md `description` exceeds
+the Agent Skills spec's 1024-char cap — `brain-dump` (1200 chars) was
+invisible there. Claude Code doesn't enforce the cap, so the breach only
+surfaced on another harness.
+
+### Fixed
+- **`brain-dump` description trimmed to 826 chars** — full prose kept, the
+  22-phrase trigger dictionary cut to the strongest, most distinctive
+  triggers (Claude Code matches semantically; exhaustive enumeration was
+  costing every-session context for marginal recall).
+
+### Added
+- **`setup-harnesses.sh` description-length guard** — while exporting
+  skills to the cross-vendor dirs it now warns when any linked SKILL.md
+  description exceeds 1024 chars, naming the skill Copilot will skip.
+  Covers fork skills too (fix fork-side, propose upstream).
+
 ## [0.2.9] — 2026-07-15
 
 ### Changed

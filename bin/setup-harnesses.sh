@@ -74,10 +74,39 @@ link_skills_into() {
   ok "$target: $linked skill link(s) current, $skipped skipped."
 }
 
+# The cross-vendor Agent Skills spec caps SKILL.md `description` at 1024
+# chars; Copilot CLI enforces it and silently skips over-limit skills. Claude
+# Code doesn't care, so an oversized description only surfaces as a skill
+# missing from other harnesses — warn here, where the skills get exported.
+check_description_lengths() {
+  local src skill len
+  while IFS= read -r src; do
+    for skill in "$src"/*/; do
+      [ -f "$skill/SKILL.md" ] || continue
+      len="$(node -e '
+        const s = require("fs").readFileSync(process.argv[1], "utf8");
+        const fm = s.match(/^---\n([\s\S]*?)\n---/);
+        if (!fm) { console.log(0); process.exit(0); }
+        const lines = fm[1].split("\n");
+        let cap = false, buf = [];
+        for (const l of lines) {
+          if (/^description:/.test(l)) { cap = true; const r = l.replace(/^description:\s*[|>]?-?\s*/, ""); if (r) buf.push(r); continue; }
+          if (cap) { if (/^\S/.test(l)) break; buf.push(l.trim()); }
+        }
+        console.log(buf.join(" ").replace(/^"|"$/g, "").trim().length);
+      ' "$skill/SKILL.md" 2>/dev/null || echo 0)"
+      if [ "${len:-0}" -gt 1024 ]; then
+        warn "$(basename "$skill") SKILL.md description is $len chars (> the Agent Skills spec's 1024 cap) — Copilot CLI will skip this skill; shorten the description."
+      fi
+    done
+  done < <(skill_source_dirs)
+}
+
 step "Machine-level skill discovery (cross-harness)"
 if [ -z "$(skill_source_dirs)" ]; then
   warn "No installed plugin skills found under ~/.claude/plugins/cache/ — run bin/setup-claude-obsidian.sh first."
 else
+  check_description_lengths
   # ~/.agents/skills is the emerging cross-vendor convention; always safe.
   link_skills_into "$HOME/.agents/skills"
 
