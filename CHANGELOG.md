@@ -3,6 +3,34 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.13] — 2026-07-27
+
+### Added
+- **`code-fetch` — codebases become a source type.** Exactly the yt-fetch shape:
+  skill + `scripts/code-fetch.sh` + `/code-fetch` command + manifest entries +
+  a `feature_code()` case in `setup-features.sh`. Ingesting a repository
+  file-by-file is the anti-pattern this prevents: the script distills a codebase
+  (local path or shallow-cloned git URL) into ONE wiki-ingest-ready structural
+  digest (`source_type: codebase`) in `.raw/code/` — layout, README excerpt, god
+  nodes, surprising connections, import cycles — via
+  [graphify](https://github.com/Graphify-Labs/graphify) (Graphify-Labs,
+  Apache-2.0; PyPI `graphifyy`). The analysis is fully local
+  (`graphify extract --code-only` + `cluster-only --no-label --no-viz`:
+  tree-sitter AST only — no LLM call, no API key, no data egress), so the Code
+  feature joins YouTube and Voice in the default-yes freebie tier. Clones and
+  graph indexes live in temp dirs deleted on exit; only the digest enters the
+  vault. Same hardening as the sibling fetchers (rejects option-like arguments;
+  `CODE_FETCH_BRANCH` env knob instead of script edits). `/brain-dump` gains
+  Section 6 teaching the flow (later sections renumbered).
+- **`doctor` audits manifest skills (report-only).** New "Plugin skills
+  (manifest audit)" section enumerates `manifest.json → skills[]` (previously
+  documentation-only) and verifies each skill dir exists in the newest
+  installed plugin cache and has a live `~/.agents/skills` link — catching the
+  one gap the stale-link check missed: a hand-deleted symlink or a skill the
+  installed plugin version predates. Remedies stay in the report: skills ship
+  with the plugin, so re-running the plugin install/update (the `/secondbrain`
+  re-run) restores a deleted skill; `setup-harnesses.sh` re-links.
+
 ## [0.2.12] — 2026-07-27
 
 ### Added

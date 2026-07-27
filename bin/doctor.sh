@@ -330,6 +330,40 @@ if [ -d "$HOME/.codex" ] || have_cmd codex; then
   check_harness_links "$HOME/.codex/skills"
 fi
 
+# Manifest skill audit (informational). Skills ship inside the plugin package,
+# so a missing dir means the installed plugin predates the skill (update) or
+# someone deleted it by hand — either way, re-running the plugin install/update
+# (the /secondbrain re-run does this) always restores it; nothing is ever
+# patched in place. The harness-link sub-check complements check_harness_links
+# above: that one flags stale links that EXIST, this one flags manifest skills
+# with no link at all (e.g. a hand-deleted symlink).
+step "Plugin skills (manifest audit)"
+tsb_skills_dir="$(ls -1d "$HOME"/.claude/plugins/cache/*/techtrip-secondbrain/*/skills 2>/dev/null | sort -V | tail -1)"
+if [ -z "$tsb_skills_dir" ]; then
+  row "skills in plugin cache" "$BADM  plugin cache not found → install the plugin (see README)"
+else
+  skills_total=0; skills_missing=""; skills_unlinked=""
+  while IFS= read -r sid; do
+    [ -n "$sid" ] || continue
+    skills_total=$((skills_total+1))
+    [ -f "$tsb_skills_dir/$sid/SKILL.md" ] || skills_missing="$skills_missing $sid"
+    [ -e "$HOME/.agents/skills/$sid" ] || skills_unlinked="$skills_unlinked $sid"
+  done < <(manifest_get 'm.skills.map(s=>s.id).join("\n")')
+  if [ -z "$skills_missing" ]; then
+    row "skills in plugin cache" "$OKM ($skills_total/$skills_total per manifest)"
+  else
+    row "skills in plugin cache" "$BADM  missing:$skills_missing → re-run the plugin install/update (/secondbrain does; skills ship with the plugin, so reinstalling restores a deleted one)"
+  fi
+  # Only meaningful once setup-harnesses has run; its absence is flagged above.
+  if [ -d "$HOME/.agents/skills" ]; then
+    if [ -z "$skills_unlinked" ]; then
+      row "harness links (~/.agents/skills)" "$OKM ($skills_total/$skills_total linked)"
+    else
+      row "harness links (~/.agents/skills)" "$BADM  unlinked:$skills_unlinked → bin/setup-harnesses.sh re-links"
+    fi
+  fi
+fi
+
 # Vault parity artifacts (informational). setup-harnesses.sh stamps these but
 # never overwrites; .vault-meta/harness-parity.json records which plugin
 # version last stamped, so staleness is detectable, not just absence.

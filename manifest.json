@@ -15,7 +15,10 @@
       "note": "Only needed by the yt-fetch skill. Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." },
     { "cmd": "whisperkit-cli", "label": "WhisperKit", "install": "brew install whisperkit-cli", "optional": true,
       "feature": "voice",
-      "note": "Only needed by the voice-fetch skill (on-device audio transcription, CoreML/Neural Engine). Not installed by setup-deps; bin/setup-features.sh installs it. First transcription downloads a CoreML model once (network + disk); transcription itself is fully local." }
+      "note": "Only needed by the voice-fetch skill (on-device audio transcription, CoreML/Neural Engine). Not installed by setup-deps; bin/setup-features.sh installs it. First transcription downloads a CoreML model once (network + disk); transcription itself is fully local." },
+    { "cmd": "graphify", "label": "graphify", "install": "uv tool install graphifyy", "optional": true,
+      "feature": "code",
+      "note": "Only needed by the code-fetch skill (local tree-sitter AST codebase digests). Not installed by setup-deps; bin/setup-features.sh installs it via uv (already required). PyPI package is 'graphifyy', CLI is 'graphify' — by Graphify-Labs (Apache-2.0), https://github.com/Graphify-Labs/graphify" }
   ],
   "binariesNote": "optional:true binaries are NOT installed by setup-deps.sh (they power an optional skill/feature); precheck reports them as 'optional' not 'missing', and bin/setup-features.sh installs them on demand.",
   "apps": [
@@ -121,6 +124,7 @@
     { "id": "yt-fetch",          "runtime": ["yt-dlp"], "feature": "youtube" },
     { "id": "voice-fetch",       "runtime": ["whisperkit-cli"], "feature": "voice" },
     { "id": "notebooklm-ingest", "runtime": ["uv"], "feature": "notebooklm", "manual": "one-time `notebooklm login` (interactive OAuth)" },
+    { "id": "code-fetch",        "runtime": ["graphify"], "feature": "code" },
     { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." },
     { "id": "new-idea",          "runtime": [], "note": "Greenfield origination-project scaffolder: stamps wiki/projects/<slug>/ from the origination template (node-based, no extra deps). Vault-side templates + origination-workflow.md are seeded by setup-vault.sh from assets/vault/; the script self-seeds the templates on pre-existing vaults." }
   ],
@@ -134,6 +138,10 @@
       "skill": "voice-fetch", "binary": "whisperkit-cli", "install": "brew install whisperkit-cli",
       "defaultEnabled": true,
       "desc": "Transcribe local audio (Voice Memos .m4a, mp3, wav, …) into .raw/audio/ for ingestion. Fully on-device (WhisperKit, CoreML/Neural Engine) — no cloud, no credentials, no daemon — so setup enables it by default. Heads-up worth saying at the prompt: the first transcription downloads a CoreML model once (can be GBs; local-only after that)." },
+    { "id": "code",       "label": "Codebase digests (code-fetch)",
+      "skill": "code-fetch", "requires": "uv", "binary": "graphify", "install": "uv tool install graphifyy",
+      "defaultEnabled": true,
+      "desc": "Distill a codebase (local path or git URL) into one structural digest in .raw/code/ for ingestion — the antidote to ingesting a repo file-by-file. Fully local (graphify's tree-sitter AST pass, --code-only): no LLM call, no API key, no daemon, no data egress — so setup enables it by default." },
     { "id": "notebooklm", "label": "NotebookLM synthesis (notebooklm-ingest)",
       "skill": "notebooklm-ingest", "requires": "uv", "binary": "notebooklm",
       "install": "uv tool install notebooklm-py",

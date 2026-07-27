@@ -33,7 +33,7 @@ The core LLM Wiki runtime (skills, hooks, vault scaffold) is provided entirely b
 
 `techtrip-secondbrain` only adds the pieces AgriciDaniel's plugin leaves to the user:
 a macOS bootstrapper (install Obsidian + community plugins), MCP wiring + repair,
-git sync setup, and our own `yt-fetch` / `notebooklm-ingest` source skills
+git sync setup, and our own `yt-fetch` / `voice-fetch` / `code-fetch` / `notebooklm-ingest` source skills
 (original work — see the tool-dependency note below for the runtime tools they invoke).
 Full credit for the second-brain wiki system itself goes to AgriciDaniel.
 
@@ -59,6 +59,11 @@ under its own author and license.
   lives in this repository. License: see the upstream repository.
 - **`yt-dlp`** — <https://github.com/yt-dlp/yt-dlp> (Unlicense). Our `yt-fetch` skill
   calls it to pull captions and metadata.
+- **`graphify`** — by **Graphify-Labs** — <https://github.com/Graphify-Labs/graphify>
+  (Apache-2.0). Our `code-fetch` skill installs it from PyPI (`uv tool install
+  graphifyy`) and drives its `graphify` CLI for the local tree-sitter AST pass that
+  turns a codebase into a structural digest; none of its source lives in this
+  repository.
 
 ## Defuddle — by kepano
 

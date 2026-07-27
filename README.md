@@ -42,7 +42,7 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
 bug-fixes-plus-proposed-PRs, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
-`voice-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
+`voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
 scaffolder, and sets up git sync + backup — all interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
@@ -64,8 +64,9 @@ install and use, with some added functionality:
    (Obsidian, community plugins, dependencies, MCP wiring, sync).
 2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
    `doctor`/`repair-mcp` diagnose and fix anything broken after.
-3. **Adds three ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
-   transcripts), `voice-fetch` (on-device audio transcription), and
+3. **Adds four ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts), `voice-fetch` (on-device audio transcription), `code-fetch`
+   (codebase-to-digest via graphify's local AST pass), and
    `notebooklm-ingest` (NotebookLM synthesis).
 4. **Adds origination** — `/new-idea` scaffolds a greenfield project
    (thesis → decisions → spec) for the ideas *you* originate, the generative
@@ -116,12 +117,13 @@ is the LLM that maintains them behind the scenes.
 `techtrip-secondbrain` closes that gap:
 
 - **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
-  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
+  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`/`graphify`) via Homebrew or `uv`, all idempotent.
 - **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
 - **Source-ingestion skills** — ships `yt-fetch` (YouTube), `voice-fetch` (voice
-  memos / local audio, transcribed on-device), and `notebooklm-ingest`
+  memos / local audio, transcribed on-device), `code-fetch` (codebases distilled
+  into one structural digest — never file-by-file), and `notebooklm-ingest`
   (NotebookLM) as first-class skills for pulling material into the vault.
 - **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
   (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
@@ -186,7 +188,7 @@ Read the skills under
 and
 ~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
-wiki-query, wiki-lint, yt-fetch, voice-fetch, notebooklm-ingest, and new-idea as first-class
+wiki-query, wiki-lint, yt-fetch, voice-fetch, code-fetch, notebooklm-ingest, and new-idea as first-class
 workflows, the same way Claude Code would.
 ```
 
@@ -287,14 +289,15 @@ These can't be automated:
 ## Optional features
 
 The base second brain ships **lean**, and setup asks about each optional feature
-**inline** — you answer two quick questions during `/secondbrain` instead of being
-told to run a script later. The two are deliberately not treated the same, because
-they don't carry the same risk:
+**inline** — you answer a few quick questions during `/secondbrain` instead of being
+told to run a script later. The features are deliberately not treated the same,
+because they don't carry the same risk:
 
 | Feature | Skill | What it adds | Runtime installed | Setup default |
 |---------|-------|--------------|-------------------|---------------|
 | **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
 | **Voice / audio** | `voice-fetch` | transcribe voice memos & local audio into `.raw/audio/`, fully on-device (WhisperKit / Neural Engine) | `whisperkit-cli` (Homebrew) | **yes** — no cloud, no credentials; first transcription downloads a CoreML model once |
+| **Code** | `code-fetch` | distill a codebase (local path or git URL) into one structural digest in `.raw/code/` — never file-by-file | `graphifyy` (via `uv`) | **yes** — fully local tree-sitter AST pass: no LLM call, no API key, no daemon, no data leaving your machine |
 | **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | **no — explicit opt-in**: it sends your sources to Google, and the login is an interactive OAuth |
 
 Their *skills* always ship with the plugin; the questions only govern the runtime
@@ -303,9 +306,10 @@ each needs. Declining costs nothing — enable any feature later by re-running
 whole answer for marketplace installs; git-clone users can also go in directly:
 
 ```bash
-bash bin/setup-features.sh ~/LLM-Wiki                 # walk all three (git clone only)
+bash bin/setup-features.sh ~/LLM-Wiki                 # walk all four (git clone only)
 bash bin/setup-features.sh ~/LLM-Wiki youtube         # just one
 bash bin/setup-features.sh ~/LLM-Wiki voice
+bash bin/setup-features.sh ~/LLM-Wiki code
 bash bin/setup-features.sh ~/LLM-Wiki notebooklm
 ```
 
