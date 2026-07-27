@@ -5,9 +5,9 @@
 # this script installs the runtime each one needs, so you can turn features on
 # now — or come back and add one later. Driven by manifest.json → optionalFeatures,
 # which splits them in two:
-#   - defaultEnabled:true  (YouTube/yt-dlp, Voice/whisperkit-cli, Code/graphify)
-#     — harmless freebies: passive CLIs, no daemon, no credentials, no data
-#     egress. Prompt defaults to YES; Enter installs, 'n' skips.
+#   - defaultEnabled:true  (YouTube/yt-dlp, Voice/whisperkit-cli) — harmless
+#     freebies: passive CLIs, no daemon, no credentials, no data egress. Prompt
+#     defaults to YES; Enter installs, 'n' skips.
 #   - consentNote          (NotebookLM) — needs an explicit opt-in (data egress
 #     to Google). The note is printed before a default-NO confirm.
 # The secondbrain skill asks about each feature inline during setup and drives
@@ -18,7 +18,7 @@
 #
 # Usage:
 #   bash bin/setup-features.sh [/path/to/vault] [--yes] [--dry-run]
-#   bash bin/setup-features.sh [/path/to/vault] youtube|voice|code|notebooklm
+#   bash bin/setup-features.sh [/path/to/vault] youtube|voice|notebooklm
 set -euo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$BIN_DIR/../scripts/common.sh"
@@ -29,7 +29,7 @@ require_macos
 VAULT_ARG=""; ONLY=""
 for a in "$@"; do
   case "$a" in
-    youtube|voice|code|notebooklm) ONLY="$a" ;;
+    youtube|voice|notebooklm) ONLY="$a" ;;
     *) VAULT_ARG="$a" ;;
   esac
 done
@@ -39,8 +39,8 @@ step "Optional features"
 info "Vault: $VAULT"
 [ -n "$ONLY" ] && info "Targeting only: $ONLY"
 info "Skills ship regardless; this installs the runtime they need. Safe to re-run"
-info "to add a feature later. YouTube/Voice/Code are default-yes freebies;"
-info "NotebookLM needs an explicit opt-in (you'll see why before the prompt)."
+info "to add a feature later. YouTube is a default-yes freebie; NotebookLM needs"
+info "an explicit opt-in (you'll see why before the prompt)."
 
 # ── youtube (yt-fetch → yt-dlp) — the default-yes freebie ────────────────────
 feature_youtube() {
@@ -115,23 +115,6 @@ feature_voice() {
   else info "Skipped voice/audio. Enable later: bash bin/setup-features.sh voice"; fi
 }
 
-# ── code (code-fetch → graphify) — the third default-yes freebie ─────────────
-feature_code() {
-  step "Codebase digests (code-fetch)"
-  if have_cmd graphify; then ok "graphify already installed — code-fetch is ready"; return; fi
-  local install; install="$(manifest_get 'm.optionalFeatures.find(f=>f.id==="code").install')"
-  info "code-fetch distills a codebase (path or git URL) into ONE digest for the"
-  info "wiki — the antidote to ingesting a repo file-by-file. graphify's AST pass"
-  info "is fully local: no LLM call, no API key, no daemon, no data egress."
-  # uv is required (also powers the MCP server) — it is NOT optional.
-  have_cmd uv || { warn "uv is missing — it's a core dependency. Run bin/setup-deps.sh first."; return; }
-  if confirm_yes "Enable codebase digests — run '$install'?"; then
-    manifest_argv "uv" "$install"
-    run "Installing graphify" -- "${TSB_CMD_ARGV[@]}"
-    ok "code-fetch ready. Try: 'ingest this codebase <path-or-url>' or '/code-fetch <path-or-url>'"
-  else info "Skipped codebase digests. Enable later: bash bin/setup-features.sh code"; fi
-}
-
 # ── notebooklm (notebooklm-ingest → notebooklm-py + login) — explicit opt-in ──
 feature_notebooklm() {
   step "NotebookLM synthesis (notebooklm-ingest)"
@@ -176,8 +159,7 @@ feature_notebooklm() {
 
 if [ -z "$ONLY" ] || [ "$ONLY" = youtube ];    then feature_youtube;    fi
 if [ -z "$ONLY" ] || [ "$ONLY" = voice ];      then feature_voice;      fi
-if [ -z "$ONLY" ] || [ "$ONLY" = code ];       then feature_code;       fi
 if [ -z "$ONLY" ] || [ "$ONLY" = notebooklm ]; then feature_notebooklm; fi
 
 step "Optional features complete"
-info "Add another any time: bash bin/setup-features.sh [youtube|voice|code|notebooklm]"
+info "Add another any time: bash bin/setup-features.sh [youtube|voice|notebooklm]"

@@ -1,5 +1,5 @@
 ---
-description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, voice memos/audio, codebases, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, voice memos/audio, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
 Read the `brain-dump` skill. Then run it as a teaching guide.

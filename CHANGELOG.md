@@ -3,6 +3,25 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.14] — 2026-07-27
+
+### Removed
+- **`code-fetch` and the Code optional feature, withdrawn one release after
+  0.2.13 shipped them.** The skill, `/code-fetch`, the `scripts/code-fetch.sh`
+  helper, the `graphify` binary entry, and the `feature_code()` case in
+  `setup-features.sh` are all gone; the feature list is back to three
+  (YouTube, Voice, NotebookLM). Two reasons. First, it did not do the job:
+  a `graphify` graph carries labels, file paths, and line numbers but no
+  bodies, signatures, or docstrings, and its "god nodes" are raw degree
+  centrality — on a real repo that ranks logging helpers above architecture.
+  The digest describes a codebase's shape, not what it does, how it works, or
+  what its API contracts are, which is what codebase ingest was for. Second,
+  delivering that required `uv tool install graphifyy` on the user's machine
+  from a `defaultEnabled: true` prompt — a real install for an unreal benefit.
+  `/brain-dump` returns to its pre-0.2.13 section numbering. Codebase ingest
+  will return as a reading pass, not a fetcher; nothing in this release
+  replaces it.
+
 ## [0.2.13] — 2026-07-27
 
 ### Added

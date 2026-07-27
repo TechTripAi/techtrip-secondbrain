@@ -44,12 +44,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   **idempotent** and **interactive**.
 - **Optional features are asked inline during setup; consent is tiered.** Their skills
   always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;
-  `setup-features.sh <vault> youtube|voice|code|notebooklm` targets one), which the
+  `setup-features.sh <vault> youtube|voice|notebooklm` targets one), which the
   `secondbrain` skill drives per-answer during setup instead of deferring. Driven by
-  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`**,
+  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** and
   **Voice/`whisperkit-cli`** (on-device audio transcription; first run downloads a
-  CoreML model once), and **Code/`graphify`** (local AST codebase digests via
-  `uv tool install graphifyy`) carry
+  CoreML model once) carry
   `defaultEnabled: true` (harmless freebies — `confirm_yes`, Enter installs) while
   **NotebookLM** (data egress to Google + interactive `notebooklm login`) carries a
   `consentNote` printed before a default-no confirm — never enable it unprompted.
@@ -94,7 +93,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
  (greenfield origination-project scaffolder; vault-side templates +
  `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;
  `doctor` reports stale/unindexed projects, advisory only) + ported `yt-fetch` /
- `voice-fetch` / `code-fetch` / `notebooklm-ingest`. Each has a matching
+ `voice-fetch` / `notebooklm-ingest`. Each has a matching
  `commands/*.md` where relevant.
 
 ## Conventions (follow these when editing)
