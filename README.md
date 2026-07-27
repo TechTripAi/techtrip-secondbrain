@@ -231,6 +231,7 @@ re-run for marketplace installs).
 | Verify | `bin/doctor.sh <path>` | health check |
 | Update | `bin/update.sh <path>` | update both plugins + re-pin community plugins + doctor |
 | DragonScale disarm | `bin/disarm-dragonscale.sh <path>` | turn off claude-obsidian's opt-in DragonScale addressing in the vault (default-no confirm, backed up); doctor and update surface it |
+| Vault reset | `bin/reset-vault.sh <path> [--scorch]` | empty a vault back to nothing after a verified backup — default clears the knowledge but keeps the wiring (MCP keeps working); `--scorch` retires the whole vault and re-scaffolds (needs an MCP re-key). Typed-phrase consent |
 
 Everything is driven by **`manifest.json`** — the single source of truth for the
 binaries, apps, plugins, community plugins, MCP server, and skills. Edit it to change

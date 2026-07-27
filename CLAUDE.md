@@ -59,6 +59,22 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   **required** (the MCP server needs `uvx`), so "NotebookLM optional" means the
   `notebooklm-py` install + login, not `uv`. `/brain-dump` §11 is the user-facing
   reference for enabling/disabling features after setup.
+- **Destructive/out-of-flow utilities** (not part of the setup order, each own
+  backup + typed-phrase consent): **`bin/reset-vault.sh`** empties a vault to
+  empty — default *content reset* clears the knowledge (`wiki/`, `.raw/`,
+  `.vault-meta/`, attachments, scaffold root) but keeps the wiring (`.obsidian/`
+  + REST key, git history, harness artifacts) so MCP keeps working;
+  `--scorch` retires the whole vault (`mv` aside, never deletes) and
+  re-scaffolds fresh, which *retires the REST key* so MCP must be re-keyed
+  (`setup-mcp.sh`). Always makes a verified `tar.gz` (+ git bundle when a repo)
+  under `$HOME/vault-backups` before anything destructive.
+  **`bin/disarm-dragonscale.sh`** turns OFF claude-obsidian's DragonScale
+  addressing (Mechanism 2) — a vault that ever received his
+  `scripts/allocate-address.sh` + `.vault-meta/` silently mints monotonic
+  `address:` fields guarded only by machine-local flock, which collides under
+  this project's two-machine git model. DragonScale is out of scope; the script
+  removes only the arming files (confirm-gated, default-NO, backed up) and never
+  rewrites existing `address:` frontmatter.
 - **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
   re-pin community plugins to the manifest tags → `doctor`. Never touches notes, git
@@ -91,6 +107,12 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   **exported** so child scripts inherit them — do not break that.
 - **Idempotent:** detect already-present state and skip; a second run must mutate
   nothing and report green.
+- **Destructive actions use `confirm_phrase "<phrase>" "<prompt>"`, not
+  `confirm()`** — the user must *type* the exact phrase, so a stray Enter or
+  buffered keystroke can never authorize a vault reset/uninstall. `--yes` and
+  `--dry-run` bypass it; no TTY declines (never consents on the user's behalf).
+  Reserve it for actions that delete or displace user data; ordinary installs
+  stay on `confirm()`/`confirm_yes()`.
 - **`TSB_` is the env-var prefix** (was `CSB_`; don't reintroduce `CSB_`).
 - **JSON is read/written with `node`** (a hard dependency), not `jq`/`sed`.
 - **`manifest_get`** newline-terminates list output so bash `while read` keeps the

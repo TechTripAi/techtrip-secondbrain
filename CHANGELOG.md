@@ -3,6 +3,33 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.12] — 2026-07-27
+
+### Added
+- **`bin/reset-vault.sh` — empty a vault back to nothing, backup first.** Two
+  depths: the default *content reset* clears the knowledge (`wiki/`, `.raw/`,
+  `.vault-meta/`, attachments, scaffold root files) but keeps the wiring
+  (`.obsidian/` + its REST key, git history, harness artifacts), so MCP keeps
+  working and the reset lands as a commit; `--scorch` retires the whole vault
+  (`mv` aside — nothing is ever deleted) and re-scaffolds fresh at the same
+  path, which retires the REST key and therefore requires an MCP re-key via
+  `setup-mcp.sh`. Backups are not optional: a verified `tar.gz` always, plus a
+  verified git bundle when the vault is a repo, written to `$HOME/vault-backups`
+  (override with `TSB_BACKUP_DIR`) before anything destructive runs. Guards
+  refuse `$HOME`/`/`, non-vault paths, and a backup dir living inside the vault,
+  and warn when Obsidian is holding the vault open.
+- **`confirm_phrase()` in `scripts/common.sh`** — typed-phrase acknowledgment
+  for destructive actions. Unlike `confirm()`, the user must type the exact
+  phrase, so a stray Enter or buffered keystroke can never authorize a vault
+  reset. `--yes`/`--dry-run` bypass it; no TTY declines rather than consenting
+  on the user's behalf. Ordinary installs stay on `confirm()`/`confirm_yes()`.
+
+### Changed
+- **claude-obsidian pin: `testedVersion` 1.9.3 → 1.9.4** — picks up the fork's
+  wikilink pipe-escape fix (`obsidian-markdown` no longer emits `\|` inside
+  wikilinks). `bin/update.sh` pulls it in on the next run; `precheck` and
+  `doctor` stop reporting drift once the machine is on 1.9.4.
+
 ## [0.2.11] — 2026-07-27
 
 ### Fixed

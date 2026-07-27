@@ -246,6 +246,34 @@ confirm_yes() {
   done
 }
 
+# ── Typed-phrase acknowledgment for destructive actions ──────────────────────
+# Stronger than confirm(): the user must TYPE the exact phrase, so a stray
+# Enter or buffered keystroke can never authorize a destructive step (vault
+# reset, uninstall). Reserve for actions that delete or displace user data;
+# ordinary installs keep confirm()/confirm_yes().
+# Usage: confirm_phrase "reset my vault" "About to empty $VAULT" && do_it
+# --yes bypasses (it is itself explicit consent for an unattended run — the
+# golden rule already restricts it to when the user asked for that). --dry-run
+# bypasses (nothing mutates). No TTY = decline, never consent on the user's behalf.
+confirm_phrase() {
+  local phrase="$1" prompt="$2"
+  if [ "$TSB_ASSUME_YES" = "1" ] || [ "$TSB_DRY_RUN" = "1" ]; then
+    printf '%s  ?%s %s %s[auto-ack: "%s"]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$phrase" "$_C_RESET"
+    return 0
+  fi
+  local reply
+  printf '%s  ?%s %s\n' "$_C_BLU" "$_C_RESET" "$prompt"
+  printf '%s    Type%s "%s" %sto proceed (anything else aborts):%s ' \
+    "$_C_DIM" "$_C_RESET$_C_BLD" "$phrase" "$_C_RESET$_C_DIM" "$_C_RESET"
+  if ! read -r reply </dev/tty; then
+    warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
+    return 1
+  fi
+  if [ "$reply" = "$phrase" ]; then return 0; fi
+  info "Phrase did not match — aborting."
+  return 1
+}
+
 # ── Manifest command strings → argv (never `bash -c`) ────────────────────────
 # manifest.json declares install/probe/login commands as strings ("brew install
 # yt-dlp"). Executing those via a shell would turn the manifest into an
