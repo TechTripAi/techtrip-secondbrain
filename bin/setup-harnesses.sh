@@ -121,15 +121,25 @@ else
 fi
 
 # ── Step 2: vault-level parity artifacts ──────────────────────────────────────
-# Copy a template into the vault only if the destination does not exist.
-# Existing files are the owner's — report drift, never overwrite.
+# Copy a template into the vault when the destination is absent. A changed
+# template may also name hashes of earlier shipped versions: if the existing
+# file matches one exactly, it is still project-managed and safe to upgrade.
+# Anything else is the owner's customization — report drift, never overwrite.
 stamp() {
-  local src="$1" dst="$2"
+  local src="$1" dst="$2" legacy_hashes="${3:-}" dst_hash legacy_hash
   if [ -e "$dst" ]; then
     if cmp -s "$src" "$dst"; then
       ok "$(basename "$dst") already current."
     else
-      warn "$dst exists and differs from the template — left untouched. If you never customized it: rm it and re-run to adopt the new template; if you did: port wanted changes manually (diff against $src)."
+      dst_hash="$(shasum -a 256 "$dst" | awk '{print $1}')"
+      for legacy_hash in $legacy_hashes; do
+        if [ "$dst_hash" = "$legacy_hash" ]; then
+          run "upgrade managed $(basename "$dst")" -- cp "$src" "$dst"
+          ok "$(basename "$dst") upgraded from an earlier shipped template."
+          return 0
+        fi
+      done
+      warn "$dst exists and differs from the template — left untouched. If you customized it: port wanted changes manually (diff against $src). If not, remove it and re-run to adopt the current template."
     fi
     return 0
   fi
@@ -152,7 +162,10 @@ else
     stamp "$TEMPLATES/cursor/hooks/wiki-session-start.sh"   "$VAULT/.cursor/hooks/wiki-session-start.sh"
     stamp "$TEMPLATES/cursor/rules/wiki-vault.mdc"          "$VAULT/.cursor/rules/wiki-vault.mdc"
     stamp "$TEMPLATES/copilot/hooks/wiki-vault.json"        "$VAULT/.github/hooks/wiki-vault.json"
-    stamp "$TEMPLATES/copilot/hooks/wiki-autocommit.sh"     "$VAULT/.github/hooks/wiki-autocommit.sh"
+    # 0.2.10 emitted Git's commit summary before `{}`, corrupting Copilot's
+    # required JSON response. Upgrade only the exact uncustomized 0.2.10 file.
+    stamp "$TEMPLATES/copilot/hooks/wiki-autocommit.sh"     "$VAULT/.github/hooks/wiki-autocommit.sh" \
+      "f52c275dfd875ceb8fcefed86cf6ffd647ca1f0127f4538998876a13230e1c82"
     stamp "$TEMPLATES/copilot/hooks/wiki-stop-reminder.sh"  "$VAULT/.github/hooks/wiki-stop-reminder.sh"
     stamp "$TEMPLATES/copilot/hooks/wiki-session-start.sh"  "$VAULT/.github/hooks/wiki-session-start.sh"
     if [ -d "$VAULT/.cursor/hooks" ]; then

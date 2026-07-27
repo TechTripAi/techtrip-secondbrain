@@ -3,6 +3,14 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.11] — 2026-07-27
+
+### Fixed
+- **Copilot auto-commit hook now emits valid JSON after creating a commit** —
+  suppresses Git's commit summary so the hook response remains exactly `{}`.
+- **Existing uncustomized 0.2.10 hook files upgrade automatically** — harness
+  setup recognizes the prior shipped hash while preserving customized copies.
+
 ## [0.2.10] — 2026-07-15
 
 Copilot CLI silently skips any skill whose SKILL.md `description` exceeds

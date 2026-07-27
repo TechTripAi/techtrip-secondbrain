@@ -24,5 +24,5 @@ fi
 
 git add -- wiki/ .raw/ .vault-meta/ 2>/dev/null && \
   (git diff --cached --quiet -- wiki/ .raw/ .vault-meta/ || \
-   git commit -m "wiki: auto-commit $(date '+%Y-%m-%d %H:%M')" -- wiki/ .raw/ .vault-meta/ 2>/dev/null) || true
+   git commit -m "wiki: auto-commit $(date '+%Y-%m-%d %H:%M')" -- wiki/ .raw/ .vault-meta/ >/dev/null 2>&1) || true
 emit
