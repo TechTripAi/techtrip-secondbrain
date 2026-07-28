@@ -4,7 +4,7 @@ description: >
   Bootstrap a generic, out-of-the-box LLM Wiki "second brain" on a fresh Mac.
   Installs Obsidian + community plugins, pulls the claude-obsidian plugin from its
   own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the
-  yt-fetch + voice-fetch + notebooklm-ingest source skills and the new-idea
+  yt-fetch + voice-fetch + code-fetch + notebooklm-ingest source skills and the new-idea
   origination scaffolder, and sets up git sync + backup.
   Interactive and idempotent. Triggers on: "set up my second brain",
   "/secondbrain", "bootstrap the wiki", "install the llm wiki on this machine",

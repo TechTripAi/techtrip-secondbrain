@@ -3,6 +3,32 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.15] — 2026-07-27
+
+### Added
+- **`code-fetch` returns as a reading pass, not a fetcher.** 0.2.13's version
+  delegated comprehension to graphify's AST graph — shape without semantics —
+  and 0.2.14 withdrew it. This version splits the job correctly: the skill's
+  `scripts/code-fetch.sh` does only the mechanical staging (shallow clone for
+  git URLs into a persistent temp workdir, local paths read in place; prints an
+  inventory — ready frontmatter, layout, language stats, high-signal files,
+  largest sources, README), and **the agent reads the code itself** — README,
+  build manifests, entry points, public API surface, core modules, tests — then
+  writes ONE semantic digest (`source_type: codebase`) to `.raw/code/` with
+  fixed sections: Overview, Architecture, API Contract, Key Components,
+  Build/Run/Test, Observations & Caveats (with a coverage note on what was read
+  vs sampled). The digest carries real signatures and behavior, so the wiki can
+  answer architecture and API-contract questions; frontmatter records
+  `source_url`/`source_path` + `commit` for re-opening the exact revision.
+  **No runtime to install** — `git` (a core dependency) is all the script
+  needs, so code-fetch is always available: no optional feature, no
+  `setup-features.sh` case, no manifest binary entry (only a `skills[]` entry
+  for doctor's manifest-skill audit). Same hardening as the sibling fetchers
+  (rejects option-like arguments; `CODE_FETCH_BRANCH` env knob; the `cleanup`
+  subcommand refuses to delete anything without the workdir marker it planted).
+  `/brain-dump` regains its codebase section (Section 6, later sections
+  renumbered as in 0.2.13).
+
 ## [0.2.14] — 2026-07-27
 
 ### Removed

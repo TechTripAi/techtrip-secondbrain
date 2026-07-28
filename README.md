@@ -42,7 +42,7 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
 bug-fixes-plus-proposed-PRs, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
-`voice-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
+`voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
 scaffolder, and sets up git sync + backup — all interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
@@ -64,9 +64,10 @@ install and use, with some added functionality:
    (Obsidian, community plugins, dependencies, MCP wiring, sync).
 2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
    `doctor`/`repair-mcp` diagnose and fix anything broken after.
-3. **Adds three ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
-   transcripts), `voice-fetch` (on-device audio transcription), and
-   `notebooklm-ingest` (NotebookLM synthesis).
+3. **Adds four ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts), `voice-fetch` (on-device audio transcription), `code-fetch`
+   (codebases read by the agent into one semantic digest — architecture, API
+   contracts, purpose), and `notebooklm-ingest` (NotebookLM synthesis).
 4. **Adds origination** — `/new-idea` scaffolds a greenfield project
    (thesis → decisions → spec) for the ideas *you* originate, the generative
    front-half that graduates back into the ingest pipeline.
@@ -121,8 +122,10 @@ is the LLM that maintains them behind the scenes.
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
 - **Source-ingestion skills** — ships `yt-fetch` (YouTube), `voice-fetch` (voice
-  memos / local audio, transcribed on-device), and `notebooklm-ingest`
-  (NotebookLM) as first-class skills for pulling material into the vault.
+  memos / local audio, transcribed on-device), `code-fetch` (codebases — the
+  agent reads the code and distills one semantic digest, never file-by-file),
+  and `notebooklm-ingest` (NotebookLM) as first-class skills for pulling
+  material into the vault.
 - **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
   (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
   decisions log, spec) from a seeded template for the ideas you originate yourself;
@@ -186,7 +189,7 @@ Read the skills under
 and
 ~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
-wiki-query, wiki-lint, yt-fetch, voice-fetch, notebooklm-ingest, and new-idea as first-class
+wiki-query, wiki-lint, yt-fetch, voice-fetch, code-fetch, notebooklm-ingest, and new-idea as first-class
 workflows, the same way Claude Code would.
 ```
 

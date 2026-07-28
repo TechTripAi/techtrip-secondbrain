@@ -121,6 +121,7 @@
     { "id": "yt-fetch",          "runtime": ["yt-dlp"], "feature": "youtube" },
     { "id": "voice-fetch",       "runtime": ["whisperkit-cli"], "feature": "voice" },
     { "id": "notebooklm-ingest", "runtime": ["uv"], "feature": "notebooklm", "manual": "one-time `notebooklm login` (interactive OAuth)" },
+    { "id": "code-fetch",        "runtime": [], "note": "Codebase reading pass: stages a repo (shallow clone + inventory via its script), then the agent reads the code and writes one semantic digest to .raw/code/ for ingest. Needs only git (a core dependency) — no optional feature, always available." },
     { "id": "brain-dump",        "runtime": [], "note": "Instructional usage tutorial. No runtime deps; teaches by handing the user prompts to run — executes nothing and never touches the vault." },
     { "id": "new-idea",          "runtime": [], "note": "Greenfield origination-project scaffolder: stamps wiki/projects/<slug>/ from the origination template (node-based, no extra deps). Vault-side templates + origination-workflow.md are seeded by setup-vault.sh from assets/vault/; the script self-seeds the templates on pre-existing vaults." }
   ],

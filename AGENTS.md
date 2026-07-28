@@ -34,7 +34,11 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   (greenfield origination-project scaffolder; its vault-side templates +
   `origination-workflow.md` live in `assets/vault/` and are seeded by
   `setup-vault.sh`; `doctor` reports stale/unindexed projects, advisory only) +
-  ported `yt-fetch` / `voice-fetch` / `notebooklm-ingest`.
+  ported `yt-fetch` / `voice-fetch` / `notebooklm-ingest`, and `code-fetch`
+ (codebase reading pass: its script stages a repo — shallow clone + inventory —
+ then the agent reads the code and writes one semantic digest to `.raw/code/`
+ for ingest; needs only `git`, so it is always available, not an optional
+ feature).
 
 ## Conventions
 

@@ -93,8 +93,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
  (greenfield origination-project scaffolder; vault-side templates +
  `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;
  `doctor` reports stale/unindexed projects, advisory only) + ported `yt-fetch` /
- `voice-fetch` / `notebooklm-ingest`. Each has a matching
- `commands/*.md` where relevant.
+ `voice-fetch` / `notebooklm-ingest` + `code-fetch` (codebase reading pass: its
+ script stages a repo — shallow clone + inventory — then the agent reads the
+ code itself and writes one semantic digest to `.raw/code/` for ingest; needs
+ only `git`, so it is always available, not an optional feature). Each has a
+ matching `commands/*.md` where relevant.
 
 ## Conventions (follow these when editing)
 
