@@ -5,16 +5,21 @@
 </p>
 
 > [!IMPORTANT]
-> **New release: v0.2.7 (2026-07-15) — GitHub Copilot CLI harness parity**: the
-> vault now stamps `.github/hooks/` ports of the claude-obsidian hooks, so
-> Copilot CLI gets the same invisible automation as Claude Code — `wiki/hot.md`
-> injected at session start, auto-commit after edits, and a hot-cache refresh
-> reminder at stop. Re-run `/secondbrain` (or `bash bin/setup-harnesses.sh
-> <vault>` for git clones) to stamp them into an existing vault.
-> Rides on 0.2.6's voice memos (`voice-fetch`, fully on-device WhisperKit
-> transcription) and 0.2.5's maintenance release (`/brain-dump` upkeep §10,
-> two-machine sync §12, `doctor` content checks, fork v1.9.3 `wiki-delete` /
-> `wiki-archive` / source retraction).
+> **New release: v0.2.15 (2026-07-27) — `code-fetch` returns as an agent
+> reading pass**: `scripts/code-fetch.sh` only stages the codebase (shallow
+> clone for git URLs, local paths read in place, plus an inventory) — **the
+> agent reads the code itself** (README, entry points, API surface, tests) and
+> writes one semantic digest (`source_type: codebase`) to `.raw/code/`:
+> Overview, Architecture, API Contract, Key Components, Build/Run/Test. No
+> runtime to install — `git` is all it needs, so it's always available, never
+> an optional feature (0.2.13 tried a `graphify`-based structural version;
+> 0.2.14 withdrew it as shape-without-semantics; this is the redo).
+> Also since v0.2.7: **`bin/reset-vault.sh`** empties a vault back to nothing
+> after a verified backup (default keeps the MCP wiring; `--scorch` retires
+> and re-scaffolds), **`doctor`** now audits `manifest.json`'s skill list
+> against the installed plugin cache, and claude-obsidian is pinned to
+> **1.9.4** (wikilink pipe-escape fix). Full details in the
+> [CHANGELOG](CHANGELOG.md).
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
 > is now the only sync path — so update now; see
 > [Updating an existing secondbrain](#updating-an-existing-secondbrain):
