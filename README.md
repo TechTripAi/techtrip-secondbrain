@@ -4,30 +4,10 @@
   <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
 </p>
 
-> [!IMPORTANT]
-> **New release: v0.2.15 (2026-07-27) — `code-fetch` returns as an agent
-> reading pass**: `scripts/code-fetch.sh` only stages the codebase (shallow
-> clone for git URLs, local paths read in place, plus an inventory) — **the
-> agent reads the code itself** (README, entry points, API surface, tests) and
-> writes one semantic digest (`source_type: codebase`) to `.raw/code/`:
-> Overview, Architecture, API Contract, Key Components, Build/Run/Test. No
-> runtime to install — `git` is all it needs, so it's always available, never
-> an optional feature (0.2.13 tried a `graphify`-based structural version;
-> 0.2.14 withdrew it as shape-without-semantics; this is the redo).
-> Also since v0.2.7: **`bin/reset-vault.sh`** empties a vault back to nothing
-> after a verified backup (default keeps the MCP wiring; `--scorch` retires
-> and re-scaffolds), **`doctor`** now audits `manifest.json`'s skill list
-> against the installed plugin cache, and claude-obsidian is pinned to
-> **1.9.4** (wikilink pipe-escape fix). Full details in the
-> [CHANGELOG](CHANGELOG.md).
-> **Still on 0.1.0?** v0.2.0 removed Syncthing support — git
-> is now the only sync path — so update now; see
-> [Updating an existing secondbrain](#updating-an-existing-secondbrain):
-> [via the plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
-> (most people) or [via a local git clone](#if-you-cloned-the-git-repo).
-> Nothing on your machine is uninstalled by the update; if your vault has a
-> leftover `.stignore` from 0.1.0, `bin/setup-sync.sh` offers to remove it.
-> Full details in the [CHANGELOG](CHANGELOG.md).
+> [!NOTE]
+> **v0.2.15 is out:** ingest software based codebases through an agent-written semantic digest,
+> safely reset a vault after backup, and catch missing skills with stronger health
+> checks. See the [CHANGELOG](CHANGELOG.md) for details.
 
 > [!NOTE]
 > **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
@@ -116,6 +96,73 @@ installs Obsidian plus a curated set of community plugins, then wires the REST A
 **human-facing surface** (you read, browse, and edit notes there) while `claude-obsidian`
 is the LLM that maintains them behind the scenes.
 
+## Skills included — what you can ingest and ask the AI to do
+
+All 25 skills below are installed together. Invoke one by name (for example,
+`/wiki-ingest`) or describe the job naturally; the agent uses the appropriate workflow.
+
+### Bring knowledge in
+
+- **`wiki-ingest`** — ingest local files, URLs, or batches; try “ingest this PDF” or
+  “add these files to my wiki.”
+- **`defuddle`** — turn a cluttered article page into clean Markdown before ingesting;
+  try “clean and ingest this URL.”
+- **`yt-fetch`** — fetch a YouTube transcript and metadata, then hand it to ingest;
+  try “add this YouTube video to my wiki.”
+- **`voice-fetch`** — transcribe a voice memo or audio file on-device, then ingest it;
+  try “transcribe and ingest this `.m4a`.”
+- **`code-fetch`** — read a local or remote repository and create one semantic digest
+  covering its purpose, architecture, APIs, and operation; try “ingest this repo.”
+- **`notebooklm-ingest`** — synthesize several sources with NotebookLM or pull an
+  existing notebook into the wiki; try “combine these links into one research report.”
+- **`autoresearch`** — research a topic iteratively on the web and file the findings;
+  try “research passkeys deeply and build a wiki on it.”
+- **`save`** — turn the current conversation, answer, or insight into a structured wiki
+  note; try “save this analysis to my wiki.”
+
+### Use and develop what you know
+
+- **`wiki-query`** — answer from the vault with citations in quick, standard, or deep
+  mode; try “based on my wiki, what do I know about passkeys?”
+- **`wiki-retrieve`** — opt-in hybrid BM25 and semantic retrieval for relevant passages;
+  try “find the most relevant chunks about authentication.”
+- **`think`** — apply a structured ten-principle thinking loop to a difficult problem;
+  try “think this decision through.”
+- **`new-idea`** — scaffold a greenfield project from thesis through decisions and spec;
+  try “start a new idea for an AI support product.”
+- **`canvas`** — create or update Obsidian canvases with notes, text, images, and PDFs;
+  try “make a canvas for this project.”
+- **`obsidian-bases`** — create dynamic table, card, or list views over vault notes;
+  try “make a reading-list base grouped by status.”
+- **`wiki-mode`** — organize new material using Generic, LYT, PARA, or Zettelkasten;
+  try “switch this vault to PARA mode.”
+
+### Maintain the knowledge base
+
+- **`wiki-lint`** — find stale claims, orphan pages, dead links, missing metadata, and
+  provenance gaps; try “health-check my wiki.”
+- **`wiki-archive`** — move retired pages or cold raw sources out of the live graph while
+  preserving their bookkeeping; try “archive this finished project.”
+- **`wiki-delete`** — safely delete a page after showing its backlinks and impact;
+  try “delete this wiki page.”
+- **`wiki-fold`** — roll recent log entries into an extractive summary page; try “fold
+  the wiki log.”
+- **`wiki-cli`** — read, write, search, and modify notes through Obsidian CLI with a
+  filesystem fallback; this transport is normally selected automatically.
+- **`obsidian-markdown`** — apply correct wikilinks, embeds, callouts, properties, tags,
+  and other Obsidian syntax; it supports note-writing workflows automatically.
+
+### Set up and learn the system
+
+- **`wiki`** — scaffold the wiki from a one-sentence description and manage its hot
+  cache; start with `/wiki` after installation.
+- **`secondbrain`** — install and configure the complete SecondBrain stack; run
+  `/secondbrain` to set up or update a machine.
+- **`secondbrain-doctor`** — verify the stack and diagnose MCP connectivity; try “check
+  my second brain.”
+- **`brain-dump`** — an interactive tutorial covering ingestion, research, origination,
+  maintenance, sync, and optional features; run `/brain-dump` whenever you need a tour.
+
 ## How TechTrip-SecondBrain Makes Life Easy
 
 `claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
@@ -174,6 +221,26 @@ Then, in Claude Code:
 ```
 
 …and follow the interactive workflow. Or run the scripts directly (see below).
+
+> [!IMPORTANT]
+> **Release and upgrade notes for v0.2.15 (2026-07-27).** `code-fetch` is now an
+> agent reading pass: its script stages the codebase (a shallow clone for git URLs,
+> local paths read in place, plus an inventory), then the agent reads the README,
+> entry points, API surface, and tests and writes one semantic digest to `.raw/code/`.
+> It needs only `git`, so it is always available rather than an optional feature.
+>
+> Also since v0.2.7, **`bin/reset-vault.sh`** can empty a vault after a verified
+> backup (keeping MCP wiring by default, or retiring and re-scaffolding with
+> `--scorch`), **`doctor`** audits the manifest's skill list against the installed
+> plugin cache, and claude-obsidian is pinned to **1.9.4**.
+>
+> **Still on 0.1.0?** v0.2.0 removed Syncthing support; git is now the only sync
+> path. See [Updating an existing secondbrain](#updating-an-existing-secondbrain),
+> using either the [plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
+> or a [local git clone](#if-you-cloned-the-git-repo). The update does not uninstall
+> anything from your machine. If the vault still has a `.stignore`, setup offers to
+> remove that project-created artifact. Full details are in the
+> [CHANGELOG](CHANGELOG.md).
 
 ## Not Claude-only — use with Cursor, Copilot CLI, and other harnesses
 
