@@ -48,21 +48,29 @@ difference is the **mode of work**, not the amount of AI.
 3. **Decide** — when a **load-bearing** call surfaces, append a `Dn` entry to
    `decisions.md` (**append at the bottom, ascending**: Context / Decision / Nuances / Consequences)
    and mark the matching item `RESOLVED → Dn` in `open-questions.md`.
-4. **Reconcile** — update `thesis.md` so the argument reflects the decision;
-   surface any *new* open questions the decision created.
+4. **Reconcile** — make the whole project state agree with the work: update
+   `thesis.md` so the argument reflects the decision, surface any *new* open
+   questions, and keep `project.md` (status / next action) plus `spec.md`
+   current where the decision affects them. For every project or promoted
+   substrate page changed, add or set `updated: YYYY-MM-DD` to today's date in
+   the same logical edit.
 5. **Log** — append a `decision` entry to [[log]].
 6. **Graduate** — see below.
 
 ### Session ritual (end of every session)
 
-Before you stop, ask three things:
+Before you stop, ask four things:
 
 1. **Did a load-bearing decision surface?** If yes → is it a `Dn` in
    `decisions.md`?
 2. **Are `open-questions.md` and `thesis.md` reconciled** with what we decided?
 3. **Did anything harden** enough to promote to the substrate? (see Graduate)
+4. **Is the metadata honest?** Review every project or substrate content page
+   changed this session. Does each have `updated:` set to today's `YYYY-MM-DD`?
+   Add the field if it is missing. (`index.md`, `log.md`, and `hot.md` are
+   operational pages and are exempt.) <!-- tsb:origination-metadata-v1 -->
 
-If you can't answer yes/handled to all three, you're not done — capture before
+If you can't answer yes/handled to all four, you're not done — capture before
 you close. The whole point is that the thinking survives the session.
 
 ## The five project files
@@ -85,7 +93,8 @@ Cursor all append to the same log). Rules:
   bottom, so the reading order matches the numbering and later decisions follow
   the earlier ones they build on. A short **Index** at the top lists every `Dn`
   for a one-glance view. Never rewrite a past decision; supersede it with a new
-  `Dn` that references the old one.
+  `Dn` that references the old one. Bumping frontmatter `updated:` when a
+  decision is appended does not violate append-only history.
 - **One `Dn` per load-bearing call.** Format: Context / Decision / Nuances /
   Consequences / Basis.
 - **Every `Dn` closes a loop:** mark its `open-questions.md` item resolved and

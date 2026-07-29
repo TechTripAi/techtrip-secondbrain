@@ -23,9 +23,18 @@ if command -v node >/dev/null 2>&1; then
   ' 2>/dev/null | tr -cd 'A-Za-z0-9._-')
 fi
 if [ -n "$SESSION_ID" ]; then
-  SENTINEL="${TMPDIR:-/tmp}/tsb-stop-reminder-${SESSION_ID}"
-  [ -e "$SENTINEL" ] && allow
-  : > "$SENTINEL" 2>/dev/null
+  SENTINEL_ROOT="${TMPDIR:-/tmp}/tsb-stop-reminders-$(id -u)"
+  if [ -L "$SENTINEL_ROOT" ]; then allow; fi
+  if [ ! -d "$SENTINEL_ROOT" ]; then
+    old_umask=$(umask); umask 077
+    mkdir "$SENTINEL_ROOT" 2>/dev/null || allow
+    umask "$old_umask"
+  fi
+  owner=$(stat -f '%u' "$SENTINEL_ROOT" 2>/dev/null || stat -c '%u' "$SENTINEL_ROOT" 2>/dev/null)
+  mode=$(stat -f '%Lp' "$SENTINEL_ROOT" 2>/dev/null || stat -c '%a' "$SENTINEL_ROOT" 2>/dev/null)
+  { [ "$owner" = "$(id -u)" ] && [ "$mode" = 700 ]; } || allow
+  SENTINEL="$SENTINEL_ROOT/${SESSION_ID}.seen"
+  mkdir "$SENTINEL" 2>/dev/null || allow
 fi
 
 printf '%s' '{"decision":"block","reason":"WIKI_CHANGED: Wiki pages were modified this session. Please update wiki/hot.md with a brief summary of what changed (under 500 words). Use the hot cache format: Last Updated, Key Recent Facts, Recent Changes, Active Threads. Keep it factual. Overwrite the file completely. It is a cache, not a journal."}'

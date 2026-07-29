@@ -18,11 +18,19 @@ if [ -z "$TOPIC" ]; then
   echo 'usage: nlm-ingest.sh "<topic>" <url1> [url2 ...]' >&2
   exit 2
 fi
+case "$TOPIC" in -*) echo "topic must not begin with '-'" >&2; exit 2 ;; esac
 shift
 if [ "$#" -lt 1 ]; then
   echo "need at least one source URL" >&2
   exit 2
 fi
+for u in "$@"; do
+  case "$u" in
+    -*) echo "source must not begin with '-': $u" >&2; exit 2 ;;
+    http://*|https://*) ;;
+    *) echo "source must be an http(s) URL: $u" >&2; exit 2 ;;
+  esac
+done
 if ! command -v notebooklm >/dev/null 2>&1; then
   echo "notebooklm not installed. Run: uv tool install notebooklm-py" >&2
   exit 3
@@ -51,7 +59,7 @@ mkdir -p "$OUTDIR"
 OUT="$OUTDIR/${SLUG}-${DATE}.md"
 
 echo "==> Creating notebook: $TOPIC" >&2
-NB_ID="$(notebooklm create "$TOPIC" --json | extract_id)"
+NB_ID="$(notebooklm create --json "$TOPIC" | extract_id)"
 if [ -z "$NB_ID" ]; then
   echo "failed to create notebook (could not parse id)" >&2
   exit 5
@@ -60,16 +68,16 @@ echo "    notebook id: $NB_ID" >&2
 
 for u in "$@"; do
   echo "==> Adding source: $u" >&2
-  notebooklm source add "$u" -n "$NB_ID" 1>&2
+  notebooklm source add -n "$NB_ID" "$u" 1>&2
 done
 
 echo "==> Generating report (blocking until done)..." >&2
-notebooklm generate report "$TOPIC" -n "$NB_ID" --wait 1>&2
+notebooklm generate report -n "$NB_ID" --wait "$TOPIC" 1>&2
 
 echo "==> Downloading report markdown..." >&2
 BODY="$(mktemp)"
 trap 'rm -f "$BODY"' EXIT
-notebooklm download report "$BODY" -n "$NB_ID" --force 1>&2
+notebooklm download report -n "$NB_ID" --force "$BODY" 1>&2
 
 # Prepend wiki-ingest frontmatter, then the report body.
 {

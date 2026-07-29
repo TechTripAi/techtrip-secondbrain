@@ -3,6 +3,7 @@ type: project
 title: "{{title}}"
 status: active
 created: "{{date}}"
+updated: "{{date}}"
 deadline: ""
 outcome: "<one-paragraph statement of what 'done' looks like>"
 tags:

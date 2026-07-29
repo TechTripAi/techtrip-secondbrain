@@ -10,7 +10,11 @@
 # Optional: VOICE_FETCH_MODEL to pin a WhisperKit model (default: CLI default,
 # downloaded once on first run, fully local thereafter).
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+# Preserve caller-provided shims first (tests and managed environments), then
+# add the standard macOS install locations.
+export PATH="$PATH:$HOME/.local/bin:/opt/homebrew/bin"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+ENCODER="$(cd "$SCRIPT_DIR/../../.." && pwd -P)/scripts/encode-text.js"
 
 FILE="${1:-}"
 if [ -z "$FILE" ]; then
@@ -43,6 +47,7 @@ fi
 # the file's modification time (Voice Memos stamps this with the recording time).
 BASE="$(basename "$FILE")"
 TITLE="${BASE%.*}"
+TITLE_MD="$(node "$ENCODER" markdown "$TITLE")"
 RECORDED="$(stat -f '%Sm' -t '%Y-%m-%d' -- "$FILE" 2>/dev/null || date +%Y-%m-%d)"
 FETCHED="$(date +%Y-%m-%d)"
 
@@ -67,15 +72,15 @@ fi
 
 cat <<EOF
 ---
-title: "$TITLE"
+title: $(node "$ENCODER" yaml "$TITLE")
 source_type: transcript
-source_file: "$BASE"
+source_file: $(node "$ENCODER" yaml "$BASE")
 date_recorded: $RECORDED
 fetched: $FETCHED
 transcriber: whisperkit-cli (on-device)
 ---
 
-# $TITLE
+# $TITLE_MD
 
 $TRANSCRIPT
 EOF

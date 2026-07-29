@@ -5,9 +5,10 @@
 </p>
 
 > [!NOTE]
-> **v0.2.15 is out:** ingest software based codebases through an agent-written semantic digest,
-> safely reset a vault after backup, and catch missing skills with stronger health
-> checks. See the [CHANGELOG](CHANGELOG.md) for details.
+> **v0.2.16 is out:** origination sessions now reconcile `updated:` metadata on
+> every changed content page, old vault-local project templates self-heal, and
+> Doctor reports incomplete project metadata. See the [CHANGELOG](CHANGELOG.md)
+> for details.
 
 > [!NOTE]
 > **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
@@ -182,8 +183,10 @@ All 25 skills below are installed together. Invoke one by name (for example,
   (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
   decisions log, spec) from a seeded template for the ideas you originate yourself;
   the seeded `origination-workflow` page documents the loop
-  (Frame → Mull → Decide → Reconcile → Log → Graduate), and `doctor` nudges stale
-  projects toward graduate-or-archive.
+  (Frame → Mull → Decide → Reconcile → Log → Graduate), including an
+  end-of-session check that every changed content page has an honest `updated:`
+  date; `doctor` reports incomplete project metadata and nudges stale projects
+  toward graduate-or-archive.
 - **Guided onboarding** — ships `/brain-dump`, an instructional tutorial that walks you
   through every ingestion type, `.raw/`, the hot cache, starting a new idea, keeping
   the vault lean, and turning optional features on or off, and hands you the exact
@@ -223,7 +226,14 @@ Then, in Claude Code:
 …and follow the interactive workflow. Or run the scripts directly (see below).
 
 > [!IMPORTANT]
-> **Release and upgrade notes for v0.2.15 (2026-07-27).** `code-fetch` is now an
+> **Release and upgrade notes for v0.2.16 (2026-07-29).** `/new-idea` now makes
+> freshness metadata part of Reconcile and the end-of-session ritual. Existing
+> vault-local templates gain the missing `project.md` field through a narrow,
+> idempotent migration; customized workflows that cannot be patched safely are
+> preserved with a manual-merge warning. Existing project content is never
+> bulk-stamped with a misleading current date.
+>
+> Since v0.2.15, `code-fetch` is an
 > agent reading pass: its script stages the codebase (a shallow clone for git URLs,
 > local paths read in place, plus an inventory), then the agent reads the README,
 > entry points, API surface, and tests and writes one semantic digest to `.raw/code/`.
@@ -232,13 +242,15 @@ Then, in Claude Code:
 > Also since v0.2.7, **`bin/reset-vault.sh`** can empty a vault after a verified
 > backup (keeping MCP wiring by default, or retiring and re-scaffolding with
 > `--scorch`), **`doctor`** audits the manifest's skill list against the installed
-> plugin cache, and claude-obsidian is pinned to **1.9.4**.
+> plugin cache, and claude-obsidian is pinned to **1.9.5**.
 >
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support; git is now the only sync
 > path. See [Updating an existing secondbrain](#updating-an-existing-secondbrain),
 > using either the [plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
 > or a [local git clone](#if-you-cloned-the-git-repo). The update does not uninstall
-> anything from your machine. If the vault still has a `.stignore`, setup offers to
+> anything from your machine or rewrite content notes; it can surgically migrate
+> techtrip-secondbrain's managed origination workflow/template metadata. If the
+> vault still has a `.stignore`, setup offers to
 > remove that project-created artifact. Full details are in the
 > [CHANGELOG](CHANGELOG.md).
 
@@ -451,7 +463,9 @@ It re-runs the idempotent setup scripts from the plugin: `setup-claude-obsidian.
 updates `claude-obsidian` (and migrates an upstream install over to the fork if
 needed), the vault scaffold re-pins the community plugins to this release's
 manifest tags (each asset re-verified against its `sha256`), the cross-harness
-skill links (Cursor/Codex) are re-pointed at the new plugin version, and it
+skill links (Cursor/Codex) are re-pointed at the new plugin version, the MCP
+registration is reconciled to the tested `mcp-obsidian==0.2.2` without rotating
+its key, and it
 finishes with a health check — without touching your notes, git history, MCP key,
 or optional-feature choices. (Skip the `/secondbrain` re-run and those harness
 links silently keep serving the *old* skills — `doctor` flags this as stale.)
@@ -477,7 +491,8 @@ bash bin/update.sh ~/LLM-Wiki  # substitute your vault path (or omit — the sav
 `update.sh` refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
 `claude-obsidian` plugins, re-runs the idempotent vault scaffold so community plugins
 are re-pinned to the manifest's tags (each asset re-verified against its `sha256`),
-and finishes with `bin/doctor.sh`. It **does not** touch your notes, git history, MCP
+reconciles the pinned MCP command with rollback on failure, and finishes with
+`bin/doctor.sh`. It **does not** touch your notes, git history, MCP
 key, or optional-feature choices. Every prompt is confirm-gated; `--dry-run` previews
 without changing anything. **Restart Claude Code** afterward so the new plugin, skill,
 and hook versions load.

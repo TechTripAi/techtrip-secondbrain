@@ -479,6 +479,9 @@ source, then archive the folder.
 - **Graduate or archive — don't hoard open projects.** An `active` project nobody has
   touched in a month is rot, not work-in-progress. `/secondbrain-doctor` reports stale
   and unregistered projects so they don't silently pile up.
+- **Keep freshness metadata honest.** Before ending a session, review every project or
+  promoted substrate content page changed and set its `updated: YYYY-MM-DD` to today.
+  The git auto-commit hook records changes; it does not repair page metadata.
 
 ---
 

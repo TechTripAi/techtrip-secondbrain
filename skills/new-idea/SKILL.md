@@ -42,6 +42,12 @@ stamps. `bin/setup-vault.sh` seeds the same templates plus
 missing, point the user at `/secondbrain` to re-run setup (idempotent) rather
 than writing it by hand.
 
+On an upgrade, setup runs the narrow `migrate-origination-metadata.sh` helper:
+it adds the missing `project.md` template field and the marked session-ritual
+check without replacing unrelated workflow customizations. Independently, the
+scaffolder validates all five generated pages and repairs missing/invalid
+`updated:` values, so an old vault-local template cannot create stale metadata.
+
 ## After the script runs (agent steps)
 
 1. **Register in [[index]]** — add a bullet under `## Active projects`
@@ -51,6 +57,9 @@ than writing it by hand.
    project and its claim.
 3. **Kick off the loop** — confirm the thesis claim, seed `open-questions.md`
    with the real unknowns, and point the user at [[origination-workflow]].
+4. **Check the scaffold** — all five project files must have an `updated:`
+   frontmatter date. The script repairs a missing field in legacy vault-local
+   templates, but the agent owns this final semantic check.
 
 ## Hygiene
 
@@ -60,6 +69,20 @@ hoard open projects.** `bin/doctor.sh` / `/secondbrain-doctor` reports, per
 project, when an `active` project has gone stale (no file touched in 30+ days)
 or was never registered in `wiki/index.md`. The report is advisory only —
 whether to graduate, archive, or keep mulling is the user's call.
+
+### Session metadata contract
+
+Origination is agent-authored living content. Whenever a session meaningfully
+changes `project.md`, `thesis.md`, `open-questions.md`, `decisions.md`, `spec.md`,
+or a substrate content page promoted/edited during the work, **add or set its
+`updated: YYYY-MM-DD` to today as part of the same logical edit**. At session
+end, review the changed content pages and verify the date on each. `index.md`,
+`log.md`, and `hot.md` are operational pages and are exempt.
+
+For `decisions.md`, append-only governs the decision records; bumping the
+frontmatter `updated:` date when appending a `Dn` is required and does not
+rewrite history. Git auto-commit only records the resulting files — it never
+repairs metadata — so do not delegate this check to a hook.
 
 ## Notes
 

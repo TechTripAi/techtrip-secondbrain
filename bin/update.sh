@@ -20,7 +20,9 @@
 #      touch the Syncthing install itself — it's external software.
 #   8. Doctor the result.
 #
-# Does NOT touch your notes, git history, MCP key, or optional-feature choices.
+# Does NOT rewrite content notes, git history, MCP key, or optional-feature
+# choices. setup-vault may surgically migrate techtrip-secondbrain-owned meta
+# workflow/template artifacts while preserving unrelated customizations.
 # Community-plugin downloads stay pinned + hash-verified (see scripts/
 # install-obsidian-plugin.sh). Restart Claude Code afterward to load new
 # plugin/skill/hook versions.
@@ -86,7 +88,14 @@ else
   warn "  bash bin/update.sh /path/to/vault"
 fi
 
-# ── 4. Re-point cross-harness skill links ────────────────────────────────────
+# ── 4. Reconcile MCP registration without rotating the vault key ─────────────
+step "Reconcile Obsidian MCP registration"
+if [ -d "$VAULT" ]; then
+  run "Checking pinned MCP command + key registration" -- bash "$BIN_DIR/setup-mcp.sh" "$VAULT" || \
+    warn "setup-mcp.sh reported an issue; its transaction restores the previous registration on failure."
+fi
+
+# ── 5. Re-point cross-harness skill links ────────────────────────────────────
 # Skill symlinks in ~/.agents/skills (and ~/.codex/skills) point at versioned
 # plugin-cache dirs, so a plugin update strands them. Only refresh when the
 # machine-level links already exist — update never introduces new surface area.
@@ -100,7 +109,7 @@ else
   info "(Enable any time: bash bin/setup-harnesses.sh)"
 fi
 
-# ── 5. Prune permission rules stranded by the updates ────────────────────────
+# ── 6. Prune permission rules stranded by the updates ────────────────────────
 # Approved rules in settings.local.json embed versioned plugin-cache paths, so
 # the plugin updates above just stranded any rules pinned to the old version
 # dirs. prune-permissions.sh is confirm-gated, backs each file up first, and
@@ -110,7 +119,7 @@ run "Checking settings.local.json for rules stranded by the update" -- \
   bash "$BIN_DIR/prune-permissions.sh" "$VAULT" || \
   warn "prune-permissions.sh reported an issue (continuing)."
 
-# ── 6. DragonScale addressing armed in the vault? ─────────────────────────────
+# ── 7. DragonScale addressing armed in the vault? ─────────────────────────────
 # claude-obsidian's opt-in Mechanism 2 is feature-detected from vault files, so
 # a vault that ever got the upstream scripts copied in silently assigns
 # address: fields from a machine-locally-locked counter — duplicate-address and
@@ -123,7 +132,7 @@ run "Checking the vault for armed DragonScale addressing" -- \
   bash "$BIN_DIR/disarm-dragonscale.sh" "$VAULT" || \
   warn "disarm-dragonscale.sh reported an issue (continuing)."
 
-# ── 7. Legacy Syncthing (removed in 0.2.0) ────────────────────────────────────
+# ── 8. Legacy Syncthing (removed in 0.2.0) ────────────────────────────────────
 # Syncthing support was dropped. Only flag the vault-side leftover we created
 # (.stignore); the Syncthing install itself is external software the user may
 # use for other purposes — never stop or uninstall it.
@@ -134,7 +143,7 @@ if [ -f "$VAULT/.stignore" ]; then
   info "  bash bin/setup-sync.sh $VAULT"
 fi
 
-# ── 8. Doctor ────────────────────────────────────────────────────────────────
+# ── 9. Doctor ────────────────────────────────────────────────────────────────
 step "Post-update health check"
 run "Running doctor" -- bash "$BIN_DIR/doctor.sh" "$VAULT" || true
 

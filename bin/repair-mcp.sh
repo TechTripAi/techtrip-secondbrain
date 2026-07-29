@@ -36,6 +36,26 @@ if [ "$claude_ok" = 1 ] && claude mcp list 2>/dev/null | grep -qE "^${NAME}:"; t
   registered=1; row "registered in Claude" "$OKM"
 else row "registered in Claude" "$BADM  → bin/setup-mcp.sh"; fi
 
+# Does the registration use the exact pinned command/args/non-secret env?
+config_ok=0
+if [ -f "$CLAUDE_JSON" ] && node -e '
+  try{
+    const fs=require("fs"),c=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+    const m=JSON.parse(fs.readFileSync(process.argv[2],"utf8")).mcpServers[0];
+    const s=(c.mcpServers&&c.mcpServers[m.name])||{};
+    const env={...(s.env||{})};delete env.OBSIDIAN_API_KEY;
+    const want=m.env||{},ek=Object.keys(env),wk=Object.keys(want);
+    const sameEnv=ek.length===wk.length&&wk.every(k=>env[k]===want[k]);
+    process.exit(s.command===m.command &&
+      JSON.stringify(s.args||[])===JSON.stringify(m.args||[]) &&
+      sameEnv ? 0 : 1);
+  }catch(e){process.exit(1)}
+' "$CLAUDE_JSON" "$MANIFEST" 2>/dev/null; then
+  config_ok=1; row "pinned MCP command" "$OKM (mcp-obsidian 0.2.2)"
+else
+  row "pinned MCP command" "$WARNM  (registration drift → safe reconcile available)"
+fi
+
 # API key present in the vault plugin data.json?
 vault_key=""; datakey_ok=0
 if [ -f "$DATA" ]; then
@@ -73,7 +93,7 @@ else row "authenticated probe (/vault/)" "$WARNM  (skipped: port down or no key)
 
 # ── Verdict ──────────────────────────────────────────────────────────────────
 step "Verdict"
-if [ "$registered" = 1 ] && [ "$keymatch_ok" = 1 ] && [ "$probe_ok" = 1 ]; then
+if [ "$registered" = 1 ] && [ "$config_ok" = 1 ] && [ "$keymatch_ok" = 1 ] && [ "$probe_ok" = 1 ]; then
   ok "$NAME MCP is healthy end-to-end. If tools still don't resolve in Claude, reload the session."
   exit 0
 fi
@@ -87,15 +107,16 @@ if [ "$uvx_ok" = 0 ]; then
 fi
 
 # Key missing/mismatch, or not registered → (re)register with the correct key.
-if [ "$registered" = 0 ] || [ "$keymatch_ok" = 0 ]; then
-  warn "Registration is missing or its key doesn't match the vault's REST API key."
+if [ "$registered" = 0 ] || [ "$config_ok" = 0 ] || [ "$keymatch_ok" = 0 ]; then
+  warn "Registration is missing, drifted from the pin, or its key doesn't match the vault."
   info "This is the usual cause of 'registered globally but fails to connect' after a key rotation or a fresh vault."
   if confirm "Re-register '$NAME' with the vault's current key (via bin/setup-mcp.sh)?"; then
-    if [ "$registered" = 1 ]; then run "Remove stale registration" -- claude mcp remove "$NAME" 2>/dev/null || true; fi
-    # TSB_DRY_RUN / TSB_ASSUME_YES are exported — the child inherits them.
+    # setup-mcp performs a transactional backup/remove/add and restores the
+    # prior Claude configuration if the new registration fails. It preserves
+    # the vault key and unrelated MCP servers.
     # (Never rebuild them via ${VAR:+--flag}: the vars are always set to "0"/"1",
     # so :+ expands the flag unconditionally and forces a permanent dry-run.)
-    run "Re-register with correct key" -- bash "$BIN_DIR/setup-mcp.sh" "$VAULT"
+    run "Reconcile pinned registration with correct key" -- bash "$BIN_DIR/setup-mcp.sh" "$VAULT"
     info "Reload the Claude session afterward so the new registration takes effect."
   fi
 fi
@@ -112,10 +133,10 @@ if [ "$port_ok" = 0 ]; then
 fi
 
 # Everything structurally fine but probe failed despite listening → likely reload/TLS.
-if [ "$registered" = 1 ] && [ "$keymatch_ok" = 1 ] && [ "$port_ok" = 1 ] && [ "$probe_ok" = 0 ]; then
+if [ "$registered" = 1 ] && [ "$config_ok" = 1 ] && [ "$keymatch_ok" = 1 ] && [ "$port_ok" = 1 ] && [ "$probe_ok" = 0 ]; then
   warn "Registered + keys match + port up, but the authenticated probe failed."
-  info "Check that NODE_TLS_REJECT_UNAUTHORIZED=0 is set in the registration (self-signed cert),"
-  info "then fully reload/restart Claude Code — a stale MCP connection won't reconnect on its own."
+  info "The pinned Python client handles the localhost self-signed certificate itself."
+  info "Fully reload/restart Claude Code — a stale MCP connection won't reconnect on its own."
 fi
 
 step "Repair pass complete — re-run bin/repair-mcp.sh to confirm green."

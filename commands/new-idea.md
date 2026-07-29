@@ -15,3 +15,6 @@ Read the `new-idea` skill and follow it.
 - If the vault is missing the templates or workflow page, the script self-seeds
   the templates; for anything else defer to `/secondbrain` (idempotent re-run) —
   never hand-write setup artifacts.
+- Before ending origination work, review every project or promoted substrate
+  content page changed in the session and set its `updated: YYYY-MM-DD` to
+  today. Git auto-commit records the edits; it does not repair metadata.

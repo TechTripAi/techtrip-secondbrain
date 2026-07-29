@@ -31,8 +31,8 @@
       "marketplace": "TechTripAi/claude-obsidian",
       "slug": "claude-obsidian@techtripai-claude-obsidian",
       "license": "MIT",
-      "testedVersion": "1.9.4",
-      "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's patched fork (TechTripAi/claude-obsidian) because upstream is backlogged — the fork carries fixes plus maintenance additions filed upstream as candidate PRs (e.g. the invalid SessionStart prompt hook, upstream issue #116; the 1.9.3 maintenance suite; the 1.9.4 wikilink pipe-escape fix), and tracks upstream via git remote for periodic sync. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
+      "testedVersion": "1.9.5",
+      "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's patched fork (TechTripAi/claude-obsidian) because upstream is backlogged — the fork carries fixes plus maintenance additions filed upstream as candidate PRs (including 1.9.5 machine-global hook confinement), and tracks upstream via git remote for periodic sync. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
     }
   ],
   "obsidianPluginsNote": "Each plugin is PINNED to a release tag, and every downloaded asset is verified against its sha256 before install (supply-chain guard: a hijacked upstream release fails loudly instead of installing silently). Refresh pins + hashes with: bash scripts/pin-obsidian-plugins.sh",
@@ -100,14 +100,13 @@
     {
       "name": "obsidian",
       "command": "uvx",
-      "args": ["mcp-obsidian"],
+      "args": ["--from", "mcp-obsidian==0.2.2", "mcp-obsidian"],
       "scope": "user",
       "env": {
         "OBSIDIAN_HOST": "127.0.0.1",
-        "OBSIDIAN_PORT": "27124",
-        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+        "OBSIDIAN_PORT": "27124"
       },
-      "note": "OBSIDIAN_API_KEY is injected by setup-mcp.sh to match the Local REST API plugin key. NODE_TLS_REJECT_UNAUTHORIZED=0 accepts the REST plugin's self-signed cert, but it disables TLS verification for EVERY outbound TLS connection this MCP server process makes, not just the localhost one — acceptable only because mcp-obsidian talks solely to 127.0.0.1:27124. Do not reuse this env for any server that reaches the network; the cleaner per-CA alternative would be exporting the plugin cert and pointing NODE_EXTRA_CA_CERTS at it."
+      "note": "OBSIDIAN_API_KEY is injected by setup-mcp.sh to match the Local REST API plugin key. The top-level PyPI package is pinned to the tested 0.2.2 release; its Python REST client handles the localhost plugin's self-signed certificate itself."
     }
   ],
   "harnesses": {

@@ -60,7 +60,8 @@ if [ "$NEED_GEN" -eq 0 ]; then
 fi
 if [ "$NEED_GEN" -eq 1 ]; then
   echo "==> Generating a fresh report (blocking)..." >&2
-  notebooklm generate report "$TITLE" -n "$NB_ID" --wait 1>&2
+  case "$TITLE" in -*) echo "notebook title is option-like; refusing to pass it to the CLI" >&2; exit 2 ;; esac
+  notebooklm generate report -n "$NB_ID" --wait "$TITLE" 1>&2
 else
   echo "==> Reusing latest existing report (pass --fresh to regenerate)." >&2
 fi
@@ -73,7 +74,7 @@ BODY="$(mktemp)"
 trap 'rm -f "$BODY"' EXIT
 
 echo "==> Downloading report markdown..." >&2
-notebooklm download report "$BODY" -n "$NB_ID" --force 1>&2
+notebooklm download report -n "$NB_ID" --force "$BODY" 1>&2
 
 {
   echo "---"

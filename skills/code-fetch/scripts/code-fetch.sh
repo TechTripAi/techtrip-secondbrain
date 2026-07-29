@@ -21,6 +21,8 @@
 #   CODE_FETCH_BRANCH=<branch>   clone a specific branch for git-URL sources
 set -euo pipefail
 export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+ENCODER="$(cd "$SCRIPT_DIR/../../.." && pwd -P)/scripts/encode-text.js"
 
 WORKDIR_MARKER=".code-fetch-workdir"
 
@@ -28,13 +30,32 @@ WORKDIR_MARKER=".code-fetch-workdir"
 if [ "${1:-}" = "cleanup" ]; then
   WD="${2:-}"
   if [ -z "$WD" ]; then echo "usage: code-fetch.sh cleanup <workdir>" >&2; exit 2; fi
-  # Only delete dirs we provably created (marker file), never arbitrary paths.
-  if [ ! -f "$WD/$WORKDIR_MARKER" ]; then
-    echo "error: $WD is not a code-fetch workdir (no $WORKDIR_MARKER marker) — refusing to delete" >&2
-    exit 2
-  fi
-  rm -rf -- "$WD"
-  echo "removed $WD" >&2
+  case "$WD" in -*) echo "error: refusing option-like cleanup path: $WD" >&2; exit 2 ;; esac
+  [ ! -L "$WD" ] || { echo "error: cleanup target is a symlink — refusing" >&2; exit 2; }
+  CANON_TMP="$(node -e 'const fs=require("fs");process.stdout.write(fs.realpathSync(process.env.TMPDIR||"/tmp"))' 2>/dev/null)" || exit 2
+  CANON_WD="$(node -e 'const fs=require("fs");process.stdout.write(fs.realpathSync(process.argv[1]))' "$WD" 2>/dev/null)" || {
+    echo "error: cleanup target does not resolve" >&2; exit 2;
+  }
+  [ "$(dirname "$CANON_WD")" = "$CANON_TMP" ] || {
+    echo "error: cleanup target is outside the canonical temp root — refusing" >&2; exit 2;
+  }
+  printf '%s\n' "$(basename "$CANON_WD")" | grep -Eq '^code-fetch\.[A-Za-z0-9]+$' || {
+    echo "error: cleanup target name is not code-fetch.<random> — refusing" >&2; exit 2;
+  }
+  MARKER="$CANON_WD/$WORKDIR_MARKER"
+  [ -f "$MARKER" ] && [ ! -L "$MARKER" ] || {
+    echo "error: missing or unsafe $WORKDIR_MARKER marker — refusing" >&2; exit 2;
+  }
+  TSB_EXPECTED_WD="$CANON_WD" node -e '
+    const fs=require("fs"),f=process.argv[1];
+    try{const st=fs.lstatSync(f),j=JSON.parse(fs.readFileSync(f,"utf8"));
+      process.exit(st.isFile()&&!st.isSymbolicLink()&&j.schema===1&&
+        j.kind==="code-fetch-workdir"&&j.path===process.env.TSB_EXPECTED_WD?0:1)}
+    catch(e){process.exit(1)}
+  ' "$MARKER" || { echo "error: invalid code-fetch marker — refusing" >&2; exit 2; }
+  [ -d "$CANON_WD/repo/.git" ] || { echo "error: staged clone is missing — refusing" >&2; exit 2; }
+  rm -rf -- "$CANON_WD"
+  echo "removed $CANON_WD" >&2
   exit 0
 fi
 
@@ -57,7 +78,11 @@ case "$TARGET" in
     command -v git >/dev/null 2>&1 || { echo "git required for URL sources" >&2; exit 3; }
     SOURCE_URL="$TARGET"
     WORKDIR="$(mktemp -d "${TMPDIR:-/tmp}/code-fetch.XXXXXX")"
-    : > "$WORKDIR/$WORKDIR_MARKER"
+    TSB_WORKDIR="$(cd "$WORKDIR" && pwd -P)" node -e '
+      require("fs").writeFileSync(process.argv[1],JSON.stringify({
+        schema:1,kind:"code-fetch-workdir",path:process.env.TSB_WORKDIR
+      },null,2)+"\n")
+    ' "$WORKDIR/$WORKDIR_MARKER"
     CLONE_OPTS=(--depth 1 --quiet)
     [ -n "${CODE_FETCH_BRANCH:-}" ] && CLONE_OPTS+=(--branch "$CODE_FETCH_BRANCH")
     if ! git clone "${CLONE_OPTS[@]}" -- "$TARGET" "$WORKDIR/repo" 1>&2; then
@@ -79,8 +104,7 @@ esac
 
 NAME="$(basename "$SRC")"
 [ "$NAME" = repo ] && [ -n "$SOURCE_URL" ] && NAME="$(basename "$SOURCE_URL" .git)"
-# Strip double quotes so the value can't break the double-quoted YAML fields.
-NAME="${NAME//\"/}"
+NAME_MD="$(node "$ENCODER" markdown "$NAME")"
 COMMIT="$(git -C "$SRC" rev-parse --short HEAD 2>/dev/null || true)"
 
 # ── File listing (git-aware; falls back to find, skipping vendored dirs) ─────
@@ -100,7 +124,7 @@ LANGS="$(printf '%s\n' "$FILES" | awk -F. 'NF>1 && $NF !~ /\// {print tolower($N
   | awk '{printf "%s%s (%s)", sep, $2, $1; sep=", "} END {print ""}')"
 
 # ── Emit inventory to stdout ──────────────────────────────────────────────────
-echo "# code-fetch inventory: $NAME"
+echo "# code-fetch inventory: $NAME_MD"
 echo
 echo "Source root (read files from here): $SRC"
 if [ -n "$WORKDIR" ]; then
@@ -114,13 +138,13 @@ echo
 echo "## Frontmatter (paste into the digest as-is)"
 echo
 printf -- '---\n'
-printf 'title: "%s — codebase digest"\n' "$NAME"
+printf 'title: %s\n' "$(node "$ENCODER" yaml "$NAME — codebase digest")"
 printf 'source_type: codebase\n'
-[ -n "$SOURCE_URL" ]  && printf 'source_url: "%s"\n' "$SOURCE_URL"
-[ -n "$SOURCE_PATH" ] && printf 'source_path: "%s"\n' "$SOURCE_PATH"
-[ -n "$COMMIT" ]      && printf 'commit: "%s"\n' "$COMMIT"
+[ -n "$SOURCE_URL" ]  && printf 'source_url: %s\n' "$(node "$ENCODER" yaml "$SOURCE_URL")"
+[ -n "$SOURCE_PATH" ] && printf 'source_path: %s\n' "$(node "$ENCODER" yaml "$SOURCE_PATH")"
+[ -n "$COMMIT" ]      && printf 'commit: %s\n' "$(node "$ENCODER" yaml "$COMMIT")"
 printf 'file_count: %s\n' "$FILE_COUNT"
-[ -n "$LANGS" ] && printf 'languages: "%s"\n' "$LANGS"
+[ -n "$LANGS" ] && printf 'languages: %s\n' "$(node "$ENCODER" yaml "$LANGS")"
 printf 'fetched: %s\n' "$(date +%Y-%m-%d)"
 printf -- '---\n\n'
 

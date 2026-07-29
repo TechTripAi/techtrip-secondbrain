@@ -24,8 +24,9 @@ Three scripts back this skill:
   projects** (stale/unindexed rows under `wiki/projects/` — advisory, see below),
   **wiki maintenance** (orphaned `.raw` provenance, never-ingested inbox files,
   aging pages, archive tiers — advisory, see below),
-  each community plugin (files present + enabled), the REST-API-key ↔ MCP-env-key
-  match, the `claude-obsidian` plugin, the `obsidian` MCP registration, **update
+  each community plugin (files present + enabled + pinned hashes), the
+  REST-API-key ↔ MCP-env-key match, REST config mode/Git exposure, the
+  `claude-obsidian` plugin, the pinned `obsidian` MCP registration, **update
   availability** for both plugins (installed cache version vs the repo's `main`;
   offline skips the check), the cross-harness skill links (Cursor/Copilot/Codex —
   stale after a plugin update if `setup-harnesses.sh` wasn't re-run) plus the
@@ -38,7 +39,8 @@ Three scripts back this skill:
 - **`bin/repair-mcp.sh <vault>`** — deeper MCP diagnosis + **interactive repair**:
   uvx present, registered, key match, port 27124 listening, authenticated probe;
   then offers fixes (install uv, re-register with the correct key, open Obsidian +
-  enable Local REST API, or advise a Claude reload / TLS-flag check).
+  enable Local REST API, or advise a Claude reload). Registration repair keeps
+  the vault key and rolls Claude config back if the pinned add fails.
 - **`bin/prune-permissions.sh <vault>`** — confirm-gated cleanup of
   `~/.claude/settings.local.json` and `<vault>/.claude/settings.local.json`:
   removes permission rules that embed a plugin-cache version path that is gone
@@ -99,7 +101,11 @@ so the fix is upstream, not here.
    / ingest the outputs and archive the folder, or set `status:` to something
    other than `active` if it's deliberately parked). **not in wiki/index.md**
    means the post-scaffold registration step was skipped: offer to add the
-   `## Active projects` bullet per the `new-idea` skill. Never mutate the vault
+   `## Active projects` bullet per the `new-idea` skill. **metadata incomplete**
+   means one of the five canonical project files is missing or has no valid
+   `updated: YYYY-MM-DD`; offer to add/bump the field when that page is next
+   meaningfully reviewed. Never bulk-stamp untouched pages with today's date,
+   because that would make freshness metadata lie. Never mutate the vault
    without the user's go-ahead.
 9. If a **"Wiki maintenance"** row is flagged, there is likewise **no auto-repair** —
    these are content signals, and the tools that act on them are claude-obsidian's

@@ -22,14 +22,18 @@ Registered at **user scope** (works from any directory) via `claude mcp add`, us
 the settings from `manifest.json.mcpServers[0]`:
 
 ```
-command: uvx      args: mcp-obsidian
+command: uvx      args: --from mcp-obsidian==0.2.2 mcp-obsidian
 env: OBSIDIAN_HOST=127.0.0.1  OBSIDIAN_PORT=27124
-     NODE_TLS_REJECT_UNAUTHORIZED=0  OBSIDIAN_API_KEY=<generated>
+     OBSIDIAN_API_KEY=<generated>
 ```
 
-- Port **27124** is the Local REST API plugin's HTTPS port; the self-signed cert is
-  why `NODE_TLS_REJECT_UNAUTHORIZED=0` is needed.
-- `uvx` (not `npx`) runs the tested Python `mcp-obsidian` — requires `uv`.
+- Port **27124** is the Local REST API plugin's HTTPS port. The pinned Python
+  client handles that localhost plugin's self-signed certificate itself; the
+  unrelated Node-wide TLS bypass is neither needed nor registered.
+- `uvx` (not `npx`) runs the tested Python `mcp-obsidian==0.2.2` — requires `uv`.
+- Re-running setup compares the exact command, args, non-secret environment,
+  and key. Drift is reconciled through a mode-600 transactional backup; the
+  prior Claude config is restored if registration fails.
 
 ## Gotchas to tell the user
 

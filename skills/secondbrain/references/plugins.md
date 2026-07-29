@@ -18,7 +18,11 @@ Obsidian has **no official plugin CLI**, so we install plugins the same way
 `TechTrip.AI/.claude/settings.local.json` already does: download `manifest.json`,
 `main.js`, and (optional) `styles.css` from the plugin's GitHub **release** into
 `<vault>/.obsidian/plugins/<id>/`, then add `<id>` to
-`.obsidian/community-plugins.json`. Idempotent: skips if `main.js` already present.
+`.obsidian/community-plugins.json`. Idempotence is hash-based: matching live
+assets are a true no-op. Drift downloads and verifies the complete pinned release
+before a same-filesystem swap; `data.json` and unknown custom files are preserved,
+and any failed download/swap restores the prior directory. A custom plugin not in
+the manifest requires the explicit `--allow-unverified` flag.
 
 Plugins from `manifest.json.obsidianPlugins`:
 

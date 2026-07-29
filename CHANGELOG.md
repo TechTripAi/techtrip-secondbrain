@@ -3,6 +3,57 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.16] — 2026-07-29
+
+### Security
+- **Community-plugin pins now remain enforced after installation.** Setup and
+  update hash the live release assets; drift triggers a verified, same-filesystem
+  transactional replacement that preserves `data.json` and unknown plugin files.
+  Doctor reports hash drift. Custom unverified installs now require an explicit
+  `--allow-unverified` acknowledgement.
+- **The Obsidian MCP runtime is pinned to `mcp-obsidian==0.2.2`.** Existing
+  registrations reconcile without rotating the vault key, preserve unrelated
+  MCP servers, and restore a mode-600 transactional config backup if add fails.
+  Doctor checks the command pin, REST-config permissions, Git ignore, and
+  accidental tracking without printing secrets.
+- **Machine-global hooks are source-confined in maintained fork 1.9.5.** Hook
+  commands execute a bundled `${CLAUDE_PLUGIN_ROOT}` dispatcher, never a
+  cwd-controlled script, and require a canonical vault marker or strict legacy
+  scaffold. Generic `wiki/` repositories are inert; existing vault automation
+  and the auto-commit kill switch remain compatible.
+- **Source adapters now treat metadata and cleanup paths as hostile input.** A
+  shared context encoder prevents YAML/Markdown structure injection; NotebookLM
+  rejects option-like/non-URL sources; code-fetch cleanup is confined to a
+  canonical generated temp directory; and the Copilot reminder uses an atomic
+  owner-only sentinel.
+
+### Fixed
+- **Origination freshness metadata is now part of the workflow contract.** The
+  Reconcile step covers the whole project state, and the end-of-session ritual
+  verifies that every changed project or promoted substrate content page has
+  an honest `updated: YYYY-MM-DD`. The `new-idea` skill, portable vault
+  `AGENTS.md`, and `/brain-dump` tutorial teach the same rule. Operational
+  `index.md`, `log.md`, and `hot.md` remain exempt.
+- **All five origination project files now carry `updated:`.** The bundled
+  `project.md` template gains the field, and `new-idea.sh` repairs it while
+  stamping from an older vault-local template. `decisions.md` remains
+  append-only for decision records; bumping its frontmatter date is explicitly
+  required metadata maintenance.
+- **Existing vaults upgrade without replacing custom workflow content.** An
+  idempotent setup migration inserts only the missing template field and the
+  marked session-ritual check. If a customized workflow no longer has the
+  expected anchors, setup preserves it and prints a manual-merge warning.
+  Existing project pages are never bulk-stamped with today's date; Doctor
+  reports missing/invalid project `updated:` fields for deliberate review.
+
+### Unchanged
+- **Git auto-commit remains recording-only.** The claude-obsidian hook still
+  stages and commits changed vault paths; it does not parse or rewrite page
+  metadata.
+- **Vault content and keys are not migrated by security reconciliation.** Plugin
+  executable repair preserves settings/custom files, and MCP repair reuses the
+  existing REST key.
+
 ## [0.2.15] — 2026-07-27
 
 ### Added

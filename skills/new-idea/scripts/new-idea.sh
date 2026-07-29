@@ -18,9 +18,11 @@ export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
 # link to the plugin cache, and a logical pwd would walk ../ from the link's
 # parent instead of the real plugin root.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd -P)"
+ENCODER="$PLUGIN_ROOT/scripts/encode-text.js"
 # Bundled copy of the templates, shipped with the plugin (fallback for vaults
 # scaffolded before this skill existed).
-BUNDLED_SRC="$(cd "$SCRIPT_DIR/../../.." && pwd -P)/assets/vault/wiki/meta/templates/origination-project"
+BUNDLED_SRC="$PLUGIN_ROOT/assets/vault/wiki/meta/templates/origination-project"
 
 # --- locate vault root (dir containing wiki/) --------------------------------
 find_vault_root() {
@@ -77,29 +79,80 @@ fi
 
 [[ -e "$DEST" ]] && { echo "error: $DEST already exists — pick another slug" >&2; exit 1; }
 
+for required in project.md thesis.md open-questions.md decisions.md spec.md; do
+  [[ -f "$SRC/$required" ]] || {
+    echo "error: canonical template file missing: $SRC/$required" >&2
+    exit 1
+  }
+done
+
 # --- stamp -------------------------------------------------------------------
 mkdir -p "$VAULT/wiki/projects"
 cp -R "$SRC" "$DEST"
 
-TITLE="$TITLE" DATE="$DATE" CLAIM="$CLAIM" node - "$DEST" <<'JS'
+TITLE="$TITLE" DATE="$DATE" CLAIM="$CLAIM" node - "$DEST" "$ENCODER" <<'JS'
 const fs = require("fs");
 const path = require("path");
 const dest = process.argv[2];
-const { TITLE: title, DATE: date, CLAIM: claim } = process.env;
+const encoder = require(process.argv[3]);
+const { TITLE: rawTitle, DATE: date, CLAIM: rawClaim } = process.env;
+const titleYaml = encoder.yamlInner(rawTitle);
+const titleMarkdown = encoder.markdownInline(rawTitle);
+const claimMarkdown = encoder.markdownInline(rawClaim);
+const projectFiles = new Set([
+  "project.md", "thesis.md", "open-questions.md", "decisions.md", "spec.md"
+]);
 for (const name of fs.readdirSync(dest)) {
   if (!name.endsWith(".md")) continue;
   const f = path.join(dest, name);
   let s = fs.readFileSync(f, "utf8");
-  s = s.split("{{title}}").join(title).split("{{date}}").join(date);
-  if (claim && name === "thesis.md") {
+  const closeBeforeStamp = s.startsWith("---\n") ? s.indexOf("\n---", 4) : -1;
+  if (closeBeforeStamp >= 0) {
+    const fm = s.slice(0, closeBeforeStamp).split("{{title}}").join(titleYaml);
+    const body = s.slice(closeBeforeStamp).split("{{title}}").join(titleMarkdown);
+    s = fm + body;
+  } else {
+    s = s.split("{{title}}").join(titleMarkdown);
+  }
+  s = s.split("{{date}}").join(date);
+  if (claimMarkdown && name === "thesis.md") {
     // Replace the multi-line placeholder blockquote with the real claim.
     // Function replacement: a string 2nd arg treats $&/$'/$` as special
     // sequences and would corrupt a claim containing them.
-    s = s.replace(/> \*\*Working claim:\*\* <[\s\S]*?>\n/, () => `> **Working claim:** ${claim}\n`);
+    s = s.replace(/> \*\*Working claim:\*\* <[\s\S]*?>\n/, () => `> **Working claim:** ${claimMarkdown}\n`);
+  }
+  // Vault-local templates are intentionally user-editable and are not
+  // overwritten on plugin updates. Repair the one metadata invariant needed
+  // by every generated project page, even when an old local template predates
+  // it. Restrict this to the five canonical files so custom README/supporting
+  // files are left alone.
+  if (projectFiles.has(name)) {
+    const close = s.indexOf("\n---", 4);
+    if (!s.startsWith("---\n") || close < 0) {
+      throw new Error(`${name}: missing YAML frontmatter`);
+    }
+    const fm = s.slice(4, close);
+    if (!/^updated:\s*["']?\d{4}-\d{2}-\d{2}["']?\s*$/m.test(fm)) {
+      if (/^updated:\s*.*$/m.test(fm)) {
+        s = s.replace(/^updated:\s*.*$/m, `updated: "${date}"`);
+      } else {
+        if (!/^created:\s*.*$/m.test(fm)) {
+          throw new Error(`${name}: frontmatter has neither updated nor created`);
+        }
+        s = s.replace(/^(created:\s*.*)$/m, `$1\nupdated: "${date}"`);
+      }
+    }
   }
   fs.writeFileSync(f, s);
 }
+for (const name of projectFiles) {
+  if (!fs.existsSync(path.join(dest, name))) {
+    throw new Error(`canonical template file missing: ${name}`);
+  }
+}
 JS
+
+TITLE="$(node "$ENCODER" markdown "$TITLE")"
 
 echo "✓ created wiki/projects/$SLUG/"
 ls -1 "$DEST"
@@ -109,3 +162,4 @@ echo "  1. Add under '## Active projects' in wiki/index.md:"
 echo "     - [[projects/$SLUG/project|$TITLE]] — <one-line> ; see [[projects/$SLUG/thesis|thesis]]"
 echo "  2. Append a 'scaffold' entry to wiki/log.md."
 echo "  3. Start the loop: fill the thesis claim + seed open-questions ([[origination-workflow]])."
+echo "  4. Verify every changed content page has updated: $(date +%F)."

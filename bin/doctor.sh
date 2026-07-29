@@ -25,9 +25,22 @@ if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2
     slug="$(basename "$pdir")"
     status="$(awk -F': *' '/^status:/{gsub(/["\047]/,"",$2);print $2;exit}' "$pdir/project.md" 2>/dev/null)"
     issues=""
+    metadata_issues=""
+    for project_file in project.md thesis.md open-questions.md decisions.md spec.md; do
+      if [ ! -f "$pdir/$project_file" ]; then
+        metadata_issues="${metadata_issues:+$metadata_issues, }$project_file missing"
+        continue
+      fi
+      project_fm="$(awk '/^---$/{n++;next} n==1{print} n>=2{exit}' "$pdir/$project_file" 2>/dev/null)"
+      project_updated="$(printf '%s\n' "$project_fm" | awk -F': *' '/^updated:/{gsub(/["\047]/,"",$2);print $2;exit}')"
+      if ! printf '%s\n' "$project_updated" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+        metadata_issues="${metadata_issues:+$metadata_issues, }$project_file updated: missing/invalid"
+      fi
+    done
+    [ -n "$metadata_issues" ] && issues="metadata incomplete — $metadata_issues"
     if [ "$status" = "active" ] || [ -z "$status" ]; then
       recent="$(find "$pdir" -type f -mtime -30 -print -quit 2>/dev/null)"
-      [ -z "$recent" ] && issues="stale (30+ days untouched) — graduate or archive (origination-workflow)"
+      [ -z "$recent" ] && issues="${issues:+$issues; }stale (30+ days untouched) — graduate or archive (origination-workflow)"
     fi
     if [ -f "$VAULT/wiki/index.md" ] && ! grep -qF "projects/$slug/" "$VAULT/wiki/index.md" 2>/dev/null; then
       issues="${issues:+$issues; }not in wiki/index.md — register it (see the new-idea skill)"
@@ -177,8 +190,24 @@ while IFS= read -r id; do
       process.exit(Array.isArray(a)&&a.includes(process.argv[2])?0:1)}catch(e){process.exit(1)}
     ' "$CP" "$id" 2>/dev/null && enabled=1
   fi
-  if [ "$present" = 1 ] && [ "$enabled" = 1 ]; then row "$id" "$OKM"
-  else row "$id" "$BADM  (files:$present enabled:$enabled)"; fi
+  integrity=1; drift=""
+  for asset in manifest.json main.js styles.css; do
+    want="$(TSB_PLUGIN_ID="$id" TSB_ASSET="$asset" manifest_get \
+      '(((m.obsidianPlugins||[]).find(p=>p.id===process.env.TSB_PLUGIN_ID)||{}).sha256||{})[process.env.TSB_ASSET]||""')"
+    file="$VAULT/.obsidian/plugins/$id/$asset"
+    if [ -n "$want" ]; then
+      if [ ! -f "$file" ] || [ "$(shasum -a 256 "$file" 2>/dev/null | cut -d' ' -f1)" != "$want" ]; then
+        integrity=0; drift="${drift:+$drift, }$asset"
+      fi
+    elif [ "$asset" = styles.css ] && [ -e "$file" ]; then
+      integrity=0; drift="${drift:+$drift, }stale styles.css"
+    fi
+  done
+  if [ "$present" = 1 ] && [ "$enabled" = 1 ] && [ "$integrity" = 1 ]; then
+    row "$id" "$OKM (hashes pinned)"
+  else
+    row "$id" "$BADM  (files:$present enabled:$enabled${drift:+ drift:$drift}) → bin/setup-vault.sh"
+  fi
 done < <(manifest_get 'm.obsidianPlugins.map(p=>p.id).join("\n")')
 
 # MCP key handshake: data.json apiKey == ~/.claude.json OBSIDIAN_API_KEY
@@ -199,6 +228,58 @@ if [ -f "$DATA" ] && [ -f "$CLAUDE_JSON" ]; then
     || row "REST API key == MCP env key" "$BADM  → bin/setup-mcp.sh"
 else
   row "REST API key == MCP env key" "$BADM  (data.json or ~/.claude.json missing)"
+fi
+
+# Secret posture: report metadata only, never values.
+if [ -f "$DATA" ]; then
+  mode="$(stat -f '%Lp' "$DATA" 2>/dev/null || stat -c '%a' "$DATA" 2>/dev/null || true)"
+  [ "$mode" = 600 ] && row "REST API config mode" "$OKM (600)" \
+    || row "REST API config mode" "$BADM  (${mode:-unknown}; expected 600) → bin/setup-mcp.sh"
+  if git -C "$VAULT" rev-parse --git-dir >/dev/null 2>&1; then
+    rel=".obsidian/plugins/obsidian-local-rest-api/data.json"
+    if git -C "$VAULT" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
+      row "REST API config tracked" "$BADM  SECRET IS TRACKED — rotate key and remove from Git history"
+    else
+      row "REST API config tracked" "$OKM no"
+    fi
+    if git -C "$VAULT" check-ignore -q -- "$rel" 2>/dev/null; then
+      row "REST API config ignored" "$OKM"
+    else
+      row "REST API config ignored" "$BADM  → bin/setup-mcp.sh"
+    fi
+  else
+    row "REST API Git posture" "${_C_DIM}not a Git vault yet${_C_RESET}"
+  fi
+fi
+
+# Registration command integrity is independent from key equality.
+if [ -f "$CLAUDE_JSON" ]; then
+  if node -e '
+    try{
+      const fs=require("fs"),c=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+      const m=JSON.parse(fs.readFileSync(process.argv[2],"utf8")).mcpServers[0];
+      const s=(c.mcpServers&&c.mcpServers[m.name])||{};
+      const sameArgs=JSON.stringify(s.args||[])===JSON.stringify(m.args||[]);
+      const haveEnv={...(s.env||{})};delete haveEnv.OBSIDIAN_API_KEY;
+      const wantEnv=m.env||{},hk=Object.keys(haveEnv),wk=Object.keys(wantEnv);
+      const sameEnv=hk.length===wk.length&&wk.every(k=>haveEnv[k]===wantEnv[k]);
+      process.exit(s.command===m.command&&sameArgs&&sameEnv?0:1);
+    }catch(e){process.exit(1)}
+  ' "$CLAUDE_JSON" "$MANIFEST" 2>/dev/null; then
+    row "MCP command pin" "$OKM (mcp-obsidian 0.2.2)"
+  else
+    row "MCP command pin" "$BADM  unpinned/drifted → bin/setup-mcp.sh"
+  fi
+fi
+
+# Marker consumed by claude-obsidian 1.9.5's trusted machine-global hooks.
+MARKER="$VAULT/.vault-meta/claude-obsidian-vault.json"
+if [ -f "$MARKER" ] && node -e '
+  try{const j=require(process.argv[1]);process.exit(j.schema===1&&j.kind==="claude-obsidian-vault"?0:1)}catch(e){process.exit(1)}
+' "$MARKER" 2>/dev/null; then
+  row "vault hook signature" "$OKM"
+else
+  row "vault hook signature" "$BADM  missing/invalid → bin/setup-vault.sh"
 fi
 
 # claude-obsidian plugin + skills

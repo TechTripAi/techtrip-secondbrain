@@ -49,6 +49,10 @@ both pages — never silently overwrite a claim.
 - Single writer: one agent session mutates the vault at a time.
 - Keep pages 100–300 lines; atomic (one concept per page); wikilinks
   (`[[Page]]`) over paths; every page gets YAML frontmatter.
+- Whenever a session meaningfully changes a content page, add or set its
+  `updated: YYYY-MM-DD` to today in the same logical edit. Review changed
+  content pages before stopping. Operational `index.md`, `log.md`, and
+  `hot.md` are exempt.
 - Before finishing any session that changed `wiki/`, refresh `wiki/hot.md`
   (format: Last Updated / Key Recent Facts / Recent Changes / Active Threads).
 

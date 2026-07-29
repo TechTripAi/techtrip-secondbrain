@@ -21,6 +21,21 @@ fi
 run "Create vault directory" -- mkdir -p "$VAULT/.obsidian"
 save_vault_path "$VAULT"
 
+# Stable signature consumed by claude-obsidian 1.9.5's trusted machine-global
+# hook dispatcher. It is content-free, portable, and never overwritten.
+VAULT_MARKER="$VAULT/.vault-meta/claude-obsidian-vault.json"
+if [ ! -e "$VAULT_MARKER" ]; then
+  if [ "$TSB_DRY_RUN" = "1" ]; then
+    info "[dry-run] would seed $VAULT_MARKER"
+  else
+    run "Create vault metadata directory" -- mkdir -p "$VAULT/.vault-meta"
+    run "Seed claude-obsidian vault signature" -- node -e '
+      require("fs").writeFileSync(process.argv[1],
+        JSON.stringify({schema:1,kind:"claude-obsidian-vault"},null,2)+"\n")
+    ' "$VAULT_MARKER"
+  fi
+fi
+
 # ── 1. Delegate base scaffold to claude-obsidian's own setup-vault.sh ─────────
 # claude-obsidian is by AgriciDaniel (MIT): https://github.com/AgriciDaniel/claude-obsidian
 step "Base scaffold (claude-obsidian, by AgriciDaniel)"
@@ -64,6 +79,10 @@ if [ -d "$ORIG_ASSETS" ]; then
   if [ ! -d "$VAULT/wiki/meta/templates/origination-project" ]; then
     run "Seed origination-project templates" -- cp -R "$ORIG_ASSETS/templates/origination-project" "$VAULT/wiki/meta/templates/origination-project"
   fi
+  # Existing vault-local templates/workflows are user-editable, so never
+  # replace them wholesale. This migration adds only the metadata-v1 invariant
+  # using stable anchors and warns if a customized workflow cannot be patched.
+  bash "$SCRIPTS_DIR/migrate-origination-metadata.sh" "$VAULT"
   ok "Origination scaffold present (wiki/meta/origination-workflow.md + templates) — used by /new-idea"
 fi
 
