@@ -23,9 +23,10 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   claude-obsidian entry, MCP server, skills). `precheck` audits against it; every
   `setup-*.sh` reads it. Change what gets installed here, not in the scripts.
 - **`bin/*.sh`** — idempotent setup steps run in order:
-  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `prune-permissions`, `update`). `prune-permissions.sh` removes `settings.local.json` permission rules stranded by plugin updates (they embed versioned plugin-cache paths; `doctor` counts them report-only, `update.sh` offers the prune, and only provably dead rules are removed after a backup). Optional features are consent-tiered: YouTube/`yt-dlp` and Voice/`whisperkit-cli` (on-device transcription) are default-yes freebies; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a legacy vault `.stignore` — it never stops or uninstalls Syncthing itself (external software the user may need).
-- **`scripts/common.sh`** — sourced by every script: logging, `confirm()`, `run()`,
-  dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
+  `precheck → setup-deps → setup-obsidian → setup-claude-obsidian → setup-vault → setup-mcp → setup-sync → setup-features → setup-harnesses → doctor` (+ `repair-mcp`, `prune-permissions`, `update`). `prune-permissions.sh` removes `settings.local.json` permission rules stranded by plugin updates (they embed versioned plugin-cache paths; `doctor` counts them report-only, `update.sh` offers the prune, and only provably dead rules are removed after a backup). Optional features are consent-tiered: YouTube/`yt-dlp` and Voice/`whisperkit-cli` (on-device transcription) are default-yes freebies; NotebookLM (data egress to Google) is explicit opt-in — the setup skill asks inline (instruct-then-offer: show the exact install command, ask run-for-me vs self-install, re-check after) and drives `setup-features.sh` per answer. Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a legacy vault `.stignore` — it never stops or uninstalls Syncthing itself (external software the user may need).
+- **`scripts/common.sh`** — sourced by every script: logging, `confirm()`,
+  `offer_install()`, `run()`, dry-run, `manifest_get`, vault-path state,
+  claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
   GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
@@ -54,6 +55,11 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   artifacts this project itself created (e.g. a vault `.stignore`). Anything
   brew/uv/npm-installed — even if we installed it — may serve other purposes on
   the user's machine; print the manual removal commands and let the user decide.
+- **External software installs go through `offer_install()`** (instruct-then-offer:
+  print the exact native command, then run-for-me / self-install with pause +
+  re-probe / skip) — never a bare `confirm` + brew. Project-owned artifacts
+  (pinned plugin downloads, MCP key, scaffolds, symlinks) keep
+  `confirm()`/`confirm_yes()`.
 - **`TSB_` is the env-var prefix** — never reintroduce the old `CSB_` prefix.
 - **JSON is read/written with `node`** (a hard dependency), not `jq` or `sed`.
 - **`manifest_get`** newline-terminates list output so `while read` keeps the last

@@ -49,9 +49,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** and
   **Voice/`whisperkit-cli`** (on-device audio transcription; first run downloads a
   CoreML model once) carry
-  `defaultEnabled: true` (harmless freebies — `confirm_yes`, Enter installs) while
-  **NotebookLM** (data egress to Google + interactive `notebooklm login`) carries a
-  `consentNote` printed before a default-no confirm — never enable it unprompted.
+  `defaultEnabled: true` (harmless freebies — `offer_install` with Enter = run)
+  while **NotebookLM** (data egress to Google + interactive `notebooklm login`)
+  carries a `consentNote` printed before a default-no opt-in confirm, with
+  `offer_install` handling only the *how* after a yes — never enable it
+  unprompted.
   (Syncthing was removed; `setup-sync.sh` is git-only and may offer to delete a
   legacy vault `.stignore` — it never uninstalls Syncthing itself.) Binaries
   carrying `"optional": true` (e.g. `yt-dlp`) are skipped by `setup-deps`, shown as
@@ -79,8 +81,9 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
   re-pin community plugins to the manifest tags → `doctor`. Never touches notes, git
   history, the MCP key, or feature choices.
-- **`scripts/common.sh`** — sourced by everything: logging, `confirm()`, `run()`,
-  dry-run, `manifest_get`, vault-path state, claude-obsidian locate/version helpers.
+- **`scripts/common.sh`** — sourced by everything: logging, `confirm()`,
+  `offer_install()`, `run()`, dry-run, `manifest_get`, vault-path state,
+  claude-obsidian locate/version helpers.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by
   downloading its GitHub-release assets into `<vault>/.obsidian/plugins/<id>/` (no
   Obsidian plugin CLI exists). Downloads are pinned to the manifest's `tag` and
@@ -116,6 +119,13 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `--dry-run` bypass it; no TTY declines (never consents on the user's behalf).
   Reserve it for actions that delete or displace user data; ordinary installs
   stay on `confirm()`/`confirm_yes()`.
+- **External software installs go through `offer_install()`** (instruct-then-offer:
+  print the exact native command, then run-for-me / self-install with pause +
+  re-probe / skip) — never a bare `confirm` + brew. Project-owned artifacts
+  (pinned plugin downloads, MCP key, scaffolds, symlinks) keep
+  `confirm()`/`confirm_yes()`. The `secondbrain` skill relays chat consent via
+  per-step `--yes` (scripts it runs have no TTY — see the skill's "You are the
+  TTY" section).
 - **`TSB_` is the env-var prefix** (was `CSB_`; don't reintroduce `CSB_`).
 - **JSON is read/written with `node`** (a hard dependency), not `jq`/`sed`.
 - **`manifest_get`** newline-terminates list output so bash `while read` keeps the

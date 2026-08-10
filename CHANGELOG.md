@@ -3,6 +3,39 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.17] — 2026-08-10
+
+### Changed
+- **External software is now instruct-then-offer, never bare confirm-and-install.**
+  New `offer_install()` in `scripts/common.sh`: the exact native command
+  (`brew install …`, `uv tool install …`) is always printed first, then the
+  user chooses run-it-for-me / I'll-install-it-myself (pause, then re-probe) /
+  skip. Self-installs count — a DMG-installed Obsidian passes the app-bundle
+  probe just like the cask. Skips never block: precheck flags the gap and
+  `/secondbrain` re-offers on any re-run. Converted call sites: `setup-deps.sh`
+  (required brew binaries), `setup-obsidian.sh` (the cask), `setup-features.sh`
+  (yt-dlp, whisperkit-cli, notebooklm-py), `repair-mcp.sh` (uv). Consent tiers
+  are unchanged — freebies keep Enter-installs, NotebookLM keeps its
+  consent-note + default-no opt-in before any install offer, and `--yes` still
+  auto-runs installs but never `notebooklm login`. Project-owned artifacts
+  (pinned community-plugin downloads, the MCP key, scaffolds, harness links)
+  keep their existing confirm gates.
+- **The `secondbrain` skill now documents that the agent is the TTY.** Scripts
+  run through Claude's Bash tool have no TTY, so their prompts decline safely;
+  the skill's new "You are the TTY" section has the agent perform the
+  instruct-then-offer in chat and relay each single-step consent via a scoped
+  `--yes` — with an explicit rule that NotebookLM's `--yes` requires a chat yes
+  for NotebookLM specifically, never a bundled one.
+- **Maintained fork bumped to `claude-obsidian` 1.9.6** (install-consent
+  hardening, all candidate upstream PRs): its `setup-vault.sh` no longer
+  overwrites user-tuned `.obsidian/graph.json` / `app.json` /
+  `appearance.json` on re-runs — which also means this project's `update.sh`
+  re-scaffold stops clobbering those files — and its unpinned ~8MB Excalidraw
+  download is consent-gated (secondbrain's own pinned, sha256-verified
+  Excalidraw install is unaffected). Its `setup-retrieve.sh` / `setup-mode.sh`
+  gain `--vault` so plugin-cache runs can't silently provision the cache, and
+  its multi-agent home-directory symlinks now ask first.
+
 ## [0.2.16] — 2026-07-29
 
 ### Security

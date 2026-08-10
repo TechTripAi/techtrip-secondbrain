@@ -50,9 +50,7 @@ feature_youtube() {
   info "yt-fetch needs yt-dlp to pull a video's transcript + metadata."
   info "It's a passive CLI binary — no daemon, no credentials — so this defaults to yes."
   have_cmd brew || { warn "Homebrew required for '$install'. Run bin/setup-deps.sh first."; return; }
-  if confirm_yes "Enable YouTube — run '$install'?"; then
-    manifest_argv "brew" "$install"
-    run "Installing yt-dlp" -- "${TSB_CMD_ARGV[@]}"
+  if offer_install "yt-dlp" "brew" "$install" "cmd:yt-dlp" run; then
     ok "yt-fetch ready. Try: 'ingest this youtube url <link>'"
   else info "Skipped YouTube. Enable later: bash bin/setup-features.sh youtube"; fi
 }
@@ -107,9 +105,9 @@ feature_voice() {
   info "voice-fetch transcribes local audio (Voice Memos, mp3, wav, …) on-device"
   info "via WhisperKit (CoreML/Neural Engine) — no cloud, no credentials, no daemon."
   have_cmd brew || { warn "Homebrew required for '$install'. Run bin/setup-deps.sh first."; return; }
-  if confirm_yes "Enable voice/audio — run '$install'?"; then
-    manifest_argv "brew" "$install"
-    run "Installing whisperkit-cli" -- "${TSB_CMD_ARGV[@]}"
+  # Warm-up runs on every success path — run-for-me AND self-installed — so a
+  # manual install still gets the one-time model download + pipeline proof.
+  if offer_install "whisperkit-cli" "brew" "$install" "cmd:whisperkit-cli" run; then
     voice_warmup
     ok "voice-fetch ready. Try: 'transcribe <audio-file>' or '/voice-fetch <audio-file>'"
   else info "Skipped voice/audio. Enable later: bash bin/setup-features.sh voice"; fi
@@ -133,10 +131,16 @@ feature_notebooklm() {
   if ! have_cmd notebooklm; then
     info "notebooklm-ingest uses the unofficial notebooklm-py CLI."
     warn "Heads up: $consent"
-    if confirm "Install the NotebookLM CLI — run '$install'?"; then
-      manifest_argv "uv" "$install"
-      run "Installing notebooklm-py" -- "${TSB_CMD_ARGV[@]}"
-    else info "Skipped NotebookLM. Enable later: bash bin/setup-features.sh notebooklm"; return; fi
+    # Two gates: the default-NO confirm is the OPT-IN (data egress to Google —
+    # never enabled by a stray Enter); offer_install then handles only the HOW.
+    if ! confirm "Enable NotebookLM (installs the unofficial notebooklm-py CLI)?"; then
+      info "Skipped NotebookLM. Enable later: bash bin/setup-features.sh notebooklm"; return
+    fi
+    if ! offer_install "notebooklm-py CLI" "uv" "$install" "cmd:notebooklm" run; then
+      info "If uv installed it but it isn't found: run 'uv tool update-shell', then open a new terminal."
+      info "Enable later: bash bin/setup-features.sh notebooklm"
+      return
+    fi
   else
     ok "notebooklm CLI already installed"
   fi

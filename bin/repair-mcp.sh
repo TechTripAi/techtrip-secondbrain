@@ -102,8 +102,8 @@ fi
 step "Repair"
 
 if [ "$uvx_ok" = 0 ]; then
-  confirm "Install uv (provides uvx, needed to launch the MCP server)?" && \
-    run "brew install uv" -- brew install uv || warn "uvx still missing — MCP server can't launch."
+  offer_install "uv (provides uvx, launches the MCP server)" "brew" "brew install uv" "cmd:uvx" skip \
+    || warn "uvx still missing — MCP server can't launch."
 fi
 
 # Key missing/mismatch, or not registered → (re)register with the correct key.

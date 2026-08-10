@@ -274,6 +274,100 @@ confirm_phrase() {
   return 1
 }
 
+# ── Probe spec resolver for offer_install ────────────────────────────────────
+# "cmd:<binary>" → command lookup ('hash -r' first: a just-installed binary
+# must not be masked by bash's stale command-hash); "path:<abs path>" →
+# existence check (so a DMG-installed app passes, not just the brew cask).
+_probe_ok() {
+  case "$1" in
+    cmd:*)  hash -r 2>/dev/null; have_cmd "${1#cmd:}" ;;
+    path:*) [ -e "${1#path:}" ] ;;
+    *)      die "unknown probe spec: $1" ;;
+  esac
+}
+
+# ── Instruct-then-offer gate for EXTERNAL software ───────────────────────────
+# External software (brew/uv installs, app casks) is never installed behind a
+# bare yes/no: the exact native command is always printed first, then the user
+# chooses run-for-me / self-install (pause + re-probe) / skip. Project-owned
+# artifacts (pinned plugin downloads, MCP key, scaffolds, symlinks) keep
+# confirm()/confirm_yes() — there is no meaningful self-install path for them.
+#
+# Usage: offer_install <label> <allowlist> <install-cmd-string> <probe-spec> [enter-default]
+#   enter-default: "run"  — Enter runs the install (freebies / post-opt-in;
+#                           replaces the old confirm_yes posture)
+#                  "skip" — Enter skips (default; replaces the old default-N
+#                           confirm posture)
+# Returns 0 iff the probe passes on exit (already present / installed /
+# self-installed); 1 if skipped or still missing. Never exits the script —
+# the caller decides warn-vs-die and appends its feature-specific consequence.
+# --yes auto-runs the install (skipping the offer); --dry-run previews it;
+# no TTY declines with the command printed (never consents on the user's
+# behalf). All mutation goes through manifest_argv + run.
+offer_install() {
+  local label="$1" allow="$2" install_str="$3" probe="$4" enter_default="${5:-skip}"
+  if _probe_ok "$probe"; then
+    ok "$label already installed"
+    return 0
+  fi
+  if [ "$TSB_ASSUME_YES" = "1" ] || [ "$TSB_DRY_RUN" = "1" ]; then
+    printf '%s  ?%s Install %s? %s[auto-yes]%s\n' "$_C_BLU" "$_C_RESET" "$label" "$_C_DIM" "$_C_RESET"
+    manifest_argv "$allow" "$install_str"
+    run "Installing $label" -- "${TSB_CMD_ARGV[@]}" || true
+    [ "$TSB_DRY_RUN" = "1" ] && return 0
+    if _probe_ok "$probe"; then ok "$label installed"; return 0; fi
+    warn "$label still not detected after install (probe: $probe)."
+    return 1
+  fi
+  info "$label is external software — it is never installed silently. The exact command:"
+  printf '%s      $ %s%s\n' "$_C_BLD" "$install_str" "$_C_RESET"
+  local choice pause prompt_opts
+  if [ "$enter_default" = "run" ]; then
+    prompt_opts="[R]un it for me / [s] I'll install it myself / [n] skip"
+  else
+    prompt_opts="[r] Run it for me / [s] I'll install it myself / [N] skip"
+  fi
+  while :; do
+    printf '%s  ?%s Install %s — %s ' "$_C_BLU" "$_C_RESET" "$label" "$prompt_opts"
+    if ! read -r choice </dev/tty 2>/dev/null; then
+      printf '\n'
+      warn "No TTY to ask on — not installing $label. Run the command above yourself,"
+      warn "then re-run this step (it re-checks and continues), or pass --yes."
+      return 1
+    fi
+    if [ -z "$choice" ]; then
+      if [ "$enter_default" = "run" ]; then choice="r"; else choice="n"; fi
+    fi
+    case "$choice" in
+      [rR])
+        manifest_argv "$allow" "$install_str"
+        run "Installing $label" -- "${TSB_CMD_ARGV[@]}" || true
+        if _probe_ok "$probe"; then ok "$label installed"; return 0; fi
+        warn "$label still not detected after install (probe: $probe)."
+        ;;
+      [sS])
+        info "Run it in another terminal:"
+        printf '%s      $ %s%s\n' "$_C_BLD" "$install_str" "$_C_RESET"
+        printf '%s  ?%s Press Enter once installed (or type "skip"): ' "$_C_BLU" "$_C_RESET"
+        if ! read -r pause </dev/tty 2>/dev/null; then printf '\n'; pause="skip"; fi
+        case "$pause" in [sS][kK][iI][pP]) pause="skip" ;; esac
+        if [ "$pause" = "skip" ]; then
+          warn "Skipped $label. bin/precheck.sh will flag it as missing; re-run /secondbrain to be offered it again."
+          return 1
+        fi
+        if _probe_ok "$probe"; then ok "$label detected — continuing"; return 0; fi
+        warn "Still can't find $label (probe: $probe). A fresh install may need a new"
+        warn "shell for PATH changes — pick [s] again to re-check, [r] to run it here, or [n] to skip."
+        ;;
+      [nN]|[nN][oO]|[sS][kK][iI][pP])
+        warn "Skipped $label. bin/precheck.sh will flag it as missing; re-run /secondbrain to be offered it again."
+        return 1
+        ;;
+      *) info "Please answer r, s, or n." ;;
+    esac
+  done
+}
+
 # ── Manifest command strings → argv (never `bash -c`) ────────────────────────
 # manifest.json declares install/probe/login commands as strings ("brew install
 # yt-dlp"). Executing those via a shell would turn the manifest into an

@@ -23,16 +23,13 @@ while IFS=$'\t' read -r cmd label install; do
   [ "$cmd" = "brew" ] && continue
   if have_cmd "$cmd"; then ok "$label ($cmd) already installed"; continue; fi
   # Only auto-run installs that are brew commands; anything else we just surface.
-  # manifest_argv executes fixed argv (no shell), so a manifest edit like
-  # "brew install git; curl … | sh" is rejected instead of executed.
+  # offer_install prints the exact command first, then run-for-me / self-install
+  # (pause + re-check) / skip; its manifest_argv executes fixed argv (no shell),
+  # so a manifest edit like "brew install git; curl … | sh" is rejected.
   case "$install" in
     "brew install "*)
-      if confirm "Install $label with: $install ?"; then
-        manifest_argv "brew" "$install"
-        run "Installing $label" -- "${TSB_CMD_ARGV[@]}" \
-          && ok "$label installed" \
-          || warn "Install of $label failed — continuing with the remaining deps."
-      else warn "Skipped $label — some features will not work."; fi ;;
+      offer_install "$label" "brew" "$install" "cmd:$cmd" skip \
+        || warn "Skipped $label — some features will not work." ;;
     *) warn "$label ($cmd) missing; install manually: $install" ;;
   esac
 done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')

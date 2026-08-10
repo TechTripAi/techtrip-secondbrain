@@ -5,10 +5,12 @@
 </p>
 
 > [!NOTE]
-> **v0.2.16 is out:** origination sessions now reconcile `updated:` metadata on
-> every changed content page, old vault-local project templates self-heal, and
-> Doctor reports incomplete project metadata. See the [CHANGELOG](CHANGELOG.md)
-> for details.
+> **v0.2.17 is out:** external software (brew/uv installs, the Obsidian app) is
+> now instruct-then-offer — setup always shows you the exact command, then asks
+> whether to run it or let you install it yourself and re-checks after. The
+> maintained fork moves to claude-obsidian 1.9.6, which stops overwriting your
+> tuned Obsidian settings on updates. See the [CHANGELOG](CHANGELOG.md) for
+> details.
 
 > [!NOTE]
 > **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
@@ -226,7 +228,16 @@ Then, in Claude Code:
 …and follow the interactive workflow. Or run the scripts directly (see below).
 
 > [!IMPORTANT]
-> **Release and upgrade notes for v0.2.16 (2026-07-29).** `/new-idea` now makes
+> **Release and upgrade notes for v0.2.17 (2026-08-10).** Setup no longer
+> installs external software behind a plain yes/no: it prints the exact command
+> (`brew install --cask obsidian`, `brew install yt-dlp`, …) and asks whether to
+> run it for you or wait while you install it yourself, then re-checks either
+> way. Declining never blocks — precheck flags the gap and `/secondbrain`
+> re-offers on any re-run. The maintained fork is pinned to **1.9.6**: updates
+> stop overwriting user-tuned `.obsidian` settings, and the fork's own installs
+> (Excalidraw download, home-directory symlinks) now ask first.
+>
+> Since v0.2.16, `/new-idea` makes
 > freshness metadata part of Reconcile and the end-of-session ritual. Existing
 > vault-local templates gain the missing `project.md` field through a narrow,
 > idempotent migration; customized workflows that cannot be patched safely are
@@ -242,7 +253,7 @@ Then, in Claude Code:
 > Also since v0.2.7, **`bin/reset-vault.sh`** can empty a vault after a verified
 > backup (keeping MCP wiring by default, or retiring and re-scaffolding with
 > `--scorch`), **`doctor`** audits the manifest's skill list against the installed
-> plugin cache, and claude-obsidian is pinned to **1.9.5**.
+> plugin cache, and claude-obsidian is pinned to **1.9.6**.
 >
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support; git is now the only sync
 > path. See [Updating an existing secondbrain](#updating-an-existing-secondbrain),

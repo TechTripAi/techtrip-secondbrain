@@ -24,15 +24,45 @@ explain what each does, and stop at anything that needs a human decision.
 
 ## Golden rules
 
-- **Interactive & reversible.** Every install is behind a confirm prompt. Never pass
-  `--yes` unless the user explicitly asks for an unattended run. Offer `--dry-run`
-  first if the user wants to preview.
+- **Interactive & reversible.** Consent is two-tier: **project-owned artifacts**
+  (pinned community-plugin downloads, the MCP key, vault scaffold, harness
+  symlinks) sit behind confirm prompts; **external software** (brew/uv installs,
+  the Obsidian cask) uses **instruct-then-offer** — the script prints the exact
+  native command, then asks run-for-me / self-install (pause + re-check) / skip.
+  Never pass `--yes` except (a) an explicitly requested unattended run, or
+  (b) relaying a consent the user just gave you in chat for that one
+  step/feature (see "You are the TTY"). Offer `--dry-run` first if the user
+  wants to preview.
 - **Idempotent.** Safe to re-run; scripts detect already-present state and skip.
 - **macOS only** for now. If `uname -s` isn't `Darwin`, stop and say so.
 - **Never vendor `claude-obsidian`.** It is pulled from AgriciDaniel's marketplace at
   install time (`bin/setup-claude-obsidian.sh`), never copied into this repo.
 - **Secrets stay local.** The Obsidian REST API key is generated on this machine and
   written only to the vault's (gitignored) `data.json` and `~/.claude.json`.
+
+## You are the TTY
+
+Scripts you run through the Bash tool have **no TTY**, so their interactive
+prompts decline safely instead of asking. That means for every
+external-software step **you perform the instruct-then-offer in chat**:
+
+1. **Show the user the exact native command** the script would run
+   (`brew install --cask obsidian`, `brew install yt-dlp`,
+   `uv tool install notebooklm-py`, …).
+2. **Ask:** "Want me to run this now, or will you install it yourself?"
+3. **Run it for me** → invoke the script with `--yes` **scoped to that single
+   step/feature** (e.g. `bash bin/setup-features.sh <path> youtube --yes`) —
+   never a broader sweep than what was just consented to.
+4. **I'll install it myself** → give them the command, wait for their word,
+   then re-run the same script **without** `--yes` — its idempotent probe is
+   the re-check. Still missing? Say so and re-offer (retry / run-for-me / skip).
+5. **Skip** → continue; note that `precheck` will flag it and `/secondbrain`
+   re-offers it on any re-run.
+
+**NotebookLM exception:** relay its consent note verbatim (data egress to
+Google + interactive OAuth) and get an explicit chat "yes" **for NotebookLM
+specifically** before ever passing `--yes` to its feature invocation. Never
+bundle it into a broader `--yes`.
 
 ## Workflow
 
@@ -44,8 +74,10 @@ if you need detail; summarize it for the user rather than dumping it.
 2. **Dependencies** — `bash bin/setup-deps.sh` (Homebrew + git, node, uv, flock,
    python3 — required binaries only; optional ones like `yt-dlp` are handled by
    step 8's feature prompts).
-3. **Obsidian** — `bash bin/setup-obsidian.sh` (installs the app). See
-   `references/obsidian.md`.
+3. **Obsidian** — `bash bin/setup-obsidian.sh` (installs the app). If it's
+   missing, follow "You are the TTY": show `brew install --cask obsidian` (or
+   the manual download at https://obsidian.md/download), ask run-vs-self-install,
+   and re-run the script to re-check. See `references/obsidian.md`.
 4. **claude-obsidian plugin** — `bash bin/setup-claude-obsidian.sh` (marketplace add
    + plugin install). Tell the user to reload Claude Code afterward so its skills +
    hooks activate.
@@ -59,24 +91,28 @@ if you need detail; summarize it for the user rather than dumping it.
    offers to remove a legacy vault `.stignore` but never uninstalls Syncthing
    itself — external software). See `references/sync.md`.
 8. **Optional features — ask inline, you drive.** Do **not** defer this to "run
-   `setup-features.sh` later" — ask about each feature as part of setup, right now,
-   then run `bash bin/setup-features.sh <path> <feature>` per answer. The three
-   features are not equal; frame each honestly:
-   - **YouTube (yt-fetch)** — the freebie. `yt-dlp` is a passive CLI binary (no
-     daemon, no credentials, no data egress), so **recommend yes**; the script's
-     prompt defaults to yes. Ask: "Want to ingest YouTube videos?"
-   - **Voice / audio (voice-fetch)** — the other freebie. `whisperkit-cli`
-     transcribes fully on-device (CoreML/Neural Engine — no cloud, no
-     credentials), so **recommend yes**; the script's prompt defaults to yes.
-     After the install, the script also **offers a one-time model warm-up**
+   `setup-features.sh` later" — ask about each feature as part of setup, right
+   now, following "You are the TTY": show the install command, ask
+   run-vs-self-install, then run `bash bin/setup-features.sh <path> <feature>
+   --yes` on a "run it" answer (the `--yes` is the relay of that single chat
+   consent), or re-run without `--yes` after a self-install to re-check. The
+   three features are not equal; frame each honestly:
+   - **YouTube (yt-fetch)** — the freebie. `brew install yt-dlp` — a passive CLI
+     binary (no daemon, no credentials, no data egress), so **recommend yes**.
+     Ask: "Want to ingest YouTube videos?"
+   - **Voice / audio (voice-fetch)** — the other freebie. `brew install
+     whisperkit-cli` — transcribes fully on-device (CoreML/Neural Engine — no
+     cloud, no credentials), so **recommend yes**. After the install (run-for-me
+     *or* self-installed), the script **offers a one-time model warm-up**
      (default yes): it transcribes a 1-second generated clip, which downloads
      the CoreML model now (~a minute) and proves the pipeline — declining just
      defers the same download to the first real transcription. Ask: "Want to
      ingest voice memos and audio files?"
-   - **NotebookLM (notebooklm-ingest)** — **explicit opt-in.** It sends the user's
-     sources to Google for synthesis and needs a one-time interactive
-     `notebooklm login` (OAuth) — say both *before* asking. Never enable it
-     unprompted.
+   - **NotebookLM (notebooklm-ingest)** — **explicit opt-in** (`uv tool install
+     notebooklm-py`). It sends the user's sources to Google for synthesis and
+     needs a one-time interactive `notebooklm login` (OAuth) — say both *before*
+     asking, and get the chat "yes" for NotebookLM specifically before passing
+     `--yes` to its invocation. Never enable it unprompted.
 
    A "no" costs nothing: the skills still ship, and any feature can be enabled later
    by re-running `/secondbrain` (the answer for marketplace installs — only
