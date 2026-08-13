@@ -89,10 +89,14 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   machine mints its own REST API key. Machine-local state
   (`.vault-meta/locks/`, `transport.json`) stays out of git via the vault
   `.gitignore`.
-- **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
-  hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
-  with vault runtime hooks — claude-obsidian owns those, and plugin hooks are
-  machine-global, so duplicates double-fire. See `hooks/README.md` for the design
+- **`hooks/hooks.json` ships exactly one hook** — the SessionStart doctor
+  reminder (`hooks/doctor-reminder.sh`: reads the `last-doctor-run` stamp that
+  `bin/doctor.sh` writes, speaks only in sessions starting inside the set-up
+  vault, snoozes itself, always exits 0, and only ever asks the agent to
+  *offer* a run). Never delete the `hooks` key (plugin load error) and never
+  add vault **runtime** hooks — claude-obsidian owns those, and plugin hooks
+  are machine-global, so duplicates double-fire; any future hook must confine
+  itself the way this one does. See `hooks/README.md` for the design
   consideration.
 - **Auth probes must hit `/vault/`** (authenticated), not `/` (public, 200s with any
   key) — otherwise the key handshake is not validated.

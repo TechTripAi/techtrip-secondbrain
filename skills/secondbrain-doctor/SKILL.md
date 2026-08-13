@@ -102,11 +102,13 @@ so the fix is upstream, not here.
    other than `active` if it's deliberately parked). **not in wiki/index.md**
    means the post-scaffold registration step was skipped: offer to add the
    `## Active projects` bullet per the `new-idea` skill. **metadata incomplete**
-   means one of the five canonical project files is missing or has no valid
-   `updated: YYYY-MM-DD`; offer to add/bump the field when that page is next
-   meaningfully reviewed. Never bulk-stamp untouched pages with today's date,
-   because that would make freshness metadata lie. Never mutate the vault
-   without the user's go-ahead.
+   means one of the five canonical project files is missing, has no valid
+   `updated: YYYY-MM-DD`, or `project.md`'s `outcome:` still carries the
+   scaffold's `<...>` placeholder; offer to add/bump `updated:` when that page
+   is next meaningfully reviewed, and for a placeholder outcome ask the user
+   what 'done' looks like and set it in their words — never invent it. Never
+   bulk-stamp untouched pages with today's date, because that would make
+   freshness metadata lie. Never mutate the vault without the user's go-ahead.
 9. If a **"Wiki maintenance"** row is flagged, there is likewise **no auto-repair** —
    these are content signals, and the tools that act on them are claude-obsidian's
    skills, not doctor's scripts. Route by row:
@@ -163,7 +165,14 @@ See `../secondbrain/references/mcp.md` for the key-handshake details.
   executing from the plugin root) or route the user to `/secondbrain` /
   `/secondbrain-doctor`. Only a user who cloned the repo gets a bash command.
 
-- Report-only `doctor.sh` never mutates; `repair-mcp.sh` and
+- Report-only `doctor.sh` never mutates the vault or machine config; its one
+  write is its own state stamp
+  (`~/.config/techtrip-secondbrain/last-doctor-run`). The plugin's SessionStart
+  hook (`hooks/doctor-reminder.sh`) reads that stamp and, when the last run is
+  14+ days old, asks the agent to **offer** a re-run — in-vault sessions only,
+  one reminder per 3 days, and only ever an offer: ask once, respect a no.
+  Kill switch: `touch ~/.config/techtrip-secondbrain/doctor-reminder.disabled`.
+  `repair-mcp.sh` and
   `prune-permissions.sh` are confirm-gated and support `--dry-run`.
 - **Runs entirely in-session.** `doctor.sh` is read-only and safe to auto-run (including
   automatically when the setup skill hits an error), and `repair-mcp.sh`'s confirm

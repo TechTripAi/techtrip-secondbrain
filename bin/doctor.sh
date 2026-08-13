@@ -18,7 +18,9 @@ info "Vault: $VAULT"
 # are the user's, so there is no auto-repair; see the new-idea skill). A project
 # is 'stale' when project.md says status: active but nothing in its folder was
 # touched in 30+ days, and 'unindexed' when it was never registered in
-# wiki/index.md (the agent-side step after /new-idea scaffolds).
+# wiki/index.md (the agent-side step after /new-idea scaffolds). Also flags a
+# project.md whose outcome: still carries the scaffold's "<...>" placeholder —
+# the project never declared what 'done' looks like.
 if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2>&1; then
   step "Origination projects (wiki/projects/)"
   for pdir in "$VAULT/wiki/projects"/*/; do
@@ -37,6 +39,13 @@ if [ -d "$VAULT/wiki/projects" ] && ls -1 "$VAULT/wiki/projects"/*/ >/dev/null 2
         metadata_issues="${metadata_issues:+$metadata_issues, }$project_file updated: missing/invalid"
       fi
     done
+    # outcome: left as the scaffold's "<...>" placeholder? Report-only — the
+    # wording of 'done' is the user's (new-idea.sh --outcome seeds it).
+    project_outcome="$(awk '/^---$/{n++;next} n==1 && /^outcome:/{sub(/^outcome:[ \t]*/,"");print;exit} n>=2{exit}' "$pdir/project.md" 2>/dev/null)"
+    project_outcome="${project_outcome#\"}"; project_outcome="${project_outcome%\"}"
+    case "$project_outcome" in
+      "<"*">") metadata_issues="${metadata_issues:+$metadata_issues, }project.md outcome: template placeholder — state what 'done' looks like" ;;
+    esac
     [ -n "$metadata_issues" ] && issues="metadata incomplete — $metadata_issues"
     if [ "$status" = "active" ] || [ -z "$status" ]; then
       recent="$(find "$pdir" -type f -mtime -30 -print -quit 2>/dev/null)"
@@ -508,4 +517,8 @@ step "Doctor complete"
 info "The bin/*.sh remediation paths above are direct doors for git-clone installs."
 info "Marketplace install? Use the skills — /secondbrain re-runs any setup step and"
 info "/secondbrain-doctor drives repairs; both run these scripts for you."
+
+# Stamp this run (doctor's own state, never the vault or machine config) so the
+# plugin's SessionStart reminder hook can measure how long ago the last check ran.
+[ "${TSB_DRY_RUN:-0}" = 1 ] || { mkdir -p "$TSB_STATE_DIR" && date +%s > "$TSB_STATE_DIR/last-doctor-run"; } 2>/dev/null || true
 exit 0

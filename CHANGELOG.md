@@ -3,6 +3,34 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.18] — 2026-08-13
+
+### Added
+- **Periodic doctor reminder — the plugin's first shipped hook.** `bin/doctor.sh`
+  now stamps each completed run
+  (`~/.config/techtrip-secondbrain/last-doctor-run` — its own state, never the
+  vault or machine config), and a new SessionStart hook
+  (`hooks/doctor-reminder.sh`) reads the stamp: when the last run is 14+ days
+  old (`TSB_DOCTOR_REMIND_DAYS`), it asks the agent to **offer** a
+  `/secondbrain-doctor` run — never to run one unprompted. Plugin hooks are
+  machine-global, so the hook confines itself hard: silent unless a vault was
+  set up and the session starts inside it, one reminder per 3 days
+  (`TSB_DOCTOR_REMIND_SNOOZE_DAYS` — declining doesn't nag), always exits 0,
+  and `touch ~/.config/techtrip-secondbrain/doctor-reminder.disabled` silences
+  it for good. The "hooks stay empty" rule in AGENTS.md / `hooks/README.md` is
+  amended, not dropped: vault *runtime* hooks still belong to claude-obsidian
+  exclusively. Covered by `tests/test-doctor-reminder.sh`.
+- **`new-idea.sh --outcome`** seeds `project.md`'s `outcome:` at scaffold time
+  (context-encoded like `--title`/`--claim`), and the skill now has the agent
+  ask what 'done' looks like instead of leaving the template placeholder behind.
+
+### Changed
+- **Doctor flags a leftover `outcome:` placeholder.** A `project.md` whose
+  `outcome:` still carries the scaffold's `<...>` placeholder is reported under
+  *metadata incomplete* — the project never declared what 'done' looks like.
+  Advisory only, like every origination row: the wording is the user's, so the
+  fix is a conversation, not an auto-repair.
+
 ## [0.2.17] — 2026-08-10
 
 ### Changed

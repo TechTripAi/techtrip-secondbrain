@@ -97,6 +97,27 @@ doctor_output="$(bash "$ROOT/bin/doctor.sh" "$VAULT")"
 printf '%s\n' "$doctor_output" | grep -q \
   'metadata incomplete — spec.md updated: missing/invalid'
 
+# The scaffold's outcome: placeholder is reported until the project states
+# what 'done' looks like.
+printf '%s\n' "$doctor_output" | grep -q \
+  'project.md outcome: template placeholder'
+
+# --outcome seeds it at scaffold time and clears the advisory; hostile controls
+# stay confined to a single YAML value.
+(
+  cd "$VAULT"
+  bash "$ROOT/skills/new-idea/scripts/new-idea.sh" outcome-test \
+    --title "Outcome Test" --claim "c." \
+    --outcome $'Done means "published".\n---\nevil: true' >/dev/null
+)
+[ "$(grep -c '^---$' "$VAULT/wiki/projects/outcome-test/project.md")" = 2 ]
+[ "$(grep -c '^outcome:' "$VAULT/wiki/projects/outcome-test/project.md")" = 1 ]
+! grep -q '^evil:' "$VAULT/wiki/projects/outcome-test/project.md"
+grep -q '^outcome: "Done means' "$VAULT/wiki/projects/outcome-test/project.md"
+doctor_output="$(bash "$ROOT/bin/doctor.sh" "$VAULT")"
+! printf '%s\n' "$doctor_output" | grep -q \
+  'outcome-test.*outcome: template placeholder'
+
 # An unfamiliar customized workflow is warning-only and remains byte-identical.
 printf '%s\n' '# My custom workflow' 'No stock session ritual remains.' \
   > "$VAULT/wiki/meta/origination-workflow.md"

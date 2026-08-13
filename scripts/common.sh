@@ -60,6 +60,9 @@ require_macos() {
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 # ── Cross-script state: remember the chosen vault path ───────────────────────
+# NOTE: hooks/doctor-reminder.sh reimplements the state-dir path and the
+# load_vault_path read-back validation (it deliberately doesn't source this
+# file — session-start hot path). If the state format changes, update it too.
 TSB_STATE_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/techtrip-secondbrain"
 TSB_VAULT_FILE="$TSB_STATE_DIR/vault-path"
 

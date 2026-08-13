@@ -2,11 +2,14 @@
 # new-idea — stamp a greenfield origination project from the template.
 #
 # Usage:
-#   new-idea.sh <slug> [--title "Title"] [--claim "One-line claim"]
+#   new-idea.sh <slug> [--title "Title"] [--claim "One-line claim"] \
+#               [--outcome "What 'done' looks like"]
 #
 # Copies wiki/meta/templates/origination-project/ -> wiki/projects/<slug>/,
 # fills {{title}}/{{date}} tokens, and (if given) seeds the thesis blockquote
-# with the one-line claim. It does NOT touch index.md/log.md — the agent does
+# with the one-line claim and project.md's outcome: with the done-statement
+# (otherwise the template's "<...>" placeholder survives and doctor flags it).
+# It does NOT touch index.md/log.md — the agent does
 # those graph updates (see SKILL.md), keeping the single-mutation-path
 # discipline that yt-fetch and wiki-ingest follow.
 #
@@ -40,17 +43,18 @@ VAULT="$(find_vault_root)" || {
 }
 
 # --- parse args --------------------------------------------------------------
-SLUG=""; TITLE=""; CLAIM=""
+SLUG=""; TITLE=""; CLAIM=""; OUTCOME=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --title) [ $# -ge 2 ] || { echo "error: $1 needs a value" >&2; exit 1; }; TITLE="$2"; shift 2 ;;
     --claim) [ $# -ge 2 ] || { echo "error: $1 needs a value" >&2; exit 1; }; CLAIM="$2"; shift 2 ;;
+    --outcome) [ $# -ge 2 ] || { echo "error: $1 needs a value" >&2; exit 1; }; OUTCOME="$2"; shift 2 ;;
     -*) echo "error: unknown flag $1" >&2; exit 1 ;;
     *) [[ -z "$SLUG" ]] && SLUG="$1" || { echo "error: unexpected arg $1" >&2; exit 1; }; shift ;;
   esac
 done
 
-[[ -z "$SLUG" ]] && { echo "usage: new-idea.sh <slug> [--title \"Title\"] [--claim \"...\"]" >&2; exit 1; }
+[[ -z "$SLUG" ]] && { echo "usage: new-idea.sh <slug> [--title \"Title\"] [--claim \"...\"] [--outcome \"...\"]" >&2; exit 1; }
 # normalize slug: lowercase, spaces->hyphens; then reject anything that isn't a
 # plain folder name (no /, .., etc. — the slug becomes a path segment)
 SLUG="$(printf '%s' "$SLUG" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')"
@@ -90,15 +94,16 @@ done
 mkdir -p "$VAULT/wiki/projects"
 cp -R "$SRC" "$DEST"
 
-TITLE="$TITLE" DATE="$DATE" CLAIM="$CLAIM" node - "$DEST" "$ENCODER" <<'JS'
+TITLE="$TITLE" DATE="$DATE" CLAIM="$CLAIM" OUTCOME="$OUTCOME" node - "$DEST" "$ENCODER" <<'JS'
 const fs = require("fs");
 const path = require("path");
 const dest = process.argv[2];
 const encoder = require(process.argv[3]);
-const { TITLE: rawTitle, DATE: date, CLAIM: rawClaim } = process.env;
+const { TITLE: rawTitle, DATE: date, CLAIM: rawClaim, OUTCOME: rawOutcome } = process.env;
 const titleYaml = encoder.yamlInner(rawTitle);
 const titleMarkdown = encoder.markdownInline(rawTitle);
 const claimMarkdown = encoder.markdownInline(rawClaim);
+const outcomeYaml = encoder.yamlInner(rawOutcome);
 const projectFiles = new Set([
   "project.md", "thesis.md", "open-questions.md", "decisions.md", "spec.md"
 ]);
@@ -120,6 +125,11 @@ for (const name of fs.readdirSync(dest)) {
     // Function replacement: a string 2nd arg treats $&/$'/$` as special
     // sequences and would corrupt a claim containing them.
     s = s.replace(/> \*\*Working claim:\*\* <[\s\S]*?>\n/, () => `> **Working claim:** ${claimMarkdown}\n`);
+  }
+  if (outcomeYaml && name === "project.md") {
+    // Seed outcome: (frontmatter, first match only) so the scaffold's "<...>"
+    // placeholder — which doctor flags — never survives a stated outcome.
+    s = s.replace(/^outcome:[ \t]*.*$/m, () => `outcome: "${outcomeYaml}"`);
   }
   // Vault-local templates are intentionally user-editable and are not
   // overwritten on plugin updates. Repair the one metadata invariant needed
@@ -163,3 +173,7 @@ echo "     - [[projects/$SLUG/project|$TITLE]] — <one-line> ; see [[projects/$
 echo "  2. Append a 'scaffold' entry to wiki/log.md."
 echo "  3. Start the loop: fill the thesis claim + seed open-questions ([[origination-workflow]])."
 echo "  4. Verify every changed content page has updated: $(date +%F)."
+if [[ -z "$OUTCOME" ]]; then
+  echo "  5. Fill outcome: in project.md — doctor flags the template placeholder"
+  echo "     until the project states what 'done' looks like."
+fi

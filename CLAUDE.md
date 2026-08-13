@@ -149,11 +149,13 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   machine mints its own REST API key. Machine-local state
   (`.vault-meta/locks/`, `transport.json`) stays out of git via the vault
   `.gitignore`.
-- **`hooks/hooks.json` is intentionally `{ "hooks": {} }`** — the schema-valid "no
-  hooks" form. Never delete the `hooks` key (plugin load error) and never populate it
-  with vault runtime hooks — claude-obsidian owns those, and plugin hooks are
-  machine-global, so duplicates double-fire. See `hooks/README.md` for the design
-  consideration.
+- **`hooks/hooks.json` ships exactly one hook** — the SessionStart doctor
+  reminder (`hooks/doctor-reminder.sh`; self-confining, offer-only, always
+  exits 0). Never delete the `hooks` key (plugin load error) and never add
+  vault **runtime** hooks — claude-obsidian owns those, and plugin hooks are
+  machine-global, so duplicates double-fire; any future hook must confine
+  itself the same way. AGENTS.md and `hooks/README.md` carry the authoritative
+  wording — keep this bullet in lockstep with them.
 - **Auth probes must hit `/vault/`** (authenticated), not `/` (public, 200s with any
   key) — otherwise the key handshake isn't actually validated.
 - **Attribution:** wherever code references claude-obsidian's repo, credit AgriciDaniel

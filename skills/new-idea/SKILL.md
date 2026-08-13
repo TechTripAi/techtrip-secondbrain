@@ -22,12 +22,17 @@ dir next to this SKILL.md — installs live in the plugin cache, not
 ```bash
 <skill-dir>/scripts/new-idea.sh <slug> \
   --title "Human Title" \
-  --claim "The one-line working claim, in the author's words."
+  --claim "The one-line working claim, in the author's words." \
+  --outcome "One paragraph stating what 'done' looks like, in the author's words."
 ```
 
 - `slug` (required) — normalized to lowercase-hyphenated; becomes the folder name.
 - `--title` (optional) — defaults to a Title-Cased version of the slug.
 - `--claim` (optional) — seeds the `> **Working claim:**` blockquote in `thesis.md`.
+- `--outcome` (optional) — seeds `outcome:` in `project.md`. Without it the
+  template's `<...>` placeholder survives, and `doctor` flags the project as
+  metadata-incomplete until the user states what 'done' looks like — so ask for
+  the outcome (the user's words, never invented) before scaffolding when you can.
 
 The script copies `wiki/meta/templates/origination-project/` →
 `wiki/projects/<slug>/` (project, thesis, open-questions, decisions, spec),
@@ -58,8 +63,11 @@ scaffolder validates all five generated pages and repairs missing/invalid
 3. **Kick off the loop** — confirm the thesis claim, seed `open-questions.md`
    with the real unknowns, and point the user at [[origination-workflow]].
 4. **Check the scaffold** — all five project files must have an `updated:`
-   frontmatter date. The script repairs a missing field in legacy vault-local
-   templates, but the agent owns this final semantic check.
+   frontmatter date, and `project.md`'s `outcome:` must not still carry the
+   template's `<...>` placeholder (if `--outcome` wasn't passed, ask the user
+   what 'done' looks like and set it now). The script repairs a missing
+   `updated:` in legacy vault-local templates, but the agent owns this final
+   semantic check.
 
 ## Hygiene
 

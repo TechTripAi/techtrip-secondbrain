@@ -656,7 +656,11 @@ move with all bookkeeping reconciled and a log entry.
   *stack* (MCP handshake, plugins, harness links, update availability) plus quick
   content counts (orphaned provenance, inbox pile-up, aging pages). Read-only, takes
   seconds. Updates run it for you automatically at the end, so you never need it
-  right after updating.
+  right after updating. You don't have to remember the cadence either: when ~2
+  weeks pass without a run, a session-start reminder offers it (vault sessions
+  only; declining snoozes it for 3 days, and
+  `touch ~/.config/techtrip-secondbrain/doctor-reminder.disabled` silences it
+  for good).
 
 **Prompt — type into Claude Code** (the `#` notes aren't shell — these are prompts):
 ```
