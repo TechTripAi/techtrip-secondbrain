@@ -22,7 +22,7 @@ Registered at **user scope** (works from any directory) via `claude mcp add`, us
 the settings from `manifest.json.mcpServers[0]`:
 
 ```
-command: uvx      args: --from mcp-obsidian==0.2.2 mcp-obsidian
+command: uvx      args: --from mcp-obsidian==0.2.2 --with mcp<2 mcp-obsidian
 env: OBSIDIAN_HOST=127.0.0.1  OBSIDIAN_PORT=27124
      OBSIDIAN_API_KEY=<generated>
 ```
@@ -31,6 +31,11 @@ env: OBSIDIAN_HOST=127.0.0.1  OBSIDIAN_PORT=27124
   client handles that localhost plugin's self-signed certificate itself; the
   unrelated Node-wide TLS bypass is neither needed nor registered.
 - `uvx` (not `npx`) runs the tested Python `mcp-obsidian==0.2.2` — requires `uv`.
+- `--with mcp<2` is load-bearing: mcp-obsidian 0.2.2 leaves its `mcp` SDK
+  dependency unpinned, and mcp 2.0.0 removed the `Server.list_tools()` decorator
+  it uses. Without the constraint the server crashes on import
+  (`AttributeError: 'Server' object has no attribute 'list_tools'`), which Claude
+  reports as `CONNECTION_CLOSED` even when Obsidian and the REST API are healthy.
 - Re-running setup compares the exact command, args, non-secret environment,
   and key. Drift is reconciled through a mode-600 transactional backup; the
   prior Claude config is restored if registration fails.

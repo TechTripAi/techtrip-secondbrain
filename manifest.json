@@ -100,13 +100,13 @@
     {
       "name": "obsidian",
       "command": "uvx",
-      "args": ["--from", "mcp-obsidian==0.2.2", "mcp-obsidian"],
+      "args": ["--from", "mcp-obsidian==0.2.2", "--with", "mcp<2", "mcp-obsidian"],
       "scope": "user",
       "env": {
         "OBSIDIAN_HOST": "127.0.0.1",
         "OBSIDIAN_PORT": "27124"
       },
-      "note": "OBSIDIAN_API_KEY is injected by setup-mcp.sh to match the Local REST API plugin key. The top-level PyPI package is pinned to the tested 0.2.2 release; its Python REST client handles the localhost plugin's self-signed certificate itself."
+      "note": "OBSIDIAN_API_KEY is injected by setup-mcp.sh to match the Local REST API plugin key. The top-level PyPI package is pinned to the tested 0.2.2 release; its Python REST client handles the localhost plugin's self-signed certificate itself. The 'mcp<2' constraint is required: mcp-obsidian 0.2.2 leaves the mcp SDK unpinned, and mcp 2.0.0 removed the Server.list_tools() decorator it uses — without the constraint the server crashes on import (AttributeError), surfacing as CONNECTION_CLOSED."
     }
   ],
   "harnesses": {

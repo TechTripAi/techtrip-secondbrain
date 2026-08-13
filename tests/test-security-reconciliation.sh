@@ -124,7 +124,7 @@ out="$(HOME="$FAKE_HOME" bash "$ROOT/bin/setup-mcp.sh" "$MCP_VAULT" --yes)"
 printf '%s' "$out" | grep -qF "$KEY" && fail "MCP key leaked to setup output"
 node -e '
   const c=require(process.argv[1]),key=process.argv[2],s=c.mcpServers.obsidian;
-  if(s.command!=="uvx"||JSON.stringify(s.args)!==JSON.stringify(["--from","mcp-obsidian==0.2.2","mcp-obsidian"]))process.exit(1);
+  if(s.command!=="uvx"||JSON.stringify(s.args)!==JSON.stringify(["--from","mcp-obsidian==0.2.2","--with","mcp<2","mcp-obsidian"]))process.exit(1);
   if(s.env.OBSIDIAN_API_KEY!==key||"NODE_TLS_REJECT_UNAUTHORIZED" in s.env)process.exit(2);
   if(c.mcpServers.unrelated.env.KEEP!=="yes")process.exit(3);
 ' "$FAKE_HOME/.claude.json" "$KEY" || fail "MCP reconciliation produced wrong config"

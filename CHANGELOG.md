@@ -3,6 +3,24 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.19] — 2026-08-13
+
+### Fixed
+- **MCP server crash on fresh installs: pin the `mcp` SDK below 2.0.** The
+  registered command in `manifest.json` is now
+  `uvx --from mcp-obsidian==0.2.2 --with 'mcp<2' mcp-obsidian`. mcp-obsidian
+  0.2.2 leaves its `mcp` SDK dependency unpinned, and mcp 2.0.0 removed the
+  `Server.list_tools()` decorator it uses — so a fresh registration crashed on
+  import (`AttributeError: 'Server' object has no attribute 'list_tools'`),
+  which Claude surfaces as `CONNECTION_CLOSED` even with Obsidian and the Local
+  REST API healthy. Worse, on machines where the pin had been added by hand,
+  `doctor.sh`/`repair-mcp.sh` flagged the working registration as drift and
+  setup-mcp's reconcile reverted it to the broken command. Because doctor,
+  repair, and setup all validate against `manifest.json`, the one-line manifest
+  change fixes registration, drift detection, and reconciliation together.
+  Documented in `skills/secondbrain/references/mcp.md`; the reconciliation test
+  now asserts the pinned args.
+
 ## [0.2.18] — 2026-08-13
 
 ### Added
