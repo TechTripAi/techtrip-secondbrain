@@ -17,19 +17,31 @@ export MANIFEST="${MANIFEST:-$REPO_ROOT/manifest.json}"
 # later assignments in parse_common_flags.
 export TSB_DRY_RUN="${TSB_DRY_RUN:-0}"      # 1 = print actions, mutate nothing
 export TSB_ASSUME_YES="${TSB_ASSUME_YES:-0}" # 1 = auto-confirm every prompt
+# Relayed typed-phrase consent (see confirm_phrase). NOT exported on purpose:
+# consent given to one script must not leak into child scripts it spawns —
+# export -n strips the attribute even when the value arrived via the env.
+TSB_ACK_PHRASE="${TSB_ACK_PHRASE:-}"
+export -n TSB_ACK_PHRASE
 
-# Parse --dry-run / --yes / -y out of "$@"; leaves other args untouched via
-# the TSB_ARGS array. `--` ends flag parsing (an arg literally named --dry-run
-# is then kept as an arg). Usage:
+# Parse --dry-run / --yes / -y / --ack out of "$@"; leaves other args untouched
+# via the TSB_ARGS array. `--` ends flag parsing (an arg literally named
+# --dry-run is then kept as an arg). Usage:
 #   parse_common_flags "$@"; set -- ${TSB_ARGS[@]+"${TSB_ARGS[@]}"}
 # (The ${arr[@]+...} idiom expands to *nothing* when the array is empty; the
 # older "${TSB_ARGS[@]:-}" injected one phantom empty positional.)
+#
+# --ack "<phrase>" carries a typed-phrase consent (see confirm_phrase) into
+# no-TTY runs. Deliberately NOT exported: consent for one script must not
+# leak into the child scripts it spawns.
 parse_common_flags() {
   TSB_ARGS=()
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --dry-run) TSB_DRY_RUN=1 ;;
       --yes|-y)  TSB_ASSUME_YES=1 ;;
+      --ack)     [ "$#" -ge 2 ] || die "--ack needs the consent phrase as its next argument"
+                 TSB_ACK_PHRASE="$2"; shift ;;
+      --ack=*)   TSB_ACK_PHRASE="${1#--ack=}" ;;
       --)        shift; TSB_ARGS+=("$@"); break ;;
       *)         TSB_ARGS+=("$1") ;;
     esac
@@ -208,7 +220,7 @@ confirm() {
   local reply
   while :; do
     printf '%s  ?%s %s [y/N] ' "$_C_BLU" "$_C_RESET" "$prompt"
-    if ! read -r reply </dev/tty; then
+    if ! read -r reply </dev/tty 2>/dev/null; then
       warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
       return 1
     fi
@@ -237,7 +249,7 @@ confirm_yes() {
   local reply
   while :; do
     printf '%s  ?%s %s [Y/n] ' "$_C_BLU" "$_C_RESET" "$prompt"
-    if ! read -r reply </dev/tty; then
+    if ! read -r reply </dev/tty 2>/dev/null; then
       warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
       return 1
     fi
@@ -258,18 +270,29 @@ confirm_yes() {
 # --yes bypasses (it is itself explicit consent for an unattended run — the
 # golden rule already restricts it to when the user asked for that). --dry-run
 # bypasses (nothing mutates). No TTY = decline, never consent on the user's behalf.
+#
+# No-TTY runs (Claude Code Bash tool, hooks, CI) can relay consent with
+# --ack "<phrase>" (or TSB_ACK_PHRASE): the user types the phrase in chat, the
+# agent passes it through verbatim. It must match this call's phrase exactly —
+# a wrong/stale phrase falls through to the TTY prompt (declining when there
+# is none) — and it is one-shot, so it can never authorize a second gate.
 confirm_phrase() {
   local phrase="$1" prompt="$2"
   if [ "$TSB_ASSUME_YES" = "1" ] || [ "$TSB_DRY_RUN" = "1" ]; then
     printf '%s  ?%s %s %s[auto-ack: "%s"]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$phrase" "$_C_RESET"
     return 0
   fi
+  if [ "${TSB_ACK_PHRASE:-}" = "$phrase" ] && [ -n "$phrase" ]; then
+    TSB_ACK_PHRASE=""
+    printf '%s  ?%s %s %s[ack relayed via --ack: "%s"]%s\n' "$_C_BLU" "$_C_RESET" "$prompt" "$_C_DIM" "$phrase" "$_C_RESET"
+    return 0
+  fi
   local reply
   printf '%s  ?%s %s\n' "$_C_BLU" "$_C_RESET" "$prompt"
   printf '%s    Type%s "%s" %sto proceed (anything else aborts):%s ' \
     "$_C_DIM" "$_C_RESET$_C_BLD" "$phrase" "$_C_RESET$_C_DIM" "$_C_RESET"
-  if ! read -r reply </dev/tty; then
-    warn "No TTY to ask on — declining. Pass --yes to auto-confirm."
+  if ! read -r reply </dev/tty 2>/dev/null; then
+    warn "No TTY to ask on — declining. Re-run with --ack \"$phrase\" to relay typed consent (or --yes)."
     return 1
   fi
   if [ "$reply" = "$phrase" ]; then return 0; fi

@@ -117,8 +117,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   `confirm()`** — the user must *type* the exact phrase, so a stray Enter or
   buffered keystroke can never authorize a vault reset/uninstall. `--yes` and
   `--dry-run` bypass it; no TTY declines (never consents on the user's behalf).
-  Reserve it for actions that delete or displace user data; ordinary installs
-  stay on `confirm()`/`confirm_yes()`.
+  No-TTY runs (Claude Code, hooks, CI) relay consent with `--ack "<phrase>"` /
+  `TSB_ACK_PHRASE`: the user types the phrase in chat and the agent passes it
+  through verbatim — it must match exactly, is one-shot, and is never exported
+  to child scripts. Reserve `confirm_phrase` for actions that delete or
+  displace user data; ordinary installs stay on `confirm()`/`confirm_yes()`.
 - **External software installs go through `offer_install()`** (instruct-then-offer:
   print the exact native command, then run-for-me / self-install with pause +
   re-probe / skip) — never a bare `confirm` + brew. Project-owned artifacts

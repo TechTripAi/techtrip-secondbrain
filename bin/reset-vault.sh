@@ -19,7 +19,13 @@
 # Restore: tar -xzf <tgz> -C <parent>   |   git clone <bundle> <dir>
 #
 # Idempotent + interactive. Usage:
-#   bash bin/reset-vault.sh [/path/to/vault] [--scorch] [--yes] [--dry-run]
+#   bash bin/reset-vault.sh [/path/to/vault] [--scorch] [--yes] [--dry-run] \
+#                           [--ack "<consent phrase>"]
+# --ack relays the typed-phrase consent when there is no TTY (e.g. run through
+# Claude Code): content reset expects --ack "reset my vault", --scorch expects
+# --ack "scorch my vault". Quit Obsidian BEFORE a no-TTY run: the
+# Obsidian-is-running gate is interactive-only (not relayable) and aborts
+# without a TTY — instruct the user to quit Obsidian, then run this.
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
 
@@ -64,9 +70,12 @@ case "$BACKUP_DIR/" in
 esac
 
 # ── Obsidian must not be writing the vault mid-reset ──────────────────────────
+# Deliberately a plain confirm(), NOT relayable via --ack: with no TTY this
+# always aborts, so a headless run must have the user quit Obsidian first.
 if pgrep -x Obsidian >/dev/null 2>&1; then
   warn "Obsidian is running. It holds the vault open and rewrites .obsidian/ state."
-  confirm "Continue anyway? (Recommended: quit Obsidian first)" || die "Aborted — quit Obsidian and re-run."
+  confirm "Continue anyway? (Recommended: quit Obsidian first)" \
+    || die "Aborted, nothing changed. Quit Obsidian (Cmd+Q), then re-run this same command."
 fi
 
 # ── Backup (mandatory, verified) ──────────────────────────────────────────────
@@ -86,7 +95,7 @@ if [ -d "$VAULT/.git" ]; then
   run "Write git bundle (full history)" -- git -C "$VAULT" bundle create "$BUNDLE" --all
 else
   warn "Vault is not a git repo — file snapshot only (no history bundle)."
-  warn "Both backup forms are recommended: run bin/setup-sync.sh to git-enable the vault."
+  warn "Both backup forms are recommended: run bash '$REPO_ROOT/bin/setup-sync.sh' to git-enable the vault."
   confirm "Continue with tar.gz snapshot as the only backup?" || die "Aborted. Nothing changed."
 fi
 
@@ -97,7 +106,9 @@ if [ "$TSB_DRY_RUN" != "1" ]; then
   tar -tzf "$TGZ" >/dev/null || die "tar backup failed verification: $TGZ"
   ok "Snapshot verified: $TGZ ($(du -h "$TGZ" | cut -f1))"
   if [ -f "$BUNDLE" ]; then
-    git bundle verify "$BUNDLE" >/dev/null 2>&1 || die "git bundle failed verification: $BUNDLE"
+    # -C: `git bundle verify` needs a repository to check prerequisites
+    # against — from a non-repo cwd it fails no matter how good the bundle is.
+    git -C "$VAULT" bundle verify "$BUNDLE" >/dev/null 2>&1 || die "git bundle failed verification: $BUNDLE"
     ok "History bundle verified: $BUNDLE"
   fi
 fi
@@ -121,15 +132,15 @@ if [ "$SCORCH" = "1" ]; then
   elif [ -x "$REPO_ROOT/bin/setup-vault.sh" ]; then
     run "Scaffold fresh vault (setup-vault.sh)" -- bash "$REPO_ROOT/bin/setup-vault.sh" "$VAULT" || SCAFFOLD_OK=0
   else
-    warn "No setup-vault.sh found — scaffold manually: bash bin/setup-vault.sh '$VAULT'"
+    warn "No setup-vault.sh found — scaffold manually: bash '$REPO_ROOT/bin/setup-vault.sh' '$VAULT'"
   fi
   if [ "$SCAFFOLD_OK" != "1" ]; then
     err "Scaffold failed. Your data is safe: old vault at $RETIRED, backups at $BACKUP_DIR."
-    die "Fix the scaffold error and re-run: bash bin/setup-vault.sh '$VAULT'"
+    die "Fix the scaffold error and re-run: bash '$REPO_ROOT/bin/setup-vault.sh' '$VAULT'"
   fi
   step "Scorched-earth reset complete"
   warn "MCP re-key required: the REST API key retired with the old vault."
-  info "Run: bash bin/setup-mcp.sh '$VAULT'"
+  info "Run: bash '$REPO_ROOT/bin/setup-mcp.sh' '$VAULT'"
   info "Then open the new vault in Obsidian (enable community plugins when asked)"
   info "and remove the retired vault from Obsidian's vault switcher."
   info "Old vault kept at: $RETIRED (delete yourself when confident)"
@@ -152,7 +163,7 @@ else
       'cd "$1" && git add -A && { git diff --cached --quiet || git -c commit.gpgsign=false commit -qm "reset: empty vault (backup: $2)"; }' _ "$VAULT" "$TGZ"
   fi
   step "Content reset complete"
-  info "Re-scaffold structure with /wiki in Claude Code, or: bash bin/setup-vault.sh '$VAULT'"
+  info "Re-scaffold structure with /wiki in Claude Code, or: bash '$REPO_ROOT/bin/setup-vault.sh' '$VAULT'"
   info "MCP untouched — .obsidian/ and its REST key were preserved."
   if [ -d "$VAULT/.git" ]; then
     info "Old content remains in git history and in: $TGZ"
@@ -163,7 +174,7 @@ fi
 
 step "Post-reset check"
 if [ -x "$REPO_ROOT/bin/doctor.sh" ]; then
-  info "Recommended: bash bin/doctor.sh '$VAULT'"
+  info "Recommended: bash '$REPO_ROOT/bin/doctor.sh' '$VAULT'"
 else
   info "Recommended: run /secondbrain-doctor in Claude Code."
 fi
