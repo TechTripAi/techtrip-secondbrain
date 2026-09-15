@@ -132,6 +132,8 @@ downloaded podcast episodes, screen recordings with narration.
 
 **Skip / use something else when:**
 - The source is a YouTube URL → use `yt-fetch` (captions beat re-transcribing).
+- The source is an X (Twitter) post URL → use `x-fetch` (it runs this same
+  on-device transcription on the post's video for you).
 - The source is an article or blog post → use `defuddle`.
 - You want a *synthesis of many* sources at once → use `/notebooklm-ingest`
   (note: that sends content to Google; voice-fetch alone never does).

@@ -16,7 +16,7 @@ fi
 ok "Homebrew present"
 
 # Install each missing REQUIRED manifest binary via its declared brew command.
-# optional:true binaries power an optional skill/feature (e.g. yt-dlp → yt-fetch)
+# optional:true binaries power an optional skill/feature (e.g. yt-dlp → yt-fetch, x-fetch)
 # and are installed on demand by bin/setup-features.sh, not here.
 while IFS=$'\t' read -r cmd label install; do
   [ -n "$cmd" ] || continue

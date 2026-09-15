@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, voice memos/audio, codebases, NotebookLM), researching a topic with autoresearch, starting a greenfield idea with new-idea, what .raw/ and the hot cache are, maintenance (refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe deletion, archiving), two-machine sync, and enabling/disabling optional features — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, wiki tutorial, how do I use my wiki, walk me through the wiki, wiki maintenance, clean up my wiki, sync my vault / second machine, ingest a voice memo, enable youtube, turn on notebooklm."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, X/Twitter posts, voice memos/audio, codebases, NotebookLM), researching a topic with autoresearch, starting a greenfield idea with new-idea, what .raw/ and the hot cache are, maintenance (refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe deletion, archiving), two-machine sync, and enabling/disabling optional features — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, wiki tutorial, how do I use my wiki, walk me through the wiki, wiki maintenance, clean up my wiki, sync my vault / second machine, ingest a voice memo, enable youtube, turn on notebooklm."
 allowed-tools: Read
 ---
 
@@ -13,7 +13,7 @@ the hot cache, the log), and keeping it healthy.
 
 ## Golden rules (read before you start)
 
-- **Teach, never execute.** Do **not** run ingests, fetchers (`yt-fetch`,
+- **Teach, never execute.** Do **not** run ingests, fetchers (`yt-fetch`, `x-fetch`,
   `notebooklm-ingest`, `defuddle`), `wiki-lint`, or `wiki-fold` on the user's behalf.
   Do **not** read, write, or modify their vault — not even a read-only `cat hot.md`.
   For everything, give them a **copy-paste prompt** and let them run it. This is a
@@ -71,7 +71,7 @@ Two things to drive home because they unlock everything else:
    file in `.raw/` yourself — via Finder, a browser "Save As", or a terminal command —
    and then `ingest` it. Same destination either way.
 
-The "ingestion types" below (file, URL, YouTube, voice memo, NotebookLM, codebase) are just
+The "ingestion types" below (file, URL, YouTube, X post, voice memo, NotebookLM, codebase) are just
 *different ways to land something in `.raw/`* — after that it's always the same
 `ingest` step.
 
@@ -133,6 +133,7 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   1. Ingest a flat file        — drop a doc in, get wiki pages
   2. Ingest a URL              — clean a web page and file it
   3. Ingest a YouTube video    — name it as a video so it routes right
+     … or an X post           — text + metadata; video posts get a transcript
   4. Ingest a voice memo       — on-device transcription, zero cloud
   5. Ingest via NotebookLM     — combine many sources into one page
   6. Ingest a codebase         — the agent reads the repo into one digest
@@ -141,7 +142,7 @@ Pick a section (or just say what you want — you're not stuck in a mode):
   9. What is .raw/?            — the immutable inbox
  10. hot cache vs index vs log — the three bookkeeping files
  11. Keep it lean & clean      — freshness, bad sources, delete, archive
- 12. Optional features on/off  — YouTube, Voice, NotebookLM
+ 12. Optional features on/off  — YouTube + X, Voice, NotebookLM
  13. Second machine & sync     — clone it, keep it synced for free
  14. Where to go next          — the rest of the toolkit
 ```
@@ -243,6 +244,13 @@ That matches the upstream `wiki-ingest` skill, which does a plain web fetch and 
 the transcript. (Native bare-URL video support is on claude-obsidian's v1.9 roadmap;
 until then, say "video.")
 
+**Anonymous by default:** `yt-fetch` never touches a browser or an account — no
+cookies, no dialogs. Rate-limited (429)? Wait a few minutes and retry; don't reach
+for a login. Only an age-gated or members-only video needs one, and then *you*
+opt in for that run — **Shell:** `YT_FETCH_COOKIES_BROWSER=firefox` before the
+prompt's command, ideally with a spare Google account (Claude will never set it
+for you; the `yt-fetch` skill explains the Chrome/Safari gotchas).
+
 **When the prompt path fails — terminal fallback:** `yt-fetch` already shells out to
 `yt-dlp`, so if it errors *while installed* (age-gated video, region block, throttling),
 pull the captions yourself and ingest the file:
@@ -262,6 +270,36 @@ ingest .raw/videos/<the-downloaded-file>.vtt
 for meaning, quote carefully); no captions → metadata only. If a prompt errors that
 `yt-dlp` **isn't installed at all**, the YouTube feature was declined at setup —
 **don't work around it**; see **Section 12** to enable it (`/secondbrain` installs it).
+
+### Section 3b — Ingest an X (Twitter) post
+
+**Explain:** an X page is a login-walled JavaScript shell — a plain web fetch gets
+nothing. `x-fetch` uses the same `yt-dlp` as YouTube to read the post's **text +
+metadata** (author, date, likes), files it in `.raw/posts/`, and you `ingest` it.
+**If the post is a video**, it gets the YouTube treatment: the clip is downloaded to a
+temp folder, transcribed **on-device** with the Voice feature's WhisperKit, and the
+transcript lands in the same doc. The video itself is deleted afterward — only
+markdown enters the vault.
+
+**Prompt — type into Claude Code:**
+```
+ingest this tweet: https://x.com/USER/status/1234567890
+```
+or simply `/x-fetch https://x.com/USER/status/1234567890`. `twitter.com` links work too.
+
+**What to expect:** a source page for the post (and its spoken content, for video)
+plus a `log.md` entry. One post per fetch — for a thread, give each post's URL.
+
+**Notes:** photos aren't captured (text + metadata only for image posts); `t.co`
+links are kept as-is — if the post links an article you want, `defuddle` that URL
+separately. If the post has video but **Voice isn't enabled**, the fetch still
+succeeds with the text and a warning where the transcript would go — enable Voice
+(**Section 12**) and re-run to fill it in. `yt-dlp` missing entirely → same answer
+as YouTube above: the feature was declined at setup; `/secondbrain` enables it.
+Fetches are **anonymous** — no browser, no X account. A protected or age-gated
+post is the one case for a login, and *you* opt in per run with
+`X_FETCH_COOKIES_BROWSER=firefox` (spare X account recommended; Claude never sets
+it for you — X locks accounts it sees automated, so keep your main one out of it).
 
 ---
 
@@ -498,7 +536,7 @@ they become wiki pages.
 - **Never hand-edit files in `.raw/`** — they're the record of what you fed in.
 - **Delta tracking:** `.raw/.manifest.json` hashes each ingested source, so
   re-ingesting an unchanged file is skipped automatically.
-- Every fetcher (`defuddle`, `yt-fetch`, `notebooklm-ingest`) **only writes to `.raw/`**;
+- Every fetcher (`defuddle`, `yt-fetch`, `x-fetch`, `notebooklm-ingest`) **only writes to `.raw/`**;
   `ingest` is the single door from `.raw/` into `wiki/`.
 
 **See it yourself:** open `.raw/` in Obsidian's file explorer (enable "show hidden"), or
@@ -680,8 +718,8 @@ This section is the standing reference for that; nothing here is permanent.
 
 | Feature | Skill | Runtime | Why it's optional |
 |---------|-------|---------|-------------------|
-| **YouTube** | `yt-fetch` | `yt-dlp` (Homebrew) | harmless freebie — setup recommends yes |
-| **Voice / audio** | `voice-fetch` | `whisperkit-cli` (Homebrew) | harmless freebie (fully on-device) — setup recommends yes; first run downloads a model once |
+| **YouTube + X posts** | `yt-fetch`, `x-fetch` | `yt-dlp` (Homebrew) | harmless freebie — setup recommends yes |
+| **Voice / audio** | `voice-fetch` (+ x-fetch video transcripts) | `whisperkit-cli` (Homebrew) | harmless freebie (fully on-device) — setup recommends yes; first run downloads a model once |
 | **NotebookLM** | `notebooklm-ingest` | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | sends your sources to Google — explicit opt-in |
 
 **Check what's on right now — Prompt — type into Claude Code:**
@@ -702,7 +740,7 @@ Remember brain-dump itself never installs anything — enabling always goes thro
 
 **Turn a feature OFF — Shell — run in your terminal:**
 ```
-brew uninstall yt-dlp                                  # YouTube
+brew uninstall yt-dlp                                  # YouTube + X
 brew uninstall whisperkit-cli                          # Voice / audio
 uv tool uninstall notebooklm-py                        # NotebookLM (CLI + its auth)
 ```

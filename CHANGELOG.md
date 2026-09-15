@@ -3,6 +3,45 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.20] — 2026-09-15
+
+### Added
+- **`x-fetch` — X (Twitter) posts become a source type.** Exactly the yt-fetch
+  shape: skill + `commands/x-fetch.md` + `scripts/x-fetch.sh` + `x_emit.py`,
+  writing only to `.raw/posts/` and handing off to `ingest`. `yt-dlp`'s X
+  extractor supplies the post's text + metadata (author, handle, date,
+  likes/reposts, canonical URL) — text-only posts work because the script
+  passes `--ignore-no-formats-error`, which turns the extractor's "no video in
+  this tweet" error into an ordinary metadata file. **Video posts get the
+  YouTube treatment:** the smallest progressive mp4 with audio is downloaded to
+  a temp dir (no ffmpeg needed), transcribed **on-device** with `whisperkit-cli`
+  — the Voice feature's engine — and filed under `## Video transcript`
+  headings (one per clip for multi-video posts); the media is removed on exit,
+  so nothing but markdown enters the vault. Without `whisperkit-cli` the fetch
+  still succeeds with the post text and a warning callout where the transcript
+  would go. **No new optional feature:** x-fetch shares the `youtube` feature
+  (`yt-dlp`) and optionally the `voice` feature — `manifest.json`,
+  `setup-features.sh`, `/secondbrain`, and `/brain-dump` §3b/§12 wording now say
+  so. Hardened the same way as yt-fetch/voice-fetch: the URL must be http(s)
+  **and** an X status URL (profiles, Spaces, dash-prefixed args are rejected
+  before `yt-dlp` runs), all metadata is JSON-escaped into the frontmatter, and
+  the post text is blockquoted so a hostile post can't inject headings or
+  frontmatter fences. `X_FETCH_TRANSCRIBE=0` and `VOICE_FETCH_MODEL` are honored
+  from the environment. Fetches are **anonymous by default** (no browser, no
+  cookies); `X_FETCH_COOKIES_BROWSER` is a user-only opt-in that the skill forbids
+  the agent from setting itself, accepts only a browser name plus an optional
+  profile *name* (no paths), and documents the macOS traps (Chrome's Keychain
+  dialog, Safari's Full Disk Access, X account lockouts) with Firefox + a spare
+  account as the recommendation. Covered offline by
+  `tests/test-input-hardening.sh` (fake `yt-dlp` + fake `whisperkit-cli`).
+- **`yt-fetch` gets the same cookie guard.** `YT_FETCH_COOKIES_BROWSER` was passed
+  to `yt-dlp` verbatim; it is now validated the same way (browser name +
+  optional profile *name*, no paths), announced on stderr when in use, and
+  documented as user-only opt-in for age-gated / members-only videos. The old
+  failure hint that suggested cookies as a fix for HTTP 429 is gone — logged-in
+  limits are per account and yt-dlp warns that cookies with YouTube risk the
+  account; the advice is now wait and retry.
+
 ## [0.2.19] — 2026-08-13
 
 ### Fixed

@@ -15,7 +15,7 @@ Read the `secondbrain` skill. Then run the bootstrap workflow, interactively.
    default — on a `/secondbrain` re-run after a plugin update it is what re-points
    the links at the new version. Ask about each optional feature **inline** — don't
    defer to "run setup-features.sh later" — and drive `bash bin/setup-features.sh
-   <path> <feature>` per answer: **YouTube (yt-fetch)** and **Voice (voice-fetch)**
+   <path> <feature>` per answer: **YouTube (yt-fetch, and x-fetch for X posts)** and **Voice (voice-fetch)**
    are the harmless freebies (passive binaries — no daemon, no credentials, no data
    egress; recommend yes, prompts default to yes; for Voice, note the one-time
    CoreML model download before asking); **NotebookLM** is explicit opt-in (sends the user's sources to

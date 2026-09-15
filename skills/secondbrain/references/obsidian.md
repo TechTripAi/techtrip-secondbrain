@@ -10,7 +10,7 @@ Installs the CLI tools in `manifest.json.binaries` via Homebrew:
   `notebooklm-py`.
 - **node** — required by Claude Code and by our own `manifest.json` reader.
 
-`yt-dlp` (powers `yt-fetch`) is deliberately **not** installed here — it's an
+`yt-dlp` (powers `yt-fetch` and `x-fetch`) is deliberately **not** installed here — it's an
 optional feature, consent-gated and installed by `bin/setup-features.sh` when
 the user says yes to YouTube during setup.
 

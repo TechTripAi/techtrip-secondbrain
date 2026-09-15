@@ -143,6 +143,7 @@ deeper than the digest.
 **Skip / use something else when:**
 - The source is an article or blog post → use `defuddle`.
 - The source is a YouTube video → use `yt-fetch`.
+- The source is an X (Twitter) post → use `x-fetch`.
 - You want *live* structural queries while coding in the repo (callers,
   blast radius) → that's a coding-session concern for your editor/agent in
   that repo, not a wiki ingest. The wiki holds the digest.

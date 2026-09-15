@@ -33,7 +33,8 @@ Vault operations are implemented as portable `SKILL.md` skills (the
 claude-obsidian plugin suite plus the techtrip-secondbrain source skills). Use
 them instead of improvising:
 
-- Ingest a source → `wiki-ingest` (YouTube URLs → `yt-fetch` first;
+- Ingest a source → `wiki-ingest` (YouTube URLs → `yt-fetch` first; X/Twitter
+  post URLs → `x-fetch` first;
   multi-source synthesis → `notebooklm-ingest`)
 - Start a greenfield idea (no source — you are the source) → `new-idea`
   (scaffolds `wiki/projects/<slug>/`; see `wiki/meta/origination-workflow.md`)

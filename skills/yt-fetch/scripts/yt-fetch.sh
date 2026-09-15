@@ -21,6 +21,21 @@ case "$URL" in
   http://*|https://*) ;;
   *) echo "error: not an http(s) URL: $URL" >&2; exit 2 ;;
 esac
+# Opt-in only: reuse a browser's logged-in YouTube session. The value is
+# restricted to yt-dlp's browser names plus an optional profile NAME — yt-dlp's
+# own syntax also accepts a profile *path*, which would let an injected value
+# point it at an arbitrary file, so slashes are refused. Validated here, with
+# the other arguments, before anything runs; only the user ever sets it.
+if [ -n "${YT_FETCH_COOKIES_BROWSER:-}" ]; then
+  case "$YT_FETCH_COOKIES_BROWSER" in
+    brave|chrome|chromium|edge|firefox|opera|safari|vivaldi|whale) ;;
+    brave:*|chrome:*|chromium:*|edge:*|firefox:*|opera:*|safari:*|vivaldi:*|whale:*)
+      case "${YT_FETCH_COOKIES_BROWSER#*:}" in
+        */*|*..*|'') echo "error: YT_FETCH_COOKIES_BROWSER profile must be a name, not a path: $YT_FETCH_COOKIES_BROWSER" >&2; exit 2 ;;
+      esac ;;
+    *) echo "error: YT_FETCH_COOKIES_BROWSER must be a browser name (firefox, chrome, safari, …) optionally followed by :profile — got: $YT_FETCH_COOKIES_BROWSER" >&2; exit 2 ;;
+  esac
+fi
 if ! command -v yt-dlp >/dev/null 2>&1; then
   echo "yt-dlp not installed. Run: brew install yt-dlp" >&2
   exit 3
@@ -45,13 +60,23 @@ YTDLP_OPTS=(
   --no-warnings --no-progress --quiet
   -o "$TMP/%(id)s.%(ext)s"
 )
-# Optional: honor cookies for age/region-restricted videos.
-[ -n "${YT_FETCH_COOKIES_BROWSER:-}" ] && YTDLP_OPTS+=(--cookies-from-browser "$YT_FETCH_COOKIES_BROWSER")
+# Opt-in only (validated above): reuse a browser's logged-in YouTube session.
+if [ -n "${YT_FETCH_COOKIES_BROWSER:-}" ]; then
+  echo "note: using the logged-in YouTube session from $YT_FETCH_COOKIES_BROWSER (opt-in); requests are made as that account." >&2
+  YTDLP_OPTS+=(--cookies-from-browser "$YT_FETCH_COOKIES_BROWSER")
+fi
 
 if ! yt-dlp "${YTDLP_OPTS[@]}" -- "$URL" 1>&2; then
   echo "yt-dlp failed for: $URL" >&2
-  echo "If this is HTTP 429 (rate limit), wait a few minutes and retry, or set" >&2
-  echo "  YT_FETCH_COOKIES_BROWSER=chrome  to authenticate the requests." >&2
+  echo "If this is HTTP 429 (rate limit), wait a few minutes and retry — do NOT reach for" >&2
+  echo "cookies to get past it (logged-in limits are per account, and yt-dlp warns that" >&2
+  echo "cookies with YouTube risk the account). Age-gated / members-only videos are the one" >&2
+  echo "case for the USER to opt in with YT_FETCH_COOKIES_BROWSER=firefox (see the skill's" >&2
+  echo "'Logged-in fetches' notes — agents must not set it on their own)." >&2
+  if [ -n "${YT_FETCH_COOKIES_BROWSER:-}" ]; then
+    echo "Cookies were in use. If Chrome hung, a macOS Keychain dialog is waiting; if Safari" >&2
+    echo "said permission denied, the terminal needs Full Disk Access." >&2
+  fi
   exit 4
 fi
 

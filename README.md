@@ -30,7 +30,7 @@ fresh Mac.** It installs Obsidian and a select set of community plugins, pulls t
 [**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
 TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
 bug-fixes-plus-proposed-PRs, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
-`voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
+`x-fetch`, `voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
 scaffolder, and sets up git sync + backup — all interactive and idempotent.
 
 > **TechTrip Second Brain is an orchestrator.** It installs the
@@ -52,8 +52,9 @@ install and use, with some added functionality:
    (Obsidian, community plugins, dependencies, MCP wiring, sync).
 2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
    `doctor`/`repair-mcp` diagnose and fix anything broken after.
-3. **Adds four ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
-   transcripts), `voice-fetch` (on-device audio transcription), `code-fetch`
+3. **Adds five ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts), `x-fetch` (X/Twitter posts, with on-device transcripts for video
+   posts), `voice-fetch` (on-device audio transcription), `code-fetch`
    (codebases read by the agent into one semantic digest — architecture, API
    contracts, purpose), and `notebooklm-ingest` (NotebookLM synthesis).
 4. **Adds origination** — `/new-idea` scaffolds a greenfield project
@@ -112,6 +113,8 @@ All 25 skills below are installed together. Invoke one by name (for example,
   try “clean and ingest this URL.”
 - **`yt-fetch`** — fetch a YouTube transcript and metadata, then hand it to ingest;
   try “add this YouTube video to my wiki.”
+- **`x-fetch`** — fetch an X (Twitter) post's text and metadata, transcribing any
+  video in it on-device, then hand it to ingest; try “ingest this tweet.”
 - **`voice-fetch`** — transcribe a voice memo or audio file on-device, then ingest it;
   try “transcribe and ingest this `.m4a`.”
 - **`code-fetch`** — read a local or remote repository and create one semantic digest
@@ -176,7 +179,8 @@ All 25 skills below are installed together. Invoke one by name (for example,
 - **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
-- **Source-ingestion skills** — ships `yt-fetch` (YouTube), `voice-fetch` (voice
+- **Source-ingestion skills** — ships `yt-fetch` (YouTube), `x-fetch` (X/Twitter
+  posts — text + metadata, video posts transcribed on-device), `voice-fetch` (voice
   memos / local audio, transcribed on-device), `code-fetch` (codebases — the
   agent reads the code and distills one semantic digest, never file-by-file),
   and `notebooklm-ingest` (NotebookLM) as first-class skills for pulling
@@ -284,7 +288,7 @@ Read the skills under
 and
 ~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
-wiki-query, wiki-lint, yt-fetch, voice-fetch, code-fetch, notebooklm-ingest, and new-idea as first-class
+wiki-query, wiki-lint, yt-fetch, x-fetch, voice-fetch, code-fetch, notebooklm-ingest, and new-idea as first-class
 workflows, the same way Claude Code would.
 ```
 
@@ -391,9 +395,16 @@ they don't carry the same risk:
 
 | Feature | Skill | What it adds | Runtime installed | Setup default |
 |---------|-------|--------------|-------------------|---------------|
-| **YouTube** | `yt-fetch` | pull a video's transcript + metadata into `.raw/videos/` | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
-| **Voice / audio** | `voice-fetch` | transcribe voice memos & local audio into `.raw/audio/`, fully on-device (WhisperKit / Neural Engine) | `whisperkit-cli` (Homebrew) | **yes** — no cloud, no credentials; first transcription downloads a CoreML model once |
+| **YouTube + X** | `yt-fetch`, `x-fetch` | pull a YouTube video's transcript + metadata into `.raw/videos/`; pull an X (Twitter) post's text + metadata into `.raw/posts/` — x-fetch also transcribes video posts on-device when Voice is enabled | `yt-dlp` (Homebrew) | **yes** — a passive CLI binary: no daemon, no credentials, no data leaving your machine |
+| **Voice / audio** | `voice-fetch` | transcribe voice memos & local audio into `.raw/audio/`, fully on-device (WhisperKit / Neural Engine); also powers x-fetch's video transcripts | `whisperkit-cli` (Homebrew) | **yes** — no cloud, no credentials; first transcription downloads a CoreML model once |
 | **NotebookLM** | `notebooklm-ingest` | offload multi-source synthesis to Google NotebookLM, then ingest the report | `notebooklm-py` (via `uv`) + one-time `notebooklm login` | **no — explicit opt-in**: it sends your sources to Google, and the login is an interactive OAuth |
+
+`yt-fetch` and `x-fetch` fetch **anonymously** — no browser, no cookies, no account,
+no dialogs. For the rare age-gated, members-only, or protected item, *you* can opt in
+per run with `YT_FETCH_COOKIES_BROWSER=firefox` / `X_FETCH_COOKIES_BROWSER=firefox`,
+which reuses that browser's logged-in session (ideally a spare account; Chrome
+triggers a macOS Keychain dialog, Safari needs Full Disk Access). The agent is
+forbidden from setting those on its own, and neither is a fix for rate limits.
 
 Their *skills* always ship with the plugin; the questions only govern the runtime
 each needs. Declining costs nothing — enable any feature later by re-running
@@ -411,7 +422,7 @@ To turn a feature **off**, uninstall its runtime — the vault, skills, and your
 are untouched:
 
 ```bash
-brew uninstall yt-dlp                                      # YouTube
+brew uninstall yt-dlp                                      # YouTube + X
 brew uninstall whisperkit-cli                              # Voice / audio
 uv tool uninstall notebooklm-py                            # NotebookLM
 ```
