@@ -30,8 +30,8 @@ around it** — run `notebooklm doctor` or point the user at the one-time setup
 below; this skill never logs in or installs on the user's behalf.
 
 **When to reach for this vs. the direct fetchers:**
-- 1 article → `defuddle`. 1 video → `/yt-fetch`. These are faster, free, and
-  need no Google account.
+- 1 article → `defuddle`. 1 video → `/yt-fetch`. 1 X post → `/x-fetch`. These are
+  faster, free, and need no Google account.
 - *Many* sources synthesized together, or you want a deliverable (audio
   overview, infographic, flashcards, mind-map) → **this skill**. Highest value
   for building `ai-training` material.

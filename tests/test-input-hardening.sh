@@ -59,6 +59,63 @@ HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/voice-fetch/scripts/vo
 [ "$(grep -c '^---$' "$TEST_ROOT/voice.md")" = 2 ] || fail "voice metadata escaped frontmatter"
 [ "$(grep -c '^title:' "$TEST_ROOT/voice.md")" = 1 ] || fail "voice title injected YAML"
 
+# x-fetch rejects option-like, non-http, and non-X-post URLs before invoking yt-dlp.
+for bad in -evil https://example.com/status/1 https://x.com/jack https://x.com/i/spaces/1abc 'ftp://x.com/jack/status/20'; do
+  if PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetch.sh" "$bad" >/dev/null 2>&1; then fail "x-fetch accepted: $bad"; fi
+done
+
+# x-fetch's cookie opt-in accepts only a browser name (+ optional profile NAME) — an
+# injected value can't point yt-dlp at an arbitrary file via the profile-path syntax.
+for bad in 'chrome:/Users/me/Library/Cookies' 'firefox:../../etc' 'evilbrowser' 'chrome:' ; do
+  rc=0; X_FETCH_COOKIES_BROWSER="$bad" PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetch.sh" https://x.com/jack/status/20 >/dev/null 2>&1 || rc=$?
+  [ "$rc" = 2 ] || fail "x-fetch cookie spec '$bad' exited $rc, expected 2 (argument rejection before any tool runs)"
+done
+
+# yt-fetch has the identical cookie opt-in and the identical guard.
+for bad in 'chrome:/Users/me/Library/Cookies' 'firefox:../../etc' 'evilbrowser' 'chrome:' ; do
+  rc=0; YT_FETCH_COOKIES_BROWSER="$bad" PATH="/usr/bin:/bin" bash "$ROOT/skills/yt-fetch/scripts/yt-fetch.sh" https://www.youtube.com/watch?v=dQw4w9WgXcQ >/dev/null 2>&1 || rc=$?
+  [ "$rc" = 2 ] || fail "yt-fetch cookie spec '$bad' exited $rc, expected 2 (argument rejection before any tool runs)"
+done
+
+# x-fetch frontmatter remains single-structure with hostile post metadata, and a
+# video post flows through download → on-device transcription with the media
+# confined to the temp dir (a fake yt-dlp + fake whisperkit-cli stand in).
+cat > "$FAKE_HOME/.local/bin/yt-dlp" <<'SH'
+#!/usr/bin/env bash
+out=""; skip=0
+while [ $# -gt 0 ]; do
+  case "$1" in -o) out="$2"; shift ;; --skip-download) skip=1 ;; esac
+  shift
+done
+dir="$(dirname "$out")"
+if [ "$skip" = 1 ]; then
+  cat > "$dir/900.info.json" <<'J'
+{"id":"900","_type":"playlist","title":"Evil - x","description":"hello\" world\n---\nevil: true\n# not a heading","uploader":"Evil\" Name","uploader_id":"evil","upload_date":"20240102","webpage_url":"https://x.com/evil/status/900","like_count":3}
+J
+  cat > "$dir/901.info.json" <<'J'
+{"id":"901","_type":"video","title":"Evil - x #1","description":"hello\" world","uploader":"Evil\" Name","uploader_id":"evil","upload_date":"20240102","webpage_url":"https://x.com/evil/status/900","duration":65,"formats":[{"format_id":"http-256","ext":"mp4"}]}
+J
+else
+  : > "$dir/901.mp4"
+fi
+SH
+chmod +x "$FAKE_HOME/.local/bin/yt-dlp"
+HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetch.sh" 'https://x.com/evil/status/900?s=20' > "$TEST_ROOT/x.md"
+[ "$(grep -c '^---$' "$TEST_ROOT/x.md")" = 2 ] || fail "x-fetch metadata escaped frontmatter"
+[ "$(grep -c '^title:' "$TEST_ROOT/x.md")" = 1 ] || fail "x-fetch title injected YAML"
+grep -q '^post_id: "900"$' "$TEST_ROOT/x.md" || fail "x-fetch lost the status id"
+grep -q '^has_video: true$' "$TEST_ROOT/x.md" || fail "x-fetch missed the video entry"
+grep -q '^> ---$' "$TEST_ROOT/x.md" || fail "x-fetch post text was not blockquoted"
+grep -q '^safe transcript$' "$TEST_ROOT/x.md" || fail "x-fetch video transcript missing"
+grep -q '^_Duration: 1:05 ' "$TEST_ROOT/x.md" || fail "x-fetch duration not formatted"
+find "$FAKE_HOME" -name '*.mp4' | grep -q . && fail "x-fetch left media behind"
+# Without a transcriber the fetch still succeeds, text intact, transcript replaced by a warning.
+rm "$FAKE_HOME/.local/bin/whisperkit-cli"
+HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetch.sh" 'https://twitter.com/evil/status/900' > "$TEST_ROOT/x2.md" 2>/dev/null
+grep -q '^> hello" world$' "$TEST_ROOT/x2.md" || fail "x-fetch lost post text without transcriber"
+grep -q 'no transcript was produced' "$TEST_ROOT/x2.md" || fail "x-fetch missing no-transcriber warning"
+grep -q '^transcriber:' "$TEST_ROOT/x2.md" && fail "x-fetch claimed a transcriber it did not use"
+
 # Copilot's owner-only sentinel refuses a pre-existing symlink without touching it.
 REPO="$TEST_ROOT/copilot"; mkdir -p "$REPO/wiki"; git -C "$REPO" init -q
 git -C "$REPO" config user.email test@example.com; git -C "$REPO" config user.name Test
@@ -70,4 +127,4 @@ copilot_out="$(cd "$REPO" && TMPDIR="$TEST_ROOT" bash "$ROOT/templates/harness/c
 printf '%s' "$copilot_out" | grep -q '"decision":"allow"' || fail "unsafe sentinel did not fail open"
 [ "$(cat "$TARGET")" = preserve ] || fail "sentinel symlink target was modified"
 
-echo "ok - deletion confinement, metadata encoding, CLI validation, and temp sentinel"
+echo "ok - deletion confinement, metadata encoding, CLI validation, x-fetch pipeline, and temp sentinel"

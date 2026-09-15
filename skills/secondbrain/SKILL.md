@@ -4,7 +4,7 @@ description: >
   Bootstrap a generic, out-of-the-box LLM Wiki "second brain" on a fresh Mac.
   Installs Obsidian + community plugins, pulls the claude-obsidian plugin from its
   own marketplace, scaffolds a clean vault, wires the Obsidian MCP server, ships the
-  yt-fetch + voice-fetch + code-fetch + notebooklm-ingest source skills and the new-idea
+  yt-fetch + x-fetch + voice-fetch + code-fetch + notebooklm-ingest source skills and the new-idea
   origination scaffolder, and sets up git sync + backup.
   Interactive and idempotent. Triggers on: "set up my second brain",
   "/secondbrain", "bootstrap the wiki", "install the llm wiki on this machine",
@@ -97,17 +97,19 @@ if you need detail; summarize it for the user rather than dumping it.
    --yes` on a "run it" answer (the `--yes` is the relay of that single chat
    consent), or re-run without `--yes` after a self-install to re-check. The
    three features are not equal; frame each honestly:
-   - **YouTube (yt-fetch)** — the freebie. `brew install yt-dlp` — a passive CLI
-     binary (no daemon, no credentials, no data egress), so **recommend yes**.
-     Ask: "Want to ingest YouTube videos?"
+   - **YouTube + X posts (yt-fetch, x-fetch)** — the freebie. `brew install yt-dlp`
+     — a passive CLI binary (no daemon, no credentials, no data egress), so
+     **recommend yes**. The same binary reads X (Twitter) posts for x-fetch.
+     Ask: "Want to ingest YouTube videos and X posts?"
    - **Voice / audio (voice-fetch)** — the other freebie. `brew install
      whisperkit-cli` — transcribes fully on-device (CoreML/Neural Engine — no
      cloud, no credentials), so **recommend yes**. After the install (run-for-me
      *or* self-installed), the script **offers a one-time model warm-up**
      (default yes): it transcribes a 1-second generated clip, which downloads
      the CoreML model now (~a minute) and proves the pipeline — declining just
-     defers the same download to the first real transcription. Ask: "Want to
-     ingest voice memos and audio files?"
+     defers the same download to the first real transcription. Voice also lets
+     x-fetch transcribe X video posts. Ask: "Want to ingest voice memos and
+     audio files?"
    - **NotebookLM (notebooklm-ingest)** — **explicit opt-in** (`uv tool install
      notebooklm-py`). It sends the user's sources to Google for synthesis and
      needs a one-time interactive `notebooklm login` (OAuth) — say both *before*

@@ -46,7 +46,8 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   always ship; their runtimes are installed by **`bin/setup-features.sh`** (re-runnable;
   `setup-features.sh <vault> youtube|voice|notebooklm` targets one), which the
   `secondbrain` skill drives per-answer during setup instead of deferring. Driven by
-  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** and
+  `manifest.json → optionalFeatures`, which splits them: **YouTube/`yt-dlp`** (also
+  the runtime of `x-fetch`) and
   **Voice/`whisperkit-cli`** (on-device audio transcription; first run downloads a
   CoreML model once) carry
   `defaultEnabled: true` (harmless freebies — `offer_install` with Enter = run)
@@ -96,7 +97,11 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
  (greenfield origination-project scaffolder; vault-side templates +
  `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;
  `doctor` reports stale/unindexed projects, advisory only) + ported `yt-fetch` /
- `voice-fetch` / `notebooklm-ingest` + `code-fetch` (codebase reading pass: its
+ `voice-fetch` / `notebooklm-ingest` + `x-fetch` (X/Twitter post fetcher: `yt-dlp`
+ reads the post's text + metadata; a video post is downloaded to a temp dir and
+ transcribed on-device with `whisperkit-cli` when the voice feature is enabled,
+ else filed as text + a warning; lands `source_type: post` in `.raw/posts/`; shares
+ the `youtube` feature, no third consent) + `code-fetch` (codebase reading pass: its
  script stages a repo — shallow clone + inventory — then the agent reads the
  code itself and writes one semantic digest to `.raw/code/` for ingest; needs
  only `git`, so it is always available, not an optional feature). Each has a
@@ -159,6 +164,13 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   machine-global, so duplicates double-fire; any future hook must confine
   itself the same way. AGENTS.md and `hooks/README.md` carry the authoritative
   wording — keep this bullet in lockstep with them.
+- **Fetchers are anonymous by default; browser-cookie reuse is user-only.**
+  `yt-fetch`/`x-fetch` run `yt-dlp` with no cookies. `YT_FETCH_COOKIES_BROWSER` /
+  `X_FETCH_COOKIES_BROWSER` are per-run opt-ins the *user* sets; skills forbid the
+  agent from setting them, never suggest them for 429s, and the scripts accept
+  only a browser name + optional profile *name* (no paths — yt-dlp's syntax would
+  take one). Recommend Firefox + a spare account (Chrome → Keychain dialog,
+  Safari → Full Disk Access). Any new fetcher with a cookie hatch follows this.
 - **Auth probes must hit `/vault/`** (authenticated), not `/` (public, 200s with any
   key) — otherwise the key handshake isn't actually validated.
 - **Attribution:** wherever code references claude-obsidian's repo, credit AgriciDaniel

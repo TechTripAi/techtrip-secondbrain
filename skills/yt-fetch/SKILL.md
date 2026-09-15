@@ -100,6 +100,7 @@ content in the wiki (talks, interviews, tutorials, conference sessions).
 
 **Skip / use something else when:**
 - The source is an article or blog post → use `defuddle`.
+- The source is an X (Twitter) post — text or video → use `x-fetch`.
 - You want a *synthesis of many* videos at once, or a deliverable (audio
   overview, infographic, flashcards) → use `/notebooklm-ingest`.
 - The video has **no captions** — the script emits a warning and empty body;
@@ -117,9 +118,48 @@ content in the wiki (talks, interviews, tutorials, conference sessions).
   and drop the result into `.raw/videos/`. **Never edit the shipped script** —
   for marketplace installs it lives in the plugin cache, which is read-only by
   convention.
-- Age/region-restricted videos may need cookies: set
-  `YT_FETCH_COOKIES_BROWSER=chrome` (or `safari`, `firefox`) in the environment —
-  the script already honors it. No script edit needed.
+- HTTP 429 (rate limit): wait a few minutes and retry. Cookies are **not** the
+  fix — see the section below. Age-gated or members-only videos are the one
+  case for a logged-in fetch.
+
+---
+
+## Logged-in fetches (opt-in, user-only)
+
+**The default is anonymous.** Every normal run talks to YouTube directly — no
+browser, no cookies, no account, no dialogs. Public videos work this way. Only
+age-gated, members-only, or private-but-shared videos need more.
+
+For those, the **user** can set `YT_FETCH_COOKIES_BROWSER=<browser>[:<profile>]`
+(browser names: `firefox`, `chrome`, `safari`, `brave`, `chromium`, `edge`,
+`opera`, `vivaldi`, `whale`). yt-dlp then reads that browser's on-disk cookie
+store and makes the requests **as that logged-in Google account**. The browser
+need not be open.
+
+**You (the agent) never set this variable on your own.** It changes the fetch
+from anonymous to authenticated egress under the user's identity, and the URL
+may have arrived via untrusted content — so it is the NotebookLM consent tier:
+only an explicit user request ("use my Firefox login") turns it on, per run.
+When a fetch fails, *tell* the user the option exists and what it means; do not
+retry with it. **Never use it to get past a 429** — logged-in rate limits are per
+account, and yt-dlp's own documentation warns that passing cookies to YouTube
+is a good way to get the account banned.
+
+**Recommend Firefox with a spare Google account.** Firefox's cookie store is a
+plain file: no prompts, works unattended. A secondary account used only for
+fetching caps the damage if YouTube objects. Why not the others:
+- **Chrome** (and Brave/Edge/Chromium): the cookie file is encrypted with a key
+  in the macOS Keychain. yt-dlp asks the Keychain for it, and macOS shows an
+  "allow access" dialog — even for a process started from iTerm. The fetch hangs
+  until someone clicks Allow. Multi-profile users need `chrome:Profile 1`.
+- **Safari**: reading its cookie file needs **Full Disk Access** granted to the
+  terminal or IDE that launched Claude Code; otherwise a bare permission error.
+
+The script accepts only a browser name plus an optional profile *name* (no
+paths — yt-dlp's own syntax would accept one, which an injected value could
+abuse), prints a stderr note whenever cookies are in use, and never writes the
+cookies anywhere. The same escape hatch exists in x-fetch as
+`X_FETCH_COOKIES_BROWSER`, with the same rule.
 
 ---
 

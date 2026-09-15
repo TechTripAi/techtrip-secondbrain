@@ -33,7 +33,7 @@ The core LLM Wiki runtime (skills, hooks, vault scaffold) is provided entirely b
 
 `techtrip-secondbrain` only adds the pieces AgriciDaniel's plugin leaves to the user:
 a macOS bootstrapper (install Obsidian + community plugins), MCP wiring + repair,
-git sync setup, and our own `yt-fetch` / `voice-fetch` / `code-fetch` / `notebooklm-ingest` source skills
+git sync setup, and our own `yt-fetch` / `x-fetch` / `voice-fetch` / `code-fetch` / `notebooklm-ingest` source skills
 (original work — see the tool-dependency note below for the runtime tools they invoke).
 Full credit for the second-brain wiki system itself goes to AgriciDaniel.
 
@@ -58,7 +58,9 @@ under its own author and license.
   (`uv tool install notebooklm-py`) and drives its `notebooklm` CLI; none of its source
   lives in this repository. License: see the upstream repository.
 - **`yt-dlp`** — <https://github.com/yt-dlp/yt-dlp> (Unlicense). Our `yt-fetch` skill
-  calls it to pull captions and metadata.
+  calls it to pull captions and metadata; our `x-fetch` skill calls it to read an X
+  (Twitter) post's text + metadata and, for video posts, to download the clip for
+  on-device transcription.
 
 ## Defuddle — by kepano
 

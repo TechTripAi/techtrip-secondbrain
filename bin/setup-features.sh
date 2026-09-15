@@ -5,7 +5,7 @@
 # this script installs the runtime each one needs, so you can turn features on
 # now — or come back and add one later. Driven by manifest.json → optionalFeatures,
 # which splits them in two:
-#   - defaultEnabled:true  (YouTube/yt-dlp, Voice/whisperkit-cli) — harmless
+#   - defaultEnabled:true  (YouTube+X/yt-dlp, Voice/whisperkit-cli) — harmless
 #     freebies: passive CLIs, no daemon, no credentials, no data egress. Prompt
 #     defaults to YES; Enter installs, 'n' skips.
 #   - consentNote          (NotebookLM) — needs an explicit opt-in (data egress
@@ -42,16 +42,17 @@ info "Skills ship regardless; this installs the runtime they need. Safe to re-ru
 info "to add a feature later. YouTube is a default-yes freebie; NotebookLM needs"
 info "an explicit opt-in (you'll see why before the prompt)."
 
-# ── youtube (yt-fetch → yt-dlp) — the default-yes freebie ────────────────────
+# ── youtube (yt-fetch + x-fetch → yt-dlp) — the default-yes freebie ──────────
 feature_youtube() {
-  step "YouTube transcripts (yt-fetch)"
-  if have_cmd yt-dlp; then ok "yt-dlp already installed — yt-fetch is ready"; return; fi
+  step "YouTube transcripts + X posts (yt-fetch, x-fetch)"
+  if have_cmd yt-dlp; then ok "yt-dlp already installed — yt-fetch and x-fetch are ready"; return; fi
   local install; install="$(manifest_get 'm.optionalFeatures.find(f=>f.id==="youtube").install')"
-  info "yt-fetch needs yt-dlp to pull a video's transcript + metadata."
+  info "yt-fetch needs yt-dlp to pull a video's transcript + metadata; x-fetch uses the"
+  info "same binary to read an X (Twitter) post's text + metadata."
   info "It's a passive CLI binary — no daemon, no credentials — so this defaults to yes."
   have_cmd brew || { warn "Homebrew required for '$install'. Run bin/setup-deps.sh first."; return; }
   if offer_install "yt-dlp" "brew" "$install" "cmd:yt-dlp" run; then
-    ok "yt-fetch ready. Try: 'ingest this youtube url <link>'"
+    ok "yt-fetch + x-fetch ready. Try: 'ingest this youtube url <link>' or 'ingest this tweet <link>'"
   else info "Skipped YouTube. Enable later: bash bin/setup-features.sh youtube"; fi
 }
 
@@ -104,6 +105,7 @@ feature_voice() {
   local install; install="$(manifest_get 'm.optionalFeatures.find(f=>f.id==="voice").install')"
   info "voice-fetch transcribes local audio (Voice Memos, mp3, wav, …) on-device"
   info "via WhisperKit (CoreML/Neural Engine) — no cloud, no credentials, no daemon."
+  info "x-fetch uses the same engine to transcribe X (Twitter) video posts."
   have_cmd brew || { warn "Homebrew required for '$install'. Run bin/setup-deps.sh first."; return; }
   # Warm-up runs on every success path — run-for-me AND self-installed — so a
   # manual install still gets the one-time model download + pipeline proof.
