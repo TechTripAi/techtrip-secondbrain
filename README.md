@@ -216,7 +216,18 @@ All 25 skills below are installed together. Invoke one by name (for example,
 
 ## Install
 
-Install it like any Claude Code plugin:
+Install it like any Claude Code plugin. The recommended route is TechTrip AI's catalog,
+[TechTrip-AI-plugins](https://github.com/TechTripAi/TechTrip-AI-plugins), which lists
+everything TechTrip releases so you add one marketplace and install what you need:
+
+```
+claude plugin marketplace add TechTripAi/TechTrip-AI-plugins
+claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
+```
+
+This repository is also its own marketplace, so the older route keeps working for
+existing installs. New installs should prefer the catalog; this standalone marketplace
+will be retired in a later release.
 
 ```
 claude plugin marketplace add TechTripAi/techtrip-secondbrain
@@ -447,8 +458,12 @@ itself. **Recommended route** — refresh the catalog in the terminal, then
 update from inside Claude Code:
 
 ```
-claude plugin marketplace update          # terminal: refresh the catalog
+claude plugin marketplace update          # terminal: refresh every registered catalog
 ```
+
+If you installed from the TechTrip-AI-plugins catalog, the plugin id is
+`techtrip-secondbrain@TechTrip-AI-plugins`; from the standalone marketplace it is
+`techtrip-secondbrain@techtrip-secondbrain`. `claude plugin list` shows which you have.
 
 then in Claude Code: **`/plugin` → Manage plugins → update
 `techtrip-secondbrain`**. The in-app manager resolves the installed plugin

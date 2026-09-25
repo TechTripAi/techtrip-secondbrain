@@ -3,6 +3,17 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Changed
+- **Listed in the TechTrip-AI-plugins catalog.** `techtrip-secondbrain` now appears in
+  [TechTripAi/TechTrip-AI-plugins](https://github.com/TechTripAi/TechTrip-AI-plugins),
+  the single marketplace for everything TechTrip AI releases, as a github-sourced entry
+  pointing at this repository. New installs should use
+  `claude plugin install techtrip-secondbrain@TechTrip-AI-plugins`. This repository's
+  own `marketplace.json` remains so existing installs keep updating; it will be retired
+  in a later release. README install and update sections updated to match.
+
 ## [0.2.20] — 2026-09-15
 
 ### Added
