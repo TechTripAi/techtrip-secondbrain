@@ -2,25 +2,46 @@
 
 # System
 .DS_Store
+._*
 Thumbs.db
 
-# IDE
+# IDE / editors
 .idea/
+*.iml
 .vscode/
+*.swp
+*.swo
+*~
 
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Node
 node_modules/
 
+# Claude Code local state (per-user, never shared)
+.claude/settings.local.json
+.claude/*.local.json
+
+# skill-creator eval runs (evals.json is tracked; run output is not)
+skills/*/evals/runs/
+skills/*/evals/*.log
+
+# Scratch output
+*.log
+*.tmp
+
 # Local secrets / env
 .env
-.env.local
+.env.*
 
-# Private keys and credentials (defense-in-depth — never commit these)
+# Private keys and credentials (defense-in-depth; never commit these)
 *.pem
 *.key
 *.p12
