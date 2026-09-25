@@ -2,7 +2,7 @@
 # techtrip-secondbrain — update an existing second brain in place.
 #
 # Brings a machine that already ran the bootstrapper up to current:
-#   1. Refresh both marketplaces (techtrip-secondbrain + claude-obsidian).
+#   1. Refresh the TechTrip-AI-plugins catalog (serves techtrip-secondbrain + claude-obsidian).
 #   2. Update both Claude Code plugins to their latest versions.
 #   3. Re-run the idempotent vault scaffold so community plugins are re-pinned to
 #      this manifest's tags (verified by sha256) and any new plugins get added.

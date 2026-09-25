@@ -18,10 +18,11 @@ plugin leaves manual: installing Obsidian + community plugins, wiring/repairing 
 Obsidian MCP server, git sync + backup, and the ported source skills. See
 `ATTRIBUTION.md`.
 
-Install (same model as claude-obsidian):
+Install (from the TechTrip-AI-plugins catalog, which also lists the claude-obsidian fork;
+this repo has no marketplace.json of its own since 0.2.21):
 ```
-claude plugin marketplace add TechTripAi/techtrip-secondbrain
-claude plugin install techtrip-secondbrain@techtrip-secondbrain
+claude plugin marketplace add TechTripAi/TechTrip-AI-plugins
+claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
 ```
 
 ## Architecture
@@ -78,7 +79,7 @@ claude plugin install techtrip-secondbrain@techtrip-secondbrain
   this project's two-machine git model. DragonScale is out of scope; the script
   removes only the arming files (confirm-gated, default-NO, backed up) and never
   rewrites existing `address:` frontmatter.
-- **`bin/update.sh`** updates an existing install: refresh both marketplaces → update
+- **`bin/update.sh`** updates an existing install: refresh the catalog → update
   the `techtrip-secondbrain` + `claude-obsidian` plugins → re-run `setup-vault` to
   re-pin community plugins to the manifest tags → `doctor`. Never touches notes, git
   history, the MCP key, or feature choices.

@@ -3,16 +3,26 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.2.21] — 2026-09-25
 
 ### Changed
-- **Listed in the TechTrip-AI-plugins catalog.** `techtrip-secondbrain` now appears in
+- **Distributed through the TechTrip-AI-plugins catalog; standalone marketplace retired.**
+  `techtrip-secondbrain` is now an entry in
   [TechTripAi/TechTrip-AI-plugins](https://github.com/TechTripAi/TechTrip-AI-plugins),
-  the single marketplace for everything TechTrip AI releases, as a github-sourced entry
-  pointing at this repository. New installs should use
-  `claude plugin install techtrip-secondbrain@TechTrip-AI-plugins`. This repository's
-  own `marketplace.json` remains so existing installs keep updating; it will be retired
-  in a later release. README install and update sections updated to match.
+  the single marketplace for everything TechTrip AI releases. This repository's own
+  `.claude-plugin/marketplace.json` is removed. Install with
+  `claude plugin marketplace add TechTripAi/TechTrip-AI-plugins` and
+  `claude plugin install techtrip-secondbrain@TechTrip-AI-plugins`. Existing installs
+  from the old `techtrip-secondbrain` marketplace remove it and reinstall from the
+  catalog (README "Install").
+- **claude-obsidian is installed from the catalog too.** `manifest.json` now points
+  `claudePlugins[0].marketplace` at `TechTripAi/TechTrip-AI-plugins` with slug
+  `claude-obsidian@TechTrip-AI-plugins`; `setup-claude-obsidian.sh` needs no code change
+  since it reads both from the manifest, and its existing "installed from a different
+  marketplace" branch migrates a `techtripai-claude-obsidian` install to the catalog slug.
+  Fork posture note updated: upstream does not take the fork's changes, so the fork is
+  maintained independently.
+- README, CLAUDE.md, AGENTS.md and `bin/update.sh` comments updated to match.
 
 ## [0.2.20] — 2026-09-15
 

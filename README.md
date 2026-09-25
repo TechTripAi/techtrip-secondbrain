@@ -216,7 +216,7 @@ All 25 skills below are installed together. Invoke one by name (for example,
 
 ## Install
 
-Install it like any Claude Code plugin. The recommended route is TechTrip AI's catalog,
+Install it like any Claude Code plugin, from TechTrip AI's catalog
 [TechTrip-AI-plugins](https://github.com/TechTripAi/TechTrip-AI-plugins), which lists
 everything TechTrip releases so you add one marketplace and install what you need:
 
@@ -225,14 +225,10 @@ claude plugin marketplace add TechTripAi/TechTrip-AI-plugins
 claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
 ```
 
-This repository is also its own marketplace, so the older route keeps working for
-existing installs. New installs should prefer the catalog; this standalone marketplace
-will be retired in a later release.
-
-```
-claude plugin marketplace add TechTripAi/techtrip-secondbrain
-claude plugin install techtrip-secondbrain@techtrip-secondbrain
-```
+> Installed before 0.2.21 from this repository's own marketplace
+> (`techtrip-secondbrain@techtrip-secondbrain`)? That marketplace is retired. Run
+> `claude plugin marketplace remove techtrip-secondbrain`, then the two commands above,
+> then `/secondbrain` to migrate claude-obsidian to the catalog as well.
 
 Then, in Claude Code:
 
@@ -295,9 +291,9 @@ Example — after setup, tell Cursor something like:
 
 ```
 Read the skills under
-~/.claude/plugins/cache/techtripai-claude-obsidian/claude-obsidian/<version>/skills/
+~/.claude/plugins/cache/TechTrip-AI-plugins/claude-obsidian/<version>/skills/
 and
-~/.claude/plugins/cache/techtrip-secondbrain/techtrip-secondbrain/<version>/skills/.
+~/.claude/plugins/cache/TechTrip-AI-plugins/techtrip-secondbrain/<version>/skills/.
 Update yourself to use them against my vault at ~/LLM-Wiki — treat wiki-ingest,
 wiki-query, wiki-lint, yt-fetch, x-fetch, voice-fetch, code-fetch, notebooklm-ingest, and new-idea as first-class
 workflows, the same way Claude Code would.
@@ -461,9 +457,7 @@ update from inside Claude Code:
 claude plugin marketplace update          # terminal: refresh every registered catalog
 ```
 
-If you installed from the TechTrip-AI-plugins catalog, the plugin id is
-`techtrip-secondbrain@TechTrip-AI-plugins`; from the standalone marketplace it is
-`techtrip-secondbrain@techtrip-secondbrain`. `claude plugin list` shows which you have.
+The plugin id is `techtrip-secondbrain@TechTrip-AI-plugins`; `claude plugin list` shows it.
 
 then in Claude Code: **`/plugin` → Manage plugins → update
 `techtrip-secondbrain`**. The in-app manager resolves the installed plugin
@@ -481,7 +475,7 @@ marketplace has fresh scripts while you keep running the old ones.
 
 The CLI alternative is `claude plugin update techtrip-secondbrain` — but which
 spec it accepts depends on your Claude Code version: newer CLIs take the bare
-plugin name and reject `techtrip-secondbrain@techtrip-secondbrain`
+plugin name and reject `techtrip-secondbrain@TechTrip-AI-plugins`
 ("marketplace not found"), while older CLIs — e.g. 2.1.x — are the exact
 opposite ("Plugin not found" on the bare name). If one form errors, use the
 other (`bin/update.sh` tries both), or just use the in-app route above. Also
@@ -525,7 +519,7 @@ git pull                       # get the latest scripts + manifest
 bash bin/update.sh ~/LLM-Wiki  # substitute your vault path (or omit — the saved setup path is used)
 ```
 
-`update.sh` refreshes both marketplaces, updates the `techtrip-secondbrain` **and**
+`update.sh` refreshes the catalog, updates the `techtrip-secondbrain` **and**
 `claude-obsidian` plugins, re-runs the idempotent vault scaffold so community plugins
 are re-pinned to the manifest's tags (each asset re-verified against its `sha256`),
 reconciles the pinned MCP command with rollback on failure, and finishes with
@@ -592,8 +586,8 @@ ways) and the **vault content** (your notes — never reinstalled, always a
 - **Marketplace (most people):** install the plugin and let `/secondbrain`
   drive the setup — you never touch `bin/` directly:
   ```
-  claude plugin marketplace add TechTripAi/techtrip-secondbrain
-  claude plugin install techtrip-secondbrain@techtrip-secondbrain
+  claude plugin marketplace add TechTripAi/TechTrip-AI-plugins
+  claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
   ```
   Then run `/secondbrain` and tell it this is a second machine — **skip the
   vault scaffold** (`setup-vault.sh`); the vault arrives in step 2.

@@ -77,8 +77,9 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
   Detecting and *reporting* a defect (e.g. in `doctor.sh`) is fine; mutating the
   installed files is not.
 - **Every release that changes shipped files must bump the plugin `version`**
-  (in `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` — NOT the
-  repo's `manifest.json`, which has no version field).
+  (in `.claude-plugin/plugin.json` here AND the `techtrip-secondbrain` entry in the
+  TechTrip-AI-plugins catalog's `marketplace.json` — NOT the repo's `manifest.json`,
+  which has no version field).
   `claude plugin update` compares plugin-manifest versions, not file contents: an unbumped
   release makes `marketplace update` pull the new scripts into the marketplace clone
   while `plugin update` reports "already current" and leaves the registry pin
