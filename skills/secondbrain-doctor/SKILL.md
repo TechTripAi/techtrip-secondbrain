@@ -70,7 +70,7 @@ so the fix is upstream, not here.
    `techtrip-secondbrain`) — the in-app manager works on every Claude Code
    version, whereas the CLI's `claude plugin update` wants the bare name
    (`techtrip-secondbrain`) on newer CLIs but the full
-   `techtrip-secondbrain@techtrip-secondbrain` spec on older ones (e.g.
+   `techtrip-secondbrain@TechTrip-AI-plugins` spec on older ones (e.g.
    2.1.x); if one CLI form errors "not found", use the other or the in-app
    route. Restart/reload Claude Code, then
    re-run `/secondbrain`; **git clone** — `git pull` + `bash bin/update.sh <vault>`.
