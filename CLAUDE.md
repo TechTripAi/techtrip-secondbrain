@@ -93,7 +93,9 @@ claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
   with `scripts/pin-obsidian-plugins.sh` and review the manifest diff before
   committing.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
- check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
+ check + MCP repair) + `mode-fit` (post-install three-question check that the
+ `/wiki` mode fits real use; adds folders + filing rules or hands over a rebuild
+ prompt; records a Mode rationale block in the vault CLAUDE.md) + `brain-dump` (instructional usage tutorial — hands the user
  prompts to run, executes nothing; vault-agnostic, re-runnable) + `new-idea`
  (greenfield origination-project scaffolder; vault-side templates +
  `origination-workflow.md` ship in `assets/vault/`, seeded by `setup-vault.sh`;

@@ -30,7 +30,9 @@ Obsidian MCP server, git sync + backup, and the ported source skills.
 - **`scripts/install-obsidian-plugin.sh`** — installs a community plugin by downloading
   GitHub-release assets into `<vault>/.obsidian/plugins/<id>/`.
 - **`skills/`** — `secondbrain` (setup orchestrator) + `secondbrain-doctor` (integrity
-  check + MCP repair) + `brain-dump` (instructional usage tutorial — hands the user
+  check + MCP repair) + `mode-fit` (post-install three-question check that the
+  `/wiki` mode fits real use; adds folders + filing rules or hands over a rebuild
+  prompt; records a Mode rationale block in the vault CLAUDE.md) + `brain-dump` (instructional usage tutorial — hands the user
   prompts to run, executes nothing; vault-agnostic, re-runnable) + `new-idea`
   (greenfield origination-project scaffolder; its vault-side templates +
   `origination-workflow.md` live in `assets/vault/` and are seeded by

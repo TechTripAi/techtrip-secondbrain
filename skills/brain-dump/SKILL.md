@@ -1,6 +1,6 @@
 ---
 name: brain-dump
-description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, X/Twitter posts, voice memos/audio, codebases, NotebookLM), researching a topic with autoresearch, starting a greenfield idea with new-idea, what .raw/ and the hot cache are, maintenance (refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe deletion, archiving), two-machine sync, and enabling/disabling optional features — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, wiki tutorial, how do I use my wiki, walk me through the wiki, wiki maintenance, clean up my wiki, sync my vault / second machine, ingest a voice memo, enable youtube, turn on notebooklm."
+description: "Teaching guide for using a techtrip-secondbrain LLM Wiki. Explains every way to feed sources in (flat files, URLs, YouTube, X/Twitter posts, voice memos/audio, codebases, NotebookLM), researching a topic with autoresearch, starting a greenfield idea with new-idea, what .raw/ and the hot cache are, maintenance (refreshing stale pages, retracting bad sources, cleaning the .raw/ inbox, safe deletion, archiving), two-machine sync, the six wiki modes and whether yours fits (mode-fit), and enabling/disabling optional features — and hands you the exact prompts to run yourself. It teaches; it never ingests, fetches, or changes the vault for you. Menu-style and re-runnable any time. Triggers on: brain-dump, /brain-dump, wiki tutorial, how do I use my wiki, walk me through the wiki, wiki maintenance, clean up my wiki, sync my vault / second machine, ingest a voice memo, enable youtube, turn on notebooklm, which wiki mode, is my mode right, what are the wiki modes."
 allowed-tools: Read
 ---
 
@@ -144,7 +144,8 @@ Pick a section (or just say what you want — you're not stuck in a mode):
  11. Keep it lean & clean      — freshness, bad sources, delete, archive
  12. Optional features on/off  — YouTube + X, Voice, NotebookLM
  13. Second machine & sync     — clone it, keep it synced for free
- 14. Where to go next          — the rest of the toolkit
+ 14. Modes & mode fit          — the six layouts, custom modes, is mine right?
+ 15. Where to go next          — the rest of the toolkit
 ```
 
 Also mention — once, right here — that this tutorial is the **standing reference for
@@ -152,7 +153,7 @@ turning optional features on or off** (Section 12): it can be re-run any time, s
 do I enable NotebookLM?" three weeks from now is a `/brain-dump` away.
 
 Explain the chosen section, then invite them to pick another or move on. If they want
-the whole thing, walk 1 → 14 in order. Each section follows the same shape: **explain →
+the whole thing, walk 1 → 15 in order. Each section follows the same shape: **explain →
 give the copy-paste prompt → say what to expect.** You never run the prompt.
 
 ---
@@ -813,9 +814,63 @@ perfectly fine.
 
 ---
 
-## Section 14 — Where to go next
+## Section 14 — Modes & mode fit
+
+**Explain:** when `/wiki` scaffolded the vault it asked what the vault is for and
+chose a **mode**: a folder set, a frontmatter schema for the main note type, and the
+filing rules in the vault's `CLAUDE.md`. A mode is **not an Obsidian feature** and
+nothing enforces it; Claude reads those rules at the start of every ingest and files
+accordingly. That makes the mode the one part of the vault that is yours to shape,
+and the one thing worth getting right before the first ingest, because afterwards a
+change means re-filing pages.
+
+The six modes, by what you feed in and what you get out:
+
+| Mode | Feed in | Atomic unit | Get out |
+|------|---------|-------------|---------|
+| **A** Website / Sitemap | crawls, analytics, Search Console exports | a page per URL | content gaps, redirect map, keyword clusters |
+| **B** GitHub / Repository | README, git log, code, issues | a page per module | architecture overview, data flows, dependency graph |
+| **C** Business / Project | meetings, Slack, docs, competitor intel | a page per decision | stakeholder map, decision log, competitor landscape |
+| **D** Personal / Second Brain | journals, articles, podcasts, voice memos | a page per goal | north star, annual goals, weekly review |
+| **E** Research | papers, PDFs, web clips | a page per paper, with `supports` / `contradicts` | thesis pages, open questions |
+| **F** Book / Course | chapter notes, highlights | a page per concept or chapter | theme map, your own takeaways |
+
+Three things every user should know:
+
+- **Every mode keeps the same core.** `sources/`, `concepts/`, `entities/`,
+  `questions/`, and `projects/` exist in all of them, because ingest, autoresearch,
+  save, and new-idea file there regardless of mode. The mode adds folders on top.
+- **Modes combine.** A SaaS founder's vault is C plus D; a repo with a research
+  angle is B plus E; a YouTube channel is F plus E. Keep folder names distinct.
+- **Custom is normal.** Inputs pick the base mode, outputs add folders. Someone who
+  researches AI *to write articles and code* is Mode E plus a `writing/` folder plus
+  `projects/`, with a `papers/` vs `sources/` rule and a `gaps/` queue for
+  autoresearch. No stock mode has an output folder; most real vaults need one.
+
+**Is mine right? — Prompt — type into Claude Code:**
+```
+/mode-fit
+```
+**What to expect:** three questions with examples (what you will drop into `.raw/`
+most often; what you want out; who reads it and how fast the subject changes), then a
+verdict: *fits*, *insufficient* (right mode, a folder or rule is missing; it adds them
+on your yes), or *wrong* (it hands you a filled-in `/wiki` prompt to rebuild). It
+writes a "Mode rationale" block into the vault `CLAUDE.md` and a log entry either
+way, so the vault records why it is shaped the way it is. It runs as the last step of
+`/secondbrain` on a first install and can be re-run any time; once sources exist it
+will tell you a restructure is a migration and prefer adding over rebuilding.
+
+**Change the mode by hand instead:** edit the `Mode:` line and add or edit a "Filing
+rules" block in the vault `CLAUDE.md`, add the folders with an `_index.md` each, and add an
+index section per folder. That is the whole mechanism; the filing rules are what make
+it real.
+
+---
+
+## Section 15 — Where to go next
 
 - **`/wiki`** — scaffold vault structure/content from a one-sentence description.
+- **`/mode-fit`** — confirm the mode fits your use (Section 14); cheapest before the first ingest.
 - **Ask your wiki** — *"what do you know about X"*, *"search the wiki"* (wiki-query).
 - **`/new-idea`** — start an origination project (Section 8) whenever an idea needs a home.
 - **`/save`** — capture the current chat or an insight into the vault.

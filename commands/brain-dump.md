@@ -1,5 +1,5 @@
 ---
-description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, voice memos/audio, codebases, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
+description: Teaching guide for using your techtrip-secondbrain LLM Wiki — explains every ingestion type (files, URLs, YouTube, voice memos/audio, codebases, NotebookLM), topic research via autoresearch, starting a greenfield idea via new-idea, .raw/, the hot cache, maintenance (freshness, retracting bad sources, safe deletion, archiving), the six wiki modes and mode-fit, and enabling/disabling optional features, and hands you the exact prompts to run yourself. Re-runnable.
 ---
 
 Read the `brain-dump` skill. Then run it as a teaching guide.
@@ -39,19 +39,24 @@ Read the `brain-dump` skill. Then run it as a teaching guide.
   greenfield project (thesis → decisions → spec) when there's no source because the
   user *is* the source. Teach the hygiene rule: graduate or archive — don't hoard
   open projects (`/secondbrain-doctor` reports stale ones).
-- **Maintenance is a topic menu (Section 10):** freshness (lint's aging + stale-claims
+- **Maintenance is a topic menu (Section 11):** freshness (lint's aging + stale-claims
   reports), retracting bad sources, `.raw/` inbox hygiene (never hand-delete — archive,
   so provenance pointers follow the file), safe page deletion (blast radius shown
   first), and archiving — warm in-vault tiers plus a **passive** cold vault that must
   never get the Local REST API plugin (the live vault's MCP owns port 27124).
-- **Optional features (Section 11):** brain-dump is the standing reference for turning
+- **Optional features (Section 12):** brain-dump is the standing reference for turning
   YouTube / Voice / NotebookLM on or off after setup — enabling routes through
   `/secondbrain` (idempotent), disabling is a plain `brew`/`uv` uninstall the user
   runs themselves. Remind the user once, up front, that this section exists.
-- **Second machine & sync (Section 12):** plain git — clone the vault remote, run
+- **Second machine & sync (Section 13):** plain git — clone the vault remote, run
   `/secondbrain` (idempotent; mints a per-machine REST key), then the recurring sync
   is Shell-only (`git pull` before, `git push` after; single-writer rule). Stress the
   thrift point: sync costs **zero AI tokens** — never spend a prompt on a `git pull`.
+- **Modes & mode fit (Section 14):** a mode is a folder set plus the filing rules in
+  the vault `CLAUDE.md`, not an Obsidian feature; every mode keeps `sources/`,
+  `concepts/`, `entities/`, `questions/`, `projects/`; modes combine and custom is
+  normal (inputs pick the base, outputs add folders). Point at `/mode-fit` for the
+  three-question check; it is cheapest before the first ingest.
 - Show the menu, explain the chosen section, then invite the next one.
 
 This tour is re-runnable any time — it is not a one-and-done. Say so, and mention it

@@ -139,6 +139,15 @@ if you need detail; summarize it for the user rather than dumping it.
    health table. (The `obsidian` MCP will read red until Obsidian is open with the Local
    REST API plugin enabled **and Claude has been reloaded** — a still-red probe right
    after a fresh re-registration is expected, not a failure; say so.)
+11. **Mode fit** — defer to the **`mode-fit`** skill, in-session, once doctor is
+   green and the user has run `/wiki` (if they have not, point them at `/wiki` first
+   and run this step after). It asks three questions with examples (what goes into
+   `.raw/`, what should come out, who reads it and how fast it changes), gives a
+   verdict on the mode `/wiki` chose, and either records "fits", adds the missing
+   folders and filing rules, or hands over a filled-in `/wiki` rebuild prompt. It is
+   cheapest now, while `.raw/` is empty and a rebuild costs nothing; later it is a
+   migration. Do not skip it on a first install. On a re-run, skip it unless the
+   vault `CLAUDE.md` has no `## Mode rationale` block.
 
 Once the path is chosen in step 5, the scripts remember it (state file), so later
 steps can be run without re-passing it — but passing it explicitly is always fine.
@@ -152,7 +161,11 @@ steps can be run without re-passing it — but passing it explicitly is always f
 - Open the vault in Obsidian; if prompted, trust the vault and enable community
   plugins (Settings → Community plugins).
 - Run `/wiki` (from the now-installed `claude-obsidian` plugin) to scaffold content
-  from a one-sentence description of what the vault is for.
+  from a one-sentence description of what the vault is for. From claude-obsidian
+  1.9.8 it shows the six modes side by side before asking; a mode is a folder set plus filing rules, not an
+  Obsidian feature, and can be combined or customized.
+- Then run **`/mode-fit`** (step 11) to confirm the mode against real use. Say once
+  that it is re-runnable, and that it is cheapest before the first ingest.
 - Recap the optional-feature answers from step 8: which of YouTube / Voice /
   NotebookLM are on. Anything declined can be enabled later — re-run `/secondbrain`, or ask
   `/brain-dump`, which has a section walking through turning any feature on or off.

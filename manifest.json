@@ -117,6 +117,7 @@
   "skills": [
     { "id": "secondbrain",       "runtime": [], "note": "Setup orchestrator: drives the bin/ steps end-to-end (precheck → … → doctor)." },
     { "id": "secondbrain-doctor","runtime": [], "note": "Integrity check + MCP repair; wraps bin/doctor.sh and bin/repair-mcp.sh." },
+    { "id": "mode-fit", "runtime": [], "note": "Post-install mode-fit conversation: three questions, a verdict (fits / insufficient / wrong), then adds folders + filing rules or hands over a /wiki rebuild prompt. Records the rationale in the vault CLAUDE.md and log. Step 11 of /secondbrain; re-runnable." },
     { "id": "yt-fetch",          "runtime": ["yt-dlp"], "feature": "youtube" },
     { "id": "x-fetch",           "runtime": ["yt-dlp"], "feature": "youtube", "optionalRuntime": ["whisperkit-cli"],
       "note": "X (Twitter) post fetcher: yt-dlp supplies the post text + metadata (its X extractor works on text-only posts with --ignore-no-formats-error). When the post carries video, whisperkit-cli (the voice feature) transcribes it on-device; without it the post still lands as text + a warning. Shares the youtube feature — no third feature to consent to." },

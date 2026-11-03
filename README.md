@@ -169,7 +169,7 @@ is the LLM that maintains them behind the scenes.
 
 ## Skills included — what you can ingest and ask the AI to do
 
-All 25 skills below are installed together. Invoke one by name (for example,
+All of the skills below are installed together. Invoke one by name (for example,
 `/wiki-ingest`) or describe the job naturally; the agent uses the appropriate workflow.
 
 ### Bring knowledge in
@@ -234,8 +234,12 @@ All 25 skills below are installed together. Invoke one by name (for example,
   `/secondbrain` to set up or update a machine.
 - **`secondbrain-doctor`** — verify the stack and diagnose MCP connectivity; try “check
   my second brain.”
+- **`mode-fit`** — a three-question check that the wiki mode `/wiki` chose fits how
+  you will use the vault; adds missing folders and filing rules or hands you a rebuild
+  prompt. Runs as the last setup step; re-run with `/mode-fit` any time.
 - **`brain-dump`** — an interactive tutorial covering ingestion, research, origination,
-  maintenance, sync, and optional features; run `/brain-dump` whenever you need a tour.
+  maintenance, sync, wiki modes, and optional features; run `/brain-dump` whenever you
+  need a tour.
 
 ## How TechTrip-SecondBrain Makes Life Easy
 

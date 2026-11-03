@@ -5,6 +5,28 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- **`mode-fit` skill + `/mode-fit` command, and step 11 of `/secondbrain`.** A one-time
+  post-install conversation that checks whether the wiki mode `/wiki` chose fits how
+  the user will actually use the vault: three questions with examples (what goes into
+  `.raw/`, what should come out, who reads it and how fast it changes), a verdict
+  (fits / insufficient / wrong), then either a recorded "fits", added folders + filing
+  rules (additive, safe), or a filled-in `/wiki` rebuild prompt (empty vault only).
+  Always writes a `## Mode rationale` block to the vault `CLAUDE.md` and a log entry.
+  Re-runnable; once sources exist it says a restructure is a migration and prefers
+  adding over rebuilding. Motivation: a user picked Mode D from one-line labels for a
+  research-and-writing vault and discovered the mismatch only after scaffolding.
+- **`/brain-dump` Section 14 — Modes & mode fit.** The six modes side by side (feed in,
+  atomic unit, get out), the core folders every mode keeps, combining, why custom is
+  normal, and the `/mode-fit` prompt. "Where to go next" moves to Section 15.
+
+### Changed
+- `/secondbrain` after-setup guidance now sends users to `/wiki` and then `/mode-fit`,
+  notes that claude-obsidian 1.9.8+ shows the six modes side by side before asking, and
+  says once that a mode is a folder set plus filing rules, not an Obsidian feature.
+- `commands/brain-dump.md`: the maintenance / features / sync bullets now cite Sections
+  11 / 12 / 13, matching the skill (they were off by one).
+
 ## [0.2.22] — 2026-11-03
 
 ### Added
