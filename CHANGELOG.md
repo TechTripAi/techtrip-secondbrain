@@ -5,6 +5,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.22] — 2026-11-03
+
 ### Added
 - **Version floors for prerequisites.** `manifest.json` binaries may declare
   `minVersion` (X.Y). `precheck` and `doctor` report a binary that is present but below
