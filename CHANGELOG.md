@@ -14,7 +14,9 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   rules (additive, safe), or a filled-in `/wiki` rebuild prompt (empty vault only).
   Always writes a `## Mode rationale` block to the vault `CLAUDE.md` and a log entry.
   Re-runnable; once sources exist it says a restructure is a migration and prefers
-  adding over rebuilding. Motivation: a user picked Mode D from one-line labels for a
+  adding over rebuilding. On a `/secondbrain` re-run against a populated vault with no
+  Mode rationale block it offers `/mode-fit` in one line and stops, so updating stays a
+  no-op for existing vaults; a guided migration for earlier users is a future release. Motivation: a user picked Mode D from one-line labels for a
   research-and-writing vault and discovered the mismatch only after scaffolding.
 - **`/brain-dump` Section 14 — Modes & mode fit.** The six modes side by side (feed in,
   atomic unit, get out), the core folders every mode keeps, combining, why custom is

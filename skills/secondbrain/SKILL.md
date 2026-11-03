@@ -146,8 +146,12 @@ if you need detail; summarize it for the user rather than dumping it.
    verdict on the mode `/wiki` chose, and either records "fits", adds the missing
    folders and filing rules, or hands over a filled-in `/wiki` rebuild prompt. It is
    cheapest now, while `.raw/` is empty and a rebuild costs nothing; later it is a
-   migration. Do not skip it on a first install. On a re-run, skip it unless the
-   vault `CLAUDE.md` has no `## Mode rationale` block.
+   migration. Do not skip it on a first install or on an empty vault. On a re-run
+   where the vault already has sources: if the vault `CLAUDE.md` has a
+   `## Mode rationale` block, say nothing; if it has none, **offer in one line and
+   stop** ("this vault predates mode-fit; run `/mode-fit` any time to check whether
+   the layout still fits how you use it") rather than launching the questions, so an
+   update re-run stays a no-op for existing users.
 
 Once the path is chosen in step 5, the scripts remember it (state file), so later
 steps can be run without re-passing it — but passing it explicitly is always fine.
