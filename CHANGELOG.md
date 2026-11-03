@@ -8,6 +8,18 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 ## [0.2.22] — 2026-11-03
 
 ### Added
+- **Scaffolds lint-clean under claude-obsidian 1.9.7's deterministic engine.**
+  `setup-vault` seeds `.vault-meta/lint-allowlist.json` excluding `wiki/meta/templates/*`
+  (existence-guarded, never overwritten): the Obsidian Templates folder shares basenames
+  with every stamped project, so left in scope it made each in-project wikilink ambiguous.
+  The bundled origination workflow page gains `status` and `updated` and refers to the
+  template folder as a path instead of a wikilink; the project templates' `<[[...]]>`
+  placeholders are code spans (the engine ignores code). Result: a fresh scaffold and a
+  freshly stamped, index-registered project report zero findings.
+  `tests/test-lint-clean-scaffold.sh` proves it hermetically against a claude-obsidian
+  1.9.7 checkout or plugin cache (skips otherwise). Existing vaults: re-run
+  `bash bin/setup-vault.sh <vault>` to seed the lint config (it never overwrites), and
+  apply the two page edits above by hand or follow `lint the wiki`.
 - **Version floors for prerequisites.** `manifest.json` binaries may declare
   `minVersion` (X.Y). `precheck` and `doctor` report a binary that is present but below
   its floor as outdated (precheck counts it as missing), and `setup-deps` offers the

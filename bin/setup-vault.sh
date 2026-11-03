@@ -36,6 +36,24 @@ if [ ! -e "$VAULT_MARKER" ]; then
   fi
 fi
 
+# Lint configuration for claude-obsidian 1.9.7+'s deterministic engine
+# (scripts/wiki-lint.py). The Obsidian Templates folder is excluded: its pages
+# share basenames with every stamped project (project.md, thesis.md, ...), so
+# left in scope they make each in-project wikilink ambiguous. Existence-guarded:
+# a user-edited lint config is never overwritten.
+LINT_CONFIG="$VAULT/.vault-meta/lint-allowlist.json"
+if [ ! -e "$LINT_CONFIG" ]; then
+  if [ "$TSB_DRY_RUN" = "1" ]; then
+    info "[dry-run] would seed $LINT_CONFIG"
+  else
+    run "Create vault metadata directory" -- mkdir -p "$VAULT/.vault-meta"
+    run "Seed wiki-lint config (exclude wiki/meta/templates)" -- node -e '
+      require("fs").writeFileSync(process.argv[1],
+        JSON.stringify({exclude:["wiki/meta/templates/*"],dangling_links:[]},null,2)+"\n")
+    ' "$LINT_CONFIG"
+  fi
+fi
+
 # ── 1. Delegate base scaffold to claude-obsidian's own setup-vault.sh ─────────
 # claude-obsidian is by AgriciDaniel (MIT): https://github.com/AgriciDaniel/claude-obsidian
 step "Base scaffold (claude-obsidian, by AgriciDaniel)"

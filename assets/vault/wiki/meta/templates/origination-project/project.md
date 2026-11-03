@@ -35,6 +35,6 @@ this is the deliverable.>
 
 ## Related
 
-- Ancestor concepts: <[[...]]>
-- Area: <[[...]]>
+- Ancestor concepts: <`[[...]]`>
+- Area: <`[[...]]`>
 - Thesis: [[thesis]] · Spec: [[spec]] · Decisions: [[decisions]] · Open questions: [[open-questions]]

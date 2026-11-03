@@ -33,5 +33,5 @@ consistent with what you've decided.>
 
 ## Related
 
-- Ancestors: <[[...]]>
+- Ancestors: <`[[...]]`>
 - Project tracker: [[project]] · Spec: [[spec]] · Decisions: [[decisions]] · Open questions: [[open-questions]]

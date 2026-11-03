@@ -42,7 +42,7 @@ bottom of the file. Add a row when you add a `Dn`._
 
 **Consequences.** <What this forces next; new open questions.>
 
-**Basis / sources:** <[[...]] / author's call, {{date}}>
+**Basis / sources:** <`[[...]]` / author's call, {{date}}>
 
 -->
 

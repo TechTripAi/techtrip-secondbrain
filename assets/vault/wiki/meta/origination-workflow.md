@@ -1,7 +1,9 @@
 ---
 type: meta
 title: "Origination Workflow — Greenfield Loop"
+status: evergreen
 created: "2026-07-13"
+updated: "2026-11-03"
 tags:
   - meta
   - workflow
@@ -40,7 +42,7 @@ difference is the **mode of work**, not the amount of AI.
 **Frame → Mull → Decide → Reconcile → Log → Graduate**
 
 1. **Frame** — open the project (`wiki/projects/<slug>/` from the
-   [[templates/origination-project/project|template]], via `/new-idea` or the
+   `wiki/meta/templates/origination-project/` template, via `/new-idea` or the
    Obsidian Templates plugin). Write the **one-line claim** as a blockquote in
    `thesis.md`; seed `open-questions.md` with the unknowns.
 2. **Mull** — a thinking session (with AI or solo) against the thesis + open
