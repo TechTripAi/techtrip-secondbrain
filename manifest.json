@@ -31,7 +31,7 @@
       "marketplace": "TechTripAi/TechTrip-AI-plugins",
       "slug": "claude-obsidian@TechTrip-AI-plugins",
       "license": "MIT",
-      "testedVersion": "1.9.7",
+      "testedVersion": "1.9.8",
       "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's maintained fork (TechTripAi/claude-obsidian) via the TechTrip-AI-plugins catalog. Upstream does not take the fork's changes, so the fork is maintained independently and has diverged. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
     }
   ],

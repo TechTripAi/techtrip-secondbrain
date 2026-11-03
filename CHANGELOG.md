@@ -5,6 +5,13 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.24] — 2026-11-03
+
+### Changed
+- Track claude-obsidian **1.9.8** as the tested version (`manifest.json`
+  `claudePlugins[0].testedVersion`). 0.2.23 shipped with the pin still at 1.9.7, so
+  `doctor` showed an advisory version-drift row on every up-to-date machine.
+
 ## [0.2.23] — 2026-11-03
 
 ### Added
