@@ -22,6 +22,18 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
   atomic unit, get out), the core folders every mode keeps, combining, why custom is
   normal, and the `/mode-fit` prompt. "Where to go next" moves to Section 15.
 
+### Fixed
+- **WhisperKit error text no longer lands in the wiki as a transcript.** `whisperkit-cli`
+  reports some failures (unreadable media, CoreAudio errors) on stdout with exit 0;
+  `x-fetch` and `voice-fetch` now treat an `Error when transcribing` line as a failure
+  (x-fetch drops the clip and emits its no-transcript warning; voice-fetch exits 4).
+- **Fetch scripts honor `HOMEBREW_PREFIX`.** Every script that appends the Homebrew bin
+  dir to `PATH` now uses `${HOMEBREW_PREFIX:-/opt/homebrew}/bin`, so Intel Macs
+  (`/usr/local`) resolve brew binaries too. `tests/test-input-hardening.sh` points it at
+  an empty dir, which fixes the suite failing on any machine with a real `whisperkit-cli`
+  installed (the "no transcriber" case was finding the real binary through
+  `/opt/homebrew/bin`).
+
 ### Changed
 - `/secondbrain` after-setup guidance now sends users to `/wiki` and then `/mode-fit`,
   notes that claude-obsidian 1.9.8+ shows the six modes side by side before asking, and

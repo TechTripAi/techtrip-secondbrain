@@ -26,7 +26,7 @@
 set -euo pipefail
 # Preserve caller-provided shims first (tests and managed environments), then
 # add the standard macOS install locations.
-export PATH="$PATH:$HOME/.local/bin:/opt/homebrew/bin"
+export PATH="$PATH:$HOME/.local/bin:${HOMEBREW_PREFIX:-/opt/homebrew}/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 URL="${1:-}"
@@ -131,7 +131,12 @@ if [ -n "$VIDEO_IDS" ] && [ "${X_FETCH_TRANSCRIBE:-1}" != 0 ]; then
         [ -n "${VOICE_FETCH_MODEL:-}" ] && WK_OPTS+=( --model "$VOICE_FETCH_MODEL" )
         # WhisperKit prints the transcription to stdout; progress and any
         # one-time model download go to stderr on their own.
-        if ! whisperkit-cli "${WK_OPTS[@]}" > "$TMP/tx/$id.txt"; then
+        # WhisperKit reports some failures (unreadable media, CoreAudio errors) on
+        # stdout with exit 0, so a non-zero status is not the only failure signal:
+        # an "Error when transcribing" line is one too, and must not be emitted as
+        # the transcript.
+        if ! whisperkit-cli "${WK_OPTS[@]}" > "$TMP/tx/$id.txt" \
+           || grep -q '^Error when transcribing' "$TMP/tx/$id.txt"; then
           echo "warning: whisperkit-cli failed on video $id — its transcript will be missing." >&2
           echo "If this is the first run, the model download may have been interrupted; re-run to resume." >&2
           rm -f "$TMP/tx/$id.txt"

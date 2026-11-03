@@ -12,7 +12,7 @@
 set -euo pipefail
 # Preserve caller-provided shims first (tests and managed environments), then
 # add the standard macOS install locations.
-export PATH="$PATH:$HOME/.local/bin:/opt/homebrew/bin"
+export PATH="$PATH:$HOME/.local/bin:${HOMEBREW_PREFIX:-/opt/homebrew}/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ENCODER="$(cd "$SCRIPT_DIR/../../.." && pwd -P)/scripts/encode-text.js"
 
@@ -57,7 +57,10 @@ WK_OPTS=( transcribe --audio-path "$FILE" )
 # WhisperKit prints the transcription to stdout; progress/model-download chatter
 # goes to stderr on its own. Capture the text so stdout stays clean markdown.
 # First run may download a CoreML model (large, one-time, then fully local).
-if ! TRANSCRIPT="$(whisperkit-cli "${WK_OPTS[@]}")"; then
+# WhisperKit reports some failures (unreadable media, CoreAudio errors) on stdout
+# with exit 0, so also treat an "Error when transcribing" line as a failure.
+if ! TRANSCRIPT="$(whisperkit-cli "${WK_OPTS[@]}")" \
+   || grep -q '^Error when transcribing' <<<"$TRANSCRIPT"; then
   echo "whisperkit-cli failed for: $FILE" >&2
   echo "If this is the first run, the model download may have been interrupted —" >&2
   echo "re-run to resume. Check available disk space and network." >&2

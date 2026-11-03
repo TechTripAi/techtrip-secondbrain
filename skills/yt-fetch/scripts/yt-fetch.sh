@@ -7,7 +7,7 @@
 #
 # Requires: yt-dlp, python3.
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+export PATH="${HOMEBREW_PREFIX:-/opt/homebrew}/bin:$HOME/.local/bin:$PATH"
 
 URL="${1:-}"
 if [ -z "$URL" ]; then

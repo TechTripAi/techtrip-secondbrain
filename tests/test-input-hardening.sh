@@ -5,6 +5,12 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/tsb-input-hardening.XXXXXX")"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 fail() { echo "FAIL: $*" >&2; exit 1; }
+# The fetch scripts append $HOMEBREW_PREFIX/bin to PATH so Claude's shell finds brew
+# binaries; point it at an empty dir so a real whisperkit-cli/yt-dlp on this machine
+# can never leak into the fake-binary cases below.
+export HOMEBREW_PREFIX="$TEST_ROOT/brew"; mkdir -p "$HOMEBREW_PREFIX/bin"
+# The scripts' text encoder needs node; expose only that through the isolated prefix.
+ln -s "$(command -v node)" "$HOMEBREW_PREFIX/bin/node"
 
 # Encoder collapses structure-breaking controls and context-escapes output.
 yaml="$(node "$ROOT/scripts/encode-text.js" yaml $'bad"\n---\nevil: true')"
@@ -115,6 +121,18 @@ HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetc
 grep -q '^> hello" world$' "$TEST_ROOT/x2.md" || fail "x-fetch lost post text without transcriber"
 grep -q 'no transcript was produced' "$TEST_ROOT/x2.md" || fail "x-fetch missing no-transcriber warning"
 grep -q '^transcriber:' "$TEST_ROOT/x2.md" && fail "x-fetch claimed a transcriber it did not use"
+# WhisperKit can report a failure on stdout with exit 0; that text is not a transcript.
+cat > "$FAKE_HOME/.local/bin/whisperkit-cli" <<'SH'
+#!/usr/bin/env bash
+printf 'Error when transcribing %s: Error Domain=com.apple.coreaudio.avfaudio Code=2003334207\n' "$3"
+SH
+chmod +x "$FAKE_HOME/.local/bin/whisperkit-cli"
+HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/x-fetch/scripts/x-fetch.sh" 'https://x.com/evil/status/900' > "$TEST_ROOT/x3.md" 2>/dev/null
+grep -q 'Error when transcribing' "$TEST_ROOT/x3.md" && fail "x-fetch emitted whisperkit error text as a transcript"
+grep -q 'no transcript was produced' "$TEST_ROOT/x3.md" || fail "x-fetch missing warning after stdout-reported failure"
+rc=0; HOME="$FAKE_HOME" PATH="/usr/bin:/bin" bash "$ROOT/skills/voice-fetch/scripts/voice-fetch.sh" "$AUDIO" >/dev/null 2>"$TEST_ROOT/voice.err" || rc=$?
+[ "$rc" = 4 ] || fail "voice-fetch did not fail (exit 4) on whisperkit error text, got $rc"
+grep -q 'whisperkit-cli failed' "$TEST_ROOT/voice.err" || fail "voice-fetch missing failure message on whisperkit error text"
 
 # Copilot's owner-only sentinel refuses a pre-existing symlink without touching it.
 REPO="$TEST_ROOT/copilot"; mkdir -p "$REPO/wiki"; git -C "$REPO" init -q

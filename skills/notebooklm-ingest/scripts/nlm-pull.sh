@@ -12,7 +12,7 @@
 # Prints the produced .raw file path on success.
 # Requires: notebooklm (notebooklm-py), python3, and a completed `notebooklm login`.
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+export PATH="${HOMEBREW_PREFIX:-/opt/homebrew}/bin:$HOME/.local/bin:$PATH"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 SELECTOR=""

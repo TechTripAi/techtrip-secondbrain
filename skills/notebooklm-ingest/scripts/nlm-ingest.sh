@@ -10,7 +10,7 @@
 # Requires: notebooklm (notebooklm-py), python3, and a completed
 #   `notebooklm login` (auth is the user's one-time step).
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+export PATH="${HOMEBREW_PREFIX:-/opt/homebrew}/bin:$HOME/.local/bin:$PATH"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 TOPIC="${1:-}"

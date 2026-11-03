@@ -15,7 +15,7 @@
 #
 # Requires: node (already a hard dependency of techtrip-secondbrain).
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+export PATH="${HOMEBREW_PREFIX:-/opt/homebrew}/bin:$HOME/.local/bin:$PATH"
 
 # pwd -P: resolve through symlinks — the harness dirs (~/.agents/skills etc.)
 # link to the plugin cache, and a logical pwd would walk ../ from the link's

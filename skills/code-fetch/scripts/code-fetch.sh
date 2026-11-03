@@ -20,7 +20,7 @@
 # Env knobs (never edit this shipped script):
 #   CODE_FETCH_BRANCH=<branch>   clone a specific branch for git-URL sources
 set -euo pipefail
-export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+export PATH="${HOMEBREW_PREFIX:-/opt/homebrew}/bin:$HOME/.local/bin:$PATH"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ENCODER="$(cd "$SCRIPT_DIR/../../.." && pwd -P)/scripts/encode-text.js"
 
