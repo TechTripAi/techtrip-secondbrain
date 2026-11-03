@@ -6,21 +6,35 @@
 
 ## What is a "second brain"?
 
-The pattern comes from Andrej Karpathy's [**LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
-instead of dumping documents into a store and re-searching the raw pile on every
-question, an LLM **incrementally maintains a persistent wiki** — a compounding artifact
-of your own knowledge. Three layers: **raw sources** you curate, the **wiki** of
-LLM-written, cross-linked markdown pages, and a **schema** that governs how it's
-organized. You *ingest* a source (the model reads it and updates a handful of pages),
-*query* it (the model synthesizes an answer and files anything worth keeping back into
-the wiki), and *lint* it (health-checks for contradictions, staleness, and orphans).
+A second brain is a folder of notes that an AI keeps organized for you.
 
-Karpathy's insight is why this only works now: knowledge bases have always failed
-because "the maintenance burden grows faster than the value" — humans abandon them out
-of tedium. An LLM doesn't. It does the bookkeeping so the knowledge compounds instead of
-being re-derived each time; you curate sources and direct the analysis. `claude-obsidian`
-implements this pattern in Obsidian, and `techtrip-secondbrain` stands the whole thing
-up for you. *(See Karpathy's gist for the original write-up.)*
+You drop things in: an article, a YouTube video, a voice memo, a codebase, a conversation.
+The AI reads each one and writes what it learned into a set of short, linked notes, in
+plain Markdown files you can open in Obsidian or any text editor. When you ask a question,
+it answers from those notes and cites them. When something new contradicts or updates an
+older note, it fixes the note. Over months, the folder becomes a reliable record of what
+you know, written in your words and organized the way you think.
+
+The idea comes from Andrej Karpathy's
+[**LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). His
+point: people have always tried to keep personal knowledge bases, and they always die,
+because keeping one tidy takes more effort than it gives back. An AI does not get bored.
+It does the filing, the cross-linking, and the cleanup. You decide what goes in and what
+questions to ask.
+
+It works in three moves:
+
+- **Ingest.** Give it a source. It reads the source, updates a handful of notes, and
+  records where the information came from.
+- **Query.** Ask a question. It answers from your notes, and if the answer is worth
+  keeping, it files that too.
+- **Lint.** Every so often, it checks the whole folder for dead links, orphaned notes,
+  contradictions, and notes that have gone stale.
+
+Three things make it up: the **raw sources** you keep (never changed), the **wiki** of
+notes the AI writes, and a small set of **rules** for how notes are named, tagged, and
+linked. `claude-obsidian` implements this in Obsidian. `techtrip-secondbrain` installs
+and configures the whole thing on your Mac in one go.
 
 ## Requirements
 
