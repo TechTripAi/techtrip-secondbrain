@@ -147,7 +147,7 @@ install and use, with some added functionality:
    front-half that graduates back into the ingest pipeline.
 5. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
    through every ingestion type, topic research with `/autoresearch`, starting a
-   new idea, and the maintenance workflow.
+   new idea, the six wiki modes and `/mode-fit`, and the maintenance workflow.
 
 ## What is Obsidian?
 
@@ -410,10 +410,16 @@ These can't be automated:
 2. **Reload Claude Code** so the `claude-obsidian` skills/hooks and the `obsidian` MCP
    server activate. (/exit and then run `claude --resume`, alternatively you may do a `/reload-skills` followed by `/reload-plugins`)
 3. Run **`/wiki`** to scaffold content from a one-sentence description of the vault.
-4. If you enabled **NotebookLM**, run the one-time **`notebooklm login`** OAuth (setup
+   It shows the six wiki modes side by side first; a mode is a folder set plus filing
+   rules, not an Obsidian feature, and custom modes are normal.
+4. Run **`/mode-fit`** (also the last step of `/secondbrain`): three questions about
+   what you will feed in and what you want out, then a verdict on whether the mode
+   fits, with missing folders added or a rebuild prompt handed over. Cheapest now,
+   while the vault is empty.
+5. If you enabled **NotebookLM**, run the one-time **`notebooklm login`** OAuth (setup
    offers it, but it's interactive so you may have deferred it). Any feature you
    declined during setup can be enabled later — see below.
-5. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in,
+6. New to the wiki? Run **`/brain-dump`** for a guided tour of how to feed sources in,
    start a new idea with `/new-idea`, keep the vault healthy, and turn optional
    features on or off. `/secondbrain` offers to launch it once setup is green.
 
