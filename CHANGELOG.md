@@ -5,6 +5,17 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- **Version floors for prerequisites.** `manifest.json` binaries may declare
+  `minVersion` (X.Y). `precheck` and `doctor` report a binary that is present but below
+  its floor as outdated (precheck counts it as missing), and `setup-deps` offers the
+  install command to upgrade it instead of saying "already installed". The install
+  probe then demands the floor, so an older binary still first on PATH cannot pass.
+  First user: `python3` declares `3.11`, which claude-obsidian 1.9.7's lint engine
+  needs. macOS ships `/usr/bin/python3` 3.9.6, so a Mac without Homebrew Python used to
+  pass precheck and fail at the first lint. `tests/test-version-floor.sh` covers the
+  comparator, the probe, precheck, and setup-deps with shimmed interpreters.
+
 ### Changed
 - **README reordered for first-time readers.** "What is a second brain?" now opens the
   page, followed by Requirements and Install; the two release notes moved below "How

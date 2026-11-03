@@ -10,6 +10,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../scripts" && pwd)/common.sh"
 PRESENT_MARK="${_C_GRN}present${_C_RESET}"
 MISSING_MARK="${_C_YEL}missing${_C_RESET}"
 OPTIONAL_MARK="${_C_DIM}optional (off)${_C_RESET}"
+OUTDATED_MARK="${_C_YEL}outdated${_C_RESET}"
 missing=0
 
 row() { printf '   %-28s %s\n' "$1" "$2"; }
@@ -21,12 +22,15 @@ else warn "Non-macOS host ($(uname -s)) — MVP targets macOS; installers may no
 
 # ── Binaries ─────────────────────────────────────────────────────────────────
 step "Binaries"
-while IFS=$'\t' read -r cmd label install optional; do
+while IFS=$'\t' read -r cmd label install optional minv; do
   [ -n "$cmd" ] || continue
-  if have_cmd "$cmd"; then row "$label ($cmd)" "$PRESENT_MARK"
+  if binary_version_ok "$cmd" "$minv"; then row "$label ($cmd)" "$PRESENT_MARK${TSB_HAVE_VERSION:+ v$TSB_HAVE_VERSION}"
+  elif have_cmd "$cmd"; then
+    # Present but below the manifest floor: an outdated binary is a missing one.
+    row "$label ($cmd)" "$OUTDATED_MARK $(have_version_label) (need ≥ $minv)  → $install"; missing=$((missing+1))
   elif [ "$optional" = "1" ]; then row "$label ($cmd)" "$OPTIONAL_MARK  → bin/setup-features.sh"
   else row "$label ($cmd)" "$MISSING_MARK  → $install"; missing=$((missing+1)); fi
-done < <(manifest_get 'm.binaries.map(b=>[b.cmd,b.label||b.cmd,b.install||"",b.optional?"1":"0"].join("\t")).join("\n")')
+done < <(manifest_get 'm.binaries.map(b=>[b.cmd,b.label||b.cmd,b.install||"",b.optional?"1":"0",b.minVersion||""].join("\t")).join("\n")')
 
 # ── Apps ─────────────────────────────────────────────────────────────────────
 step "Applications"

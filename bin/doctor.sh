@@ -178,11 +178,12 @@ fi
 # Required binaries (manifest-driven; includes claude-obsidian runtime deps like flock).
 # Optional binaries are reported by the optional-features section below, not here.
 step "Required binaries"
-while IFS=$'\t' read -r cmd label install; do
+while IFS=$'\t' read -r cmd label install minv; do
   [ -n "$cmd" ] || continue
-  have_cmd "$cmd" && row "$label ($cmd)" "$OKM" \
-    || row "$label ($cmd)" "$BADM  → $install"
-done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')
+  if binary_version_ok "$cmd" "$minv"; then row "$label ($cmd)" "$OKM${TSB_HAVE_VERSION:+ v$TSB_HAVE_VERSION}"
+  elif have_cmd "$cmd"; then row "$label ($cmd)" "$BADM  $(have_version_label), below the ${minv} floor  → $install"
+  else row "$label ($cmd)" "$BADM  → $install"; fi
+done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||"",b.minVersion||""].join("\t")).join("\n")')
 
 # Community plugins present + enabled
 step "Community plugins"

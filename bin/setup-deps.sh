@@ -18,21 +18,29 @@ ok "Homebrew present"
 # Install each missing REQUIRED manifest binary via its declared brew command.
 # optional:true binaries power an optional skill/feature (e.g. yt-dlp → yt-fetch, x-fetch)
 # and are installed on demand by bin/setup-features.sh, not here.
-while IFS=$'\t' read -r cmd label install; do
+while IFS=$'\t' read -r cmd label install minv; do
   [ -n "$cmd" ] || continue
   [ "$cmd" = "brew" ] && continue
-  if have_cmd "$cmd"; then ok "$label ($cmd) already installed"; continue; fi
+  probe="cmd:$cmd"
+  if binary_version_ok "$cmd" "$minv"; then ok "$label ($cmd) already installed${TSB_HAVE_VERSION:+ (v$TSB_HAVE_VERSION)}"; continue; fi
+  if have_cmd "$cmd"; then
+    # Present but below the manifest floor (macOS ships python3 3.9; the lint
+    # engine needs 3.11). Offer the same install; the probe then demands the
+    # floor, so an older binary still first on PATH does not pass.
+    warn "$label ($cmd) is $(have_version_label); ${minv}+ is required."
+    probe="cmdver:$cmd:$minv"
+  fi
   # Only auto-run installs that are brew commands; anything else we just surface.
   # offer_install prints the exact command first, then run-for-me / self-install
   # (pause + re-check) / skip; its manifest_argv executes fixed argv (no shell),
   # so a manifest edit like "brew install git; curl … | sh" is rejected.
   case "$install" in
     "brew install "*)
-      offer_install "$label" "brew" "$install" "cmd:$cmd" skip \
+      offer_install "$label" "brew" "$install" "$probe" skip \
         || warn "Skipped $label — some features will not work." ;;
-    *) warn "$label ($cmd) missing; install manually: $install" ;;
+    *) warn "$label ($cmd) missing or outdated; install manually: $install" ;;
   esac
-done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||""].join("\t")).join("\n")')
+done < <(manifest_get 'm.binaries.filter(b=>!b.optional).map(b=>[b.cmd,b.label||b.cmd,b.install||"",b.minVersion||""].join("\t")).join("\n")')
 
 # Surface (but never auto-install) optional feature binaries.
 while IFS=$'\t' read -r cmd label; do

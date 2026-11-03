@@ -71,6 +71,51 @@ require_macos() {
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
+# ── Version floors (manifest binaries[].minVersion) ──────────────────────────
+# cmd_version <cmd>: print the installed "X.Y[.Z]" for a binary, or nothing.
+# python3 is probed through the interpreter itself (its --version banner is
+# "Python 3.9.6", fine, but the sys.version_info path is exact and survives
+# vendor banners); everything else takes the first X.Y[.Z] in `--version`.
+cmd_version() {
+  local cmd="$1"
+  have_cmd "$cmd" || return 1
+  case "$cmd" in
+    python3|python)
+      # Without the Xcode Command Line Tools, /usr/bin/python3 is a stub that pops
+      # the xcode-select install dialog when run. Skip the probe in that case; the
+      # empty result reads as "version unreadable", which is reported as outdated.
+      if [ "$(command -v "$cmd")" = "/usr/bin/$cmd" ] && ! xcode-select -p >/dev/null 2>&1; then return 1; fi
+      "$cmd" -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])' 2>/dev/null ;;
+    *) "$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 ;;
+  esac
+}
+# version_ge <have> <min>: numeric component compare ("3.15.2" >= "3.11" → 0).
+version_ge() {
+  local have="$1" min="$2" i h m
+  local -a H M
+  IFS=. read -r -a H <<<"$have"; IFS=. read -r -a M <<<"$min"
+  for i in 0 1 2; do
+    h="${H[$i]:-0}"; m="${M[$i]:-0}"
+    case "$h$m" in *[!0-9]*) return 1 ;; esac
+    if [ "$h" -gt "$m" ]; then return 0; fi
+    if [ "$h" -lt "$m" ]; then return 1; fi
+  done
+  return 0
+}
+# have_version_label: "v3.9.6" or "version unreadable" from the last probe.
+have_version_label() { if [ -n "${TSB_HAVE_VERSION:-}" ]; then printf 'v%s' "$TSB_HAVE_VERSION"; else printf 'version unreadable'; fi; }
+# binary_version_ok <cmd> <min>: 0 when present and (no floor or at/above it).
+# Sets TSB_HAVE_VERSION for callers that want to print it.
+binary_version_ok() {
+  local cmd="$1" min="${2:-}"
+  TSB_HAVE_VERSION=""
+  have_cmd "$cmd" || return 1
+  [ -n "$min" ] || return 0
+  TSB_HAVE_VERSION="$(cmd_version "$cmd" || true)"
+  [ -n "$TSB_HAVE_VERSION" ] || return 1
+  version_ge "$TSB_HAVE_VERSION" "$min"
+}
+
 # ── Cross-script state: remember the chosen vault path ───────────────────────
 # NOTE: hooks/doctor-reminder.sh reimplements the state-dir path and the
 # load_vault_path read-back validation (it deliberately doesn't source this
@@ -302,13 +347,34 @@ confirm_phrase() {
 
 # ── Probe spec resolver for offer_install ────────────────────────────────────
 # "cmd:<binary>" → command lookup ('hash -r' first: a just-installed binary
-# must not be masked by bash's stale command-hash); "path:<abs path>" →
-# existence check (so a DMG-installed app passes, not just the brew cask).
+# must not be masked by bash's stale command-hash); "cmdver:<binary>:<X.Y>" →
+# command lookup plus a version floor (an upgrade that leaves an older binary
+# first on PATH must not pass); "path:<abs path>" → existence check (so a
+# DMG-installed app passes, not just the brew cask).
 _probe_ok() {
+  local spec rest
   case "$1" in
     cmd:*)  hash -r 2>/dev/null; have_cmd "${1#cmd:}" ;;
+    cmdver:*)
+      hash -r 2>/dev/null
+      rest="${1#cmdver:}"
+      binary_version_ok "${rest%%:*}" "${rest#*:}" ;;
     path:*) [ -e "${1#path:}" ] ;;
     *)      die "unknown probe spec: $1" ;;
+  esac
+}
+
+# For a cmdver: probe that still fails after an install, name the usual cause:
+# an older binary earlier on PATH (macOS /usr/bin/python3 ahead of Homebrew's),
+# or Homebrew's copy already installed but old (then `brew install` is a no-op).
+_probe_path_hint() {
+  case "$1" in
+    cmdver:*)
+      local rest="${1#cmdver:}" cmd found
+      cmd="${rest%%:*}"; found="$(command -v "$cmd" 2>/dev/null || echo "not on PATH")"
+      warn "\`command -v $cmd\` resolves to $found (v${TSB_HAVE_VERSION:-unreadable}); the floor is ${rest#*:}."
+      warn "If Homebrew's bin (\`brew --prefix\`/bin) is behind /usr/bin on PATH, move it ahead and open a new shell."
+      warn "If Homebrew already has an older $cmd, upgrade it: brew upgrade ${cmd%3}" ;;
   esac
 }
 
@@ -370,6 +436,7 @@ offer_install() {
         run "Installing $label" -- "${TSB_CMD_ARGV[@]}" || true
         if _probe_ok "$probe"; then ok "$label installed"; return 0; fi
         warn "$label still not detected after install (probe: $probe)."
+        _probe_path_hint "$probe"
         ;;
       [sS])
         info "Run it in another terminal:"
@@ -384,6 +451,7 @@ offer_install() {
         if _probe_ok "$probe"; then ok "$label detected — continuing"; return 0; fi
         warn "Still can't find $label (probe: $probe). A fresh install may need a new"
         warn "shell for PATH changes — pick [s] again to re-check, [r] to run it here, or [n] to skip."
+        _probe_path_hint "$probe"
         ;;
       [nN]|[nN][oO]|[sS][kK][iI][pP])
         warn "Skipped $label. bin/precheck.sh will flag it as missing; re-run /secondbrain to be offered it again."

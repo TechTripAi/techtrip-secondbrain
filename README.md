@@ -229,7 +229,9 @@ All 25 skills below are installed together. Invoke one by name (for example,
 `techtrip-secondbrain` closes that gap:
 
 - **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
-  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
+  dependency (`uv`, `node`, `flock`, `python3` 3.11+, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
+  Version floors come from the manifest: macOS ships Python 3.9, which precheck reports as
+  outdated and setup-deps offers to upgrade, so the lint engine never fails on it later.
 - **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
   MCP server so Claude can read and write the vault out of the box — no hand-editing
   `~/.claude.json`.
@@ -334,7 +336,7 @@ re-run for marketplace installs).
 | Step | Script | Result |
 |------|--------|--------|
 | Precheck | `bin/precheck.sh` | audit machine vs `manifest.json` (report-only) |
-| Dependencies | `bin/setup-deps.sh` | Homebrew + `uv`, `node`, `flock`, `python3` |
+| Dependencies | `bin/setup-deps.sh` | Homebrew + `uv`, `node`, `flock`, `python3` (3.11+; upgrades the macOS 3.9) |
 | Obsidian | `bin/setup-obsidian.sh` | `brew install --cask obsidian` |
 | claude-obsidian | `bin/setup-claude-obsidian.sh` | marketplace add + plugin install |
 | Vault | `bin/setup-vault.sh <path>` | scaffold vault + install community plugins |
