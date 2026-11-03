@@ -9,7 +9,7 @@
     { "cmd": "flock",  "label": "flock",     "install": "brew install flock",
       "note": "Runtime dependency of claude-obsidian's wiki-lock.sh + allocate-address.sh (per-file write locking, DragonScale address counter). Not shipped with macOS; both call sites fail hard without it." },
     { "cmd": "python3", "label": "Python 3", "install": "brew install python",
-      "note": "Runtime dependency of claude-obsidian's setup-retrieve.sh and setup-mode.sh. Usually present via Xcode CLT; declared so precheck/doctor verify it on fresh machines." },
+      "note": "Runtime dependency of claude-obsidian's setup-retrieve.sh, setup-mode.sh, and (1.9.7+) scripts/wiki-lint.py, the deterministic lint engine, which needs Python 3.11 or newer. Usually present via Xcode CLT; declared so precheck/doctor verify it on fresh machines. brew install python satisfies the 3.11 floor." },
     { "cmd": "yt-dlp", "label": "yt-dlp",    "install": "brew install yt-dlp", "optional": true,
       "feature": "youtube",
       "note": "Only needed by the yt-fetch and x-fetch skills (yt-dlp's X extractor supplies an X post's text + metadata, not just video). Not installed by setup-deps; bin/setup-features.sh installs it (the youtube feature is the default-yes freebie during setup)." },
@@ -31,7 +31,7 @@
       "marketplace": "TechTripAi/TechTrip-AI-plugins",
       "slug": "claude-obsidian@TechTrip-AI-plugins",
       "license": "MIT",
-      "testedVersion": "1.9.6",
+      "testedVersion": "1.9.7",
       "note": "Original plugin by AgriciDaniel (https://github.com/AgriciDaniel/claude-obsidian), MIT. Installed from TechTripAi's maintained fork (TechTripAi/claude-obsidian) via the TechTrip-AI-plugins catalog. Upstream does not take the fork's changes, so the fork is maintained independently and has diverged. Attribution and license remain AgriciDaniel/MIT. The CLI can't pin versions, so testedVersion is advisory: precheck, setup-claude-obsidian, and doctor surface a non-failing drift note when the installed version differs."
     }
   ],

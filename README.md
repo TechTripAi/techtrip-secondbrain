@@ -4,66 +4,6 @@
   <img src="img/FellowshipOfTheAgents.png" alt="techtrip-secondbrain: LLM Wiki Build and Enhancement of AgriciDaniel Claude Code and Obsidian" width="100%" />
 </p>
 
-> [!NOTE]
-> **v0.2.17 is out:** external software (brew/uv installs, the Obsidian app) is
-> now instruct-then-offer — setup always shows you the exact command, then asks
-> whether to run it or let you install it yourself and re-checks after. The
-> maintained fork moves to claude-obsidian 1.9.6, which stops overwriting your
-> tuned Obsidian settings on updates. See the [CHANGELOG](CHANGELOG.md) for
-> details.
-
-> [!NOTE]
-> **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
-> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (by
-> [AgriciDaniel](https://github.com/AgriciDaniel), MIT) from a lightly-patched fork we
-> maintain — [`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian) —
-> rather than directly from upstream. Upstream is backlogged on bug fixes (e.g. an invalid
-> `SessionStart` hook that errors at launch, [issue #116](https://github.com/AgriciDaniel/claude-obsidian/issues/116)),
-> and installing his current build breaks on setup. The fork carries **bug fixes only** — no
-> feature divergence — tracks upstream for periodic sync, and stays under AgriciDaniel's
-> copyright + MIT license. Fixes are filed upstream too. Already on the upstream copy?
-> `bin/setup-claude-obsidian.sh` (and `bin/doctor.sh`) detect it and offer a one-step migration.
-
-**One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
-fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
-[**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
-[**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
-TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
-bug-fixes-plus-proposed-PRs, tracks upstream), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
-`x-fetch`, `voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
-scaffolder, and sets up git sync + backup — all interactive and idempotent.
-
-> **TechTrip Second Brain is an orchestrator.** It installs the
-> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
-> ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) at setup time — from a
-> **lightly-patched fork we maintain** ([TechTripAi/claude-obsidian](https://github.com/TechTripAi/claude-obsidian))
-> that carries bug fixes upstream is backlogged on (fixes only, no feature divergence;
-> tracks upstream for sync, and fixes are filed upstream too). It fills only the OS-level
-> and sync gaps the plugin leaves to you — nothing of his is copied into this repo. The
-> MVP produces a **generic empty scaffold** (no personal content) that you grow yourself.
-> Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
-
-## Why this exists
-
-`techtrip-secondbrain` does exactly five things — it makes `claude-obsidian` easy to
-install and use, with some added functionality:
-
-1. **Automates installation** of `claude-obsidian` and everything around it
-   (Obsidian, community plugins, dependencies, MCP wiring, sync).
-2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
-   `doctor`/`repair-mcp` diagnose and fix anything broken after.
-3. **Adds five ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
-   transcripts), `x-fetch` (X/Twitter posts, with on-device transcripts for video
-   posts), `voice-fetch` (on-device audio transcription), `code-fetch`
-   (codebases read by the agent into one semantic digest — architecture, API
-   contracts, purpose), and `notebooklm-ingest` (NotebookLM synthesis).
-4. **Adds origination** — `/new-idea` scaffolds a greenfield project
-   (thesis → decisions → spec) for the ideas *you* originate, the generative
-   front-half that graduates back into the ingest pipeline.
-5. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
-   through every ingestion type, topic research with `/autoresearch`, starting a
-   new idea, and the maintenance workflow.
-
 ## What is a "second brain"?
 
 The pattern comes from Andrej Karpathy's [**LLM Wiki**](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
@@ -81,128 +21,6 @@ of tedium. An LLM doesn't. It does the bookkeeping so the knowledge compounds in
 being re-derived each time; you curate sources and direct the analysis. `claude-obsidian`
 implements this pattern in Obsidian, and `techtrip-secondbrain` stands the whole thing
 up for you. *(See Karpathy's gist for the original write-up.)*
-
-## What is Obsidian?
-
-[**Obsidian**](https://obsidian.md) is a free, local-first note-taking app that stores
-everything as plain **Markdown files in a folder on your disk** — that folder is called a
-**vault**. There's no proprietary database and no mandatory cloud: your notes are just
-`.md` files you fully own, readable and editable by any tool (including Claude). Obsidian
-treats `[[wikilinks]]` between notes as first-class, so a vault naturally becomes a
-**graph of interconnected pages** rather than a flat pile of documents — exactly the
-shape an LLM Wiki wants.
-
-Two things make it the right home for a second brain: **it's just files** (so Claude can
-read and write pages directly, and git can version every change), and **it's extensible**
-via community plugins and a Local REST API. `techtrip-secondbrain` leans on both — it
-installs Obsidian plus a curated set of community plugins, then wires the REST API so the
-`obsidian` MCP server lets Claude operate on the vault. In this stack Obsidian is the
-**human-facing surface** (you read, browse, and edit notes there) while `claude-obsidian`
-is the LLM that maintains them behind the scenes.
-
-## Skills included — what you can ingest and ask the AI to do
-
-All 25 skills below are installed together. Invoke one by name (for example,
-`/wiki-ingest`) or describe the job naturally; the agent uses the appropriate workflow.
-
-### Bring knowledge in
-
-- **`wiki-ingest`** — ingest local files, URLs, or batches; try “ingest this PDF” or
-  “add these files to my wiki.”
-- **`defuddle`** — turn a cluttered article page into clean Markdown before ingesting;
-  try “clean and ingest this URL.”
-- **`yt-fetch`** — fetch a YouTube transcript and metadata, then hand it to ingest;
-  try “add this YouTube video to my wiki.”
-- **`x-fetch`** — fetch an X (Twitter) post's text and metadata, transcribing any
-  video in it on-device, then hand it to ingest; try “ingest this tweet.”
-- **`voice-fetch`** — transcribe a voice memo or audio file on-device, then ingest it;
-  try “transcribe and ingest this `.m4a`.”
-- **`code-fetch`** — read a local or remote repository and create one semantic digest
-  covering its purpose, architecture, APIs, and operation; try “ingest this repo.”
-- **`notebooklm-ingest`** — synthesize several sources with NotebookLM or pull an
-  existing notebook into the wiki; try “combine these links into one research report.”
-- **`autoresearch`** — research a topic iteratively on the web and file the findings;
-  try “research passkeys deeply and build a wiki on it.”
-- **`save`** — turn the current conversation, answer, or insight into a structured wiki
-  note; try “save this analysis to my wiki.”
-
-### Use and develop what you know
-
-- **`wiki-query`** — answer from the vault with citations in quick, standard, or deep
-  mode; try “based on my wiki, what do I know about passkeys?”
-- **`wiki-retrieve`** — opt-in hybrid BM25 and semantic retrieval for relevant passages;
-  try “find the most relevant chunks about authentication.”
-- **`think`** — apply a structured ten-principle thinking loop to a difficult problem;
-  try “think this decision through.”
-- **`new-idea`** — scaffold a greenfield project from thesis through decisions and spec;
-  try “start a new idea for an AI support product.”
-- **`canvas`** — create or update Obsidian canvases with notes, text, images, and PDFs;
-  try “make a canvas for this project.”
-- **`obsidian-bases`** — create dynamic table, card, or list views over vault notes;
-  try “make a reading-list base grouped by status.”
-- **`wiki-mode`** — organize new material using Generic, LYT, PARA, or Zettelkasten;
-  try “switch this vault to PARA mode.”
-
-### Maintain the knowledge base
-
-- **`wiki-lint`** — find stale claims, orphan pages, dead links, missing metadata, and
-  provenance gaps; try “health-check my wiki.”
-- **`wiki-archive`** — move retired pages or cold raw sources out of the live graph while
-  preserving their bookkeeping; try “archive this finished project.”
-- **`wiki-delete`** — safely delete a page after showing its backlinks and impact;
-  try “delete this wiki page.”
-- **`wiki-fold`** — roll recent log entries into an extractive summary page; try “fold
-  the wiki log.”
-- **`wiki-cli`** — read, write, search, and modify notes through Obsidian CLI with a
-  filesystem fallback; this transport is normally selected automatically.
-- **`obsidian-markdown`** — apply correct wikilinks, embeds, callouts, properties, tags,
-  and other Obsidian syntax; it supports note-writing workflows automatically.
-
-### Set up and learn the system
-
-- **`wiki`** — scaffold the wiki from a one-sentence description and manage its hot
-  cache; start with `/wiki` after installation.
-- **`secondbrain`** — install and configure the complete SecondBrain stack; run
-  `/secondbrain` to set up or update a machine.
-- **`secondbrain-doctor`** — verify the stack and diagnose MCP connectivity; try “check
-  my second brain.”
-- **`brain-dump`** — an interactive tutorial covering ingestion, research, origination,
-  maintenance, sync, and optional features; run `/brain-dump` whenever you need a tour.
-
-## How TechTrip-SecondBrain Makes Life Easy
-
-`claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
-`techtrip-secondbrain` closes that gap:
-
-- **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
-  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
-- **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
-  MCP server so Claude can read and write the vault out of the box — no hand-editing
-  `~/.claude.json`.
-- **Source-ingestion skills** — ships `yt-fetch` (YouTube), `x-fetch` (X/Twitter
-  posts — text + metadata, video posts transcribed on-device), `voice-fetch` (voice
-  memos / local audio, transcribed on-device), `code-fetch` (codebases — the
-  agent reads the code and distills one semantic digest, never file-by-file),
-  and `notebooklm-ingest` (NotebookLM) as first-class skills for pulling
-  material into the vault.
-- **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
-  (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
-  decisions log, spec) from a seeded template for the ideas you originate yourself;
-  the seeded `origination-workflow` page documents the loop
-  (Frame → Mull → Decide → Reconcile → Log → Graduate), including an
-  end-of-session check that every changed content page has an honest `updated:`
-  date; `doctor` reports incomplete project metadata and nudges stale projects
-  toward graduate-or-archive.
-- **Guided onboarding** — ships `/brain-dump`, an instructional tutorial that walks you
-  through every ingestion type, `.raw/`, the hot cache, starting a new idea, keeping
-  the vault lean, and turning optional features on or off, and hands you the exact
-  prompts to run yourself. It teaches; it never changes your vault. Re-runnable any time.
-- **Cross-machine sync** — git remote: auto-commit gives history and recovery, the
-  remote gives backup, and a second machine is just a `git clone`.
-- **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
-  `secondbrain-doctor` skill diagnoses and repairs the common "MCP registered globally
-  but won't connect" failure.
-- **One command** — `/secondbrain` drives the whole interactive setup end to end.
 
 ## Requirements
 
@@ -275,6 +93,192 @@ Then, in Claude Code:
 > vault still has a `.stignore`, setup offers to
 > remove that project-created artifact. Full details are in the
 > [CHANGELOG](CHANGELOG.md).
+
+**One-command bootstrapper for a generic, out-of-the-box LLM Wiki "second brain" on a
+fresh Mac.** It installs Obsidian and a select set of community plugins, pulls the
+[**`claude-obsidian`**](https://github.com/AgriciDaniel/claude-obsidian) plugin — by
+[**AgriciDaniel**](https://github.com/AgriciDaniel), MIT — from a **lightly-patched fork
+TechTrip maintains** ([`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian),
+bug fixes plus maintenance skills and deterministic lint), scaffolds a clean vault, wires the Obsidian MCP server, ships the `yt-fetch`,
+`x-fetch`, `voice-fetch`, `code-fetch`, and `notebooklm-ingest` source skills plus the `new-idea` origination
+scaffolder, and sets up git sync + backup — all interactive and idempotent.
+
+> **TechTrip Second Brain is an orchestrator.** It installs the
+> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
+> ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) at setup time — from a
+> **lightly-patched fork we maintain** ([TechTripAi/claude-obsidian](https://github.com/TechTripAi/claude-obsidian))
+> that carries bug fixes upstream is backlogged on, plus maintenance skills and a
+> deterministic lint engine upstream does not ship in this form (see the fork's
+> CHANGELOG). It fills only the OS-level
+> and sync gaps the plugin leaves to you — nothing of his is copied into this repo. The
+> MVP produces a **generic empty scaffold** (no personal content) that you grow yourself.
+> Credits: [ATTRIBUTION.md](ATTRIBUTION.md).
+
+## Why this exists
+
+`techtrip-secondbrain` does exactly five things — it makes `claude-obsidian` easy to
+install and use, with some added functionality:
+
+1. **Automates installation** of `claude-obsidian` and everything around it
+   (Obsidian, community plugins, dependencies, MCP wiring, sync).
+2. **Prechecks and post-checks** — `precheck` audits the machine before setup, and
+   `doctor`/`repair-mcp` diagnose and fix anything broken after.
+3. **Adds five ingest options** claude-obsidian doesn't ship: `yt-fetch` (YouTube
+   transcripts), `x-fetch` (X/Twitter posts, with on-device transcripts for video
+   posts), `voice-fetch` (on-device audio transcription), `code-fetch`
+   (codebases read by the agent into one semantic digest — architecture, API
+   contracts, purpose), and `notebooklm-ingest` (NotebookLM synthesis).
+4. **Adds origination** — `/new-idea` scaffolds a greenfield project
+   (thesis → decisions → spec) for the ideas *you* originate, the generative
+   front-half that graduates back into the ingest pipeline.
+5. **Teaches you the wiki** — `/brain-dump`, a guided tutorial that walks a new user
+   through every ingestion type, topic research with `/autoresearch`, starting a
+   new idea, and the maintenance workflow.
+
+## What is Obsidian?
+
+[**Obsidian**](https://obsidian.md) is a free, local-first note-taking app that stores
+everything as plain **Markdown files in a folder on your disk** — that folder is called a
+**vault**. There's no proprietary database and no mandatory cloud: your notes are just
+`.md` files you fully own, readable and editable by any tool (including Claude). Obsidian
+treats `[[wikilinks]]` between notes as first-class, so a vault naturally becomes a
+**graph of interconnected pages** rather than a flat pile of documents — exactly the
+shape an LLM Wiki wants.
+
+Two things make it the right home for a second brain: **it's just files** (so Claude can
+read and write pages directly, and git can version every change), and **it's extensible**
+via community plugins and a Local REST API. `techtrip-secondbrain` leans on both — it
+installs Obsidian plus a curated set of community plugins, then wires the REST API so the
+`obsidian` MCP server lets Claude operate on the vault. In this stack Obsidian is the
+**human-facing surface** (you read, browse, and edit notes there) while `claude-obsidian`
+is the LLM that maintains them behind the scenes.
+
+## Skills included — what you can ingest and ask the AI to do
+
+All 25 skills below are installed together. Invoke one by name (for example,
+`/wiki-ingest`) or describe the job naturally; the agent uses the appropriate workflow.
+
+### Bring knowledge in
+
+- **`wiki-ingest`** — ingest local files, URLs, or batches; try “ingest this PDF” or
+  “add these files to my wiki.”
+- **`defuddle`** — turn a cluttered article page into clean Markdown before ingesting;
+  try “clean and ingest this URL.”
+- **`yt-fetch`** — fetch a YouTube transcript and metadata, then hand it to ingest;
+  try “add this YouTube video to my wiki.”
+- **`x-fetch`** — fetch an X (Twitter) post's text and metadata, transcribing any
+  video in it on-device, then hand it to ingest; try “ingest this tweet.”
+- **`voice-fetch`** — transcribe a voice memo or audio file on-device, then ingest it;
+  try “transcribe and ingest this `.m4a`.”
+- **`code-fetch`** — read a local or remote repository and create one semantic digest
+  covering its purpose, architecture, APIs, and operation; try “ingest this repo.”
+- **`notebooklm-ingest`** — synthesize several sources with NotebookLM or pull an
+  existing notebook into the wiki; try “combine these links into one research report.”
+- **`autoresearch`** — research a topic iteratively on the web and file the findings;
+  try “research passkeys deeply and build a wiki on it.”
+- **`save`** — turn the current conversation, answer, or insight into a structured wiki
+  note; try “save this analysis to my wiki.”
+
+### Use and develop what you know
+
+- **`wiki-query`** — answer from the vault with citations in quick, standard, or deep
+  mode; try “based on my wiki, what do I know about passkeys?”
+- **`wiki-retrieve`** — opt-in hybrid BM25 and semantic retrieval for relevant passages;
+  try “find the most relevant chunks about authentication.”
+- **`think`** — apply a structured ten-principle thinking loop to a difficult problem;
+  try “think this decision through.”
+- **`new-idea`** — scaffold a greenfield project from thesis through decisions and spec;
+  try “start a new idea for an AI support product.”
+- **`canvas`** — create or update Obsidian canvases with notes, text, images, and PDFs;
+  try “make a canvas for this project.”
+- **`obsidian-bases`** — create dynamic table, card, or list views over vault notes;
+  try “make a reading-list base grouped by status.”
+- **`wiki-mode`** — organize new material using Generic, LYT, PARA, or Zettelkasten;
+  try “switch this vault to PARA mode.”
+
+### Maintain the knowledge base
+
+- **`wiki-lint`** — a deterministic engine finds orphan pages, dead links, and missing
+  metadata (same report whether Claude, Codex, or Copilot runs it), then the model adds
+  stale claims and provenance gaps; try “health-check my wiki.”
+- **`wiki-archive`** — move retired pages or cold raw sources out of the live graph while
+  preserving their bookkeeping; try “archive this finished project.”
+- **`wiki-delete`** — safely delete a page after showing its backlinks and impact;
+  try “delete this wiki page.”
+- **`wiki-fold`** — roll recent log entries into an extractive summary page; try “fold
+  the wiki log.”
+- **`wiki-cli`** — read, write, search, and modify notes through Obsidian CLI with a
+  filesystem fallback; this transport is normally selected automatically.
+- **`obsidian-markdown`** — apply correct wikilinks, embeds, callouts, properties, tags,
+  and other Obsidian syntax; it supports note-writing workflows automatically.
+
+### Set up and learn the system
+
+- **`wiki`** — scaffold the wiki from a one-sentence description and manage its hot
+  cache; start with `/wiki` after installation.
+- **`secondbrain`** — install and configure the complete SecondBrain stack; run
+  `/secondbrain` to set up or update a machine.
+- **`secondbrain-doctor`** — verify the stack and diagnose MCP connectivity; try “check
+  my second brain.”
+- **`brain-dump`** — an interactive tutorial covering ingestion, research, origination,
+  maintenance, sync, and optional features; run `/brain-dump` whenever you need a tour.
+
+## How TechTrip-SecondBrain Makes Life Easy
+
+`claude-obsidian` gives you the wiki runtime but leaves the machine setup to you.
+`techtrip-secondbrain` closes that gap:
+
+- **Zero-touch OS setup** — installs Obsidian, the community plugins, and every binary
+  dependency (`uv`, `node`, `flock`, `python3`, optional `yt-dlp`/`whisperkit-cli`) via Homebrew, all idempotent.
+- **Turnkey MCP wiring** — generates the Local REST API key and registers the `obsidian`
+  MCP server so Claude can read and write the vault out of the box — no hand-editing
+  `~/.claude.json`.
+- **Source-ingestion skills** — ships `yt-fetch` (YouTube), `x-fetch` (X/Twitter
+  posts — text + metadata, video posts transcribed on-device), `voice-fetch` (voice
+  memos / local audio, transcribed on-device), `code-fetch` (codebases — the
+  agent reads the code and distills one semantic digest, never file-by-file),
+  and `notebooklm-ingest` (NotebookLM) as first-class skills for pulling
+  material into the vault.
+- **Origination skill** — ships `/new-idea`, which scaffolds a greenfield project
+  (`wiki/projects/<slug>/`: tracker, thesis workbench, open questions, append-only
+  decisions log, spec) from a seeded template for the ideas you originate yourself;
+  the seeded `origination-workflow` page documents the loop
+  (Frame → Mull → Decide → Reconcile → Log → Graduate), including an
+  end-of-session check that every changed content page has an honest `updated:`
+  date; `doctor` reports incomplete project metadata and nudges stale projects
+  toward graduate-or-archive.
+- **Guided onboarding** — ships `/brain-dump`, an instructional tutorial that walks you
+  through every ingestion type, `.raw/`, the hot cache, starting a new idea, keeping
+  the vault lean, and turning optional features on or off, and hands you the exact
+  prompts to run yourself. It teaches; it never changes your vault. Re-runnable any time.
+- **Cross-machine sync** — git remote: auto-commit gives history and recovery, the
+  remote gives backup, and a second machine is just a `git clone`.
+- **Health & repair tooling** — `precheck` audits the machine against a manifest, and the
+  `secondbrain-doctor` skill diagnoses and repairs the common "MCP registered globally
+  but won't connect" failure.
+- **One command** — `/secondbrain` drives the whole interactive setup end to end.
+
+> [!NOTE]
+> **v0.2.17 is out:** external software (brew/uv installs, the Obsidian app) is
+> now instruct-then-offer — setup always shows you the exact command, then asks
+> whether to run it or let you install it yourself and re-checks after. The
+> maintained fork moves to claude-obsidian 1.9.6, which stops overwriting your
+> tuned Obsidian settings on updates. See the [CHANGELOG](CHANGELOG.md) for
+> details. The fork's 1.9.7 adds a deterministic lint engine that gives every
+> harness (Claude, Codex, Copilot) the identical health report.
+
+> [!NOTE]
+> **Now installs from a maintained fork.** As of this release, techtrip-secondbrain installs
+> [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) (by
+> [AgriciDaniel](https://github.com/AgriciDaniel), MIT) from a lightly-patched fork we
+> maintain — [`TechTripAi/claude-obsidian`](https://github.com/TechTripAi/claude-obsidian) —
+> rather than directly from upstream. Upstream is backlogged on bug fixes (e.g. an invalid
+> `SessionStart` hook that errors at launch, [issue #116](https://github.com/AgriciDaniel/claude-obsidian/issues/116)),
+> and installing his current build breaks on setup. The fork started as bug fixes only; it
+> now also carries maintenance skills (`wiki-delete`, `wiki-archive`, source retraction,
+> staleness aging) and, as of 1.9.7, a deterministic lint engine vendored from upstream
+> 3.0.1. It stays under AgriciDaniel's copyright + MIT license. Already on the upstream copy?
+> `bin/setup-claude-obsidian.sh` (and `bin/doctor.sh`) detect it and offer a one-step migration.
 
 ## Not Claude-only — use with Cursor, Copilot CLI, and other harnesses
 

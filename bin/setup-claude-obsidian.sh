@@ -4,7 +4,7 @@
 # claude-obsidian is by AgriciDaniel (MIT):
 #   profile:  https://github.com/AgriciDaniel
 #   upstream: https://github.com/AgriciDaniel/claude-obsidian
-#   fork:     https://github.com/TechTripAi/claude-obsidian  (bug-fixes-only; tracks upstream)
+#   fork:     https://github.com/TechTripAi/claude-obsidian  (maintained independently; fixes + maintenance skills + deterministic lint)
 # We do NOT vendor or copy his work into this repo. We install from a lightly-patched
 # fork (fixes upstream is backlogged on, e.g. issue #116) so users get a working plugin;
 # those fixes are filed upstream too. Marketplace/slug come from manifest.json. See ATTRIBUTION.md.

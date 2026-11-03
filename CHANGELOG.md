@@ -3,6 +3,18 @@
 All notable changes to `techtrip-secondbrain` are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Changed
+- **README reordered for first-time readers.** "What is a second brain?" now opens the
+  page, followed by Requirements and Install; the two release notes moved below "How
+  TechTrip-SecondBrain Makes Life Easy." No content was changed, only order.
+- **Tested fork version is claude-obsidian 1.9.7**, which ships a deterministic lint
+  engine (`scripts/wiki-lint.py`, Python 3.11+) so Claude Code, Codex, and Copilot all
+  produce the same `wiki-lint` report. `manifest.json` notes the Python floor on the
+  `python3` prerequisite; precheck and doctor surface the usual non-failing drift note
+  on machines still running 1.9.6.
+
 ## [0.2.21] — 2026-09-25
 
 ### Changed
