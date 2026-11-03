@@ -5,6 +5,8 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.23] — 2026-11-03
+
 ### Added
 - **`mode-fit` skill + `/mode-fit` command, and step 11 of `/secondbrain`.** A one-time
   post-install conversation that checks whether the wiki mode `/wiki` chose fits how
