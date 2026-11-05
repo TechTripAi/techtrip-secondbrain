@@ -66,6 +66,7 @@ claude plugin marketplace add TechTripAi/TechTrip-AI-plugins
 claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
 ```
 
+> [!NOTE]
 > Installed before 0.2.21 from this repository's own marketplace
 > (`techtrip-secondbrain@techtrip-secondbrain`)? That marketplace is retired. Run
 > `claude plugin marketplace remove techtrip-secondbrain`, then the two commands above,
@@ -79,6 +80,7 @@ Then, in Claude Code:
 
 …and follow the interactive workflow. Or run the scripts directly from a git clone; see [How it works](docs/how-it-works.md#running-it-manually-on-the-command-line-git-clone-only).
 
+> [!TIP]
 > **TechTrip Second Brain is an orchestrator.** It installs the
 > [`claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian) LLM Wiki runtime
 > ([AgriciDaniel](https://github.com/AgriciDaniel), MIT) at setup time — from a

@@ -101,25 +101,29 @@ and hook versions load.
 > re-offers on any re-run. The maintained fork is pinned to **1.9.6**: updates
 > stop overwriting user-tuned `.obsidian` settings, and the fork's own installs
 > (Excalidraw download, home-directory symlinks) now ask first.
->
-> Since v0.2.16, `/new-idea` makes
+
+> [!NOTE]
+> **Since v0.2.16,** `/new-idea` makes
 > freshness metadata part of Reconcile and the end-of-session ritual. Existing
 > vault-local templates gain the missing `project.md` field through a narrow,
 > idempotent migration; customized workflows that cannot be patched safely are
 > preserved with a manual-merge warning. Existing project content is never
 > bulk-stamped with a misleading current date.
->
-> Since v0.2.15, `code-fetch` is an
+
+> [!NOTE]
+> **Since v0.2.15,** `code-fetch` is an
 > agent reading pass: its script stages the codebase (a shallow clone for git URLs,
 > local paths read in place, plus an inventory), then the agent reads the README,
 > entry points, API surface, and tests and writes one semantic digest to `.raw/code/`.
 > It needs only `git`, so it is always available rather than an optional feature.
->
-> Also since v0.2.7, **`bin/reset-vault.sh`** can empty a vault after a verified
+
+> [!NOTE]
+> **Since v0.2.7,** **`bin/reset-vault.sh`** can empty a vault after a verified
 > backup (keeping MCP wiring by default, or retiring and re-scaffolding with
 > `--scorch`), **`doctor`** audits the manifest's skill list against the installed
 > plugin cache, and claude-obsidian is pinned to **1.9.6**.
->
+
+> [!WARNING]
 > **Still on 0.1.0?** v0.2.0 removed Syncthing support; git is now the only sync
 > path. See [Updating an existing secondbrain](#updating-an-existing-secondbrain),
 > using either the [plugin marketplace](#if-you-installed-via-the-marketplace-most-people)
