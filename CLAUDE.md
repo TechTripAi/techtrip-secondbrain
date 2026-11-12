@@ -206,3 +206,6 @@ multi-vault-per-machine.
 - License: **FSL-1.1-MIT** (`LICENSE.md`) — source-available, converts to MIT 2 years
   after each release. Copyright 2026 Terry Trippany (Try AI Solutions).
 - Owner/repo: `TechTripAi/techtrip-secondbrain`.
+- Packaging, naming and release rules for every TechTrip plugin:
+  https://github.com/TechTripAi/TechTrip-AI-plugins/blob/main/docs/packaging.md
+  (the catalog's `docs/packaging.md`). Follow it; do not restate it here.
