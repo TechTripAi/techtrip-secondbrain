@@ -182,7 +182,15 @@ claude plugin install techtrip-secondbrain@TechTrip-AI-plugins
 
 ## Testing
 
-No test suite yet. Validate changes with:
+`tests/*.sh` are hermetic: each builds what it needs under a temporary directory with a
+fake `HOME`, and touches no real vault or user state. CI runs them, with a shell syntax
+check, on macOS for every pull request and on `main` (`.github/workflows/test.yml`); `main`
+accepts changes only through a pull request with that job green.
+```
+for t in tests/*.sh; do bash "$t" || echo "FAIL $t"; done   # the test suite
+```
+
+For changes the tests do not reach, validate by hand with:
 ```
 for f in bin/*.sh scripts/*.sh; do bash -n "$f"; done      # syntax
 bash bin/precheck.sh                                        # report-only audit
